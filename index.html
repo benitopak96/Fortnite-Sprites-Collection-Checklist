@@ -95,7 +95,6 @@
   
   .username-input:focus { border-color: var(--gold); }
 
-  /* Static element that replaces the input field only during generation */
   .username-static {
     display: none;
     font-family: 'Bebas Neue', sans-serif;
@@ -135,19 +134,15 @@
     transition: transform 0.1s ease;
   }
 
-  /* Social Export Mode Changes */
+  /* Social Export Mode Constraints */
   .social-export-mode {
     width: 600px !important; 
     padding: 15px !important;
   }
 
-  .social-export-mode .username-input {
-    display: none !important;
-  }
-
-  .social-export-mode .username-static {
-    display: block !important;
-  }
+  .social-export-mode .username-input { display: none !important; }
+  .social-export-mode .username-static { display: block !important; }
+  .social-export-mode .max-row-btn { display: none !important; } /* Hide row utility buttons on screenshot */
 
   .social-export-mode .header {
     padding-left: 6px !important;
@@ -166,18 +161,9 @@
     border-radius: 8px !important;
   }
 
-  .social-export-mode .sprite-name {
-    font-size: 13px !important;
-  }
-
-  .social-export-mode .variants-row {
-    gap: 3px !important;
-  }
-
-  .social-export-mode .variant-icon {
-    width: 26px !important;
-    height: 26px !important;
-  }
+  .social-export-mode .sprite-name { font-size: 13px !important; }
+  .social-export-mode .variants-row { gap: 3px !important; }
+  .social-export-mode .variant-icon { width: 26px !important; height: 26px !important; }
 
   .social-export-mode .toggle {
     padding: 4px 2px !important;
@@ -209,6 +195,7 @@
   .sprite-info {
     display: flex;
     align-items: center;
+    justify-content: space-between; /* Keeps row alignment elegant */
     gap: 10px;
   }
 
@@ -218,6 +205,24 @@
     letter-spacing: 0.5px;
     line-height: 1;
     text-transform: uppercase;
+  }
+
+  .max-row-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    color: var(--ink-dim);
+    background: #161b27;
+    border: 1px solid #1d2331;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.1s ease;
+  }
+
+  .max-row-btn:hover {
+    color: var(--gold);
+    border-color: var(--gold);
   }
 
   .variants-row {
@@ -244,6 +249,8 @@
     cursor: pointer;
     transition: all 0.15s ease;
     user-select: none;
+    -webkit-user-select: none; /* Prevents text selection during long press on iOS */
+    -webkit-touch-callout: none; /* Disables standard iOS popup menu */
   }
 
   .toggle:hover { border-color: #3a4154; }
@@ -265,6 +272,7 @@
     object-fit: contain;
     opacity: 0.3;
     transition: opacity 0.15s ease;
+    pointer-events: none; /* Smooths touch handling on images */
   }
 
   .toggle.have .variant-icon { opacity: 0.75; }
@@ -276,6 +284,7 @@
     letter-spacing: 0.1px;
     line-height: 1.1;
     margin-top: 2px;
+    pointer-events: none;
   }
 
   .toggle.have .toggle-label { color: var(--have); }
@@ -397,6 +406,10 @@ SPRITES.forEach(s => {
 const STORAGE_KEY = "sprite-checklist-state-v11";
 let state = null;
 
+// Tracking variable blocks for touch gesture handling
+let touchTimer = null;
+let isLongPress = false;
+
 function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -425,7 +438,10 @@ function saveState() {
   }
 }
 
-function cycleLevel(spriteId, variant) {
+// Native tap handler
+function handleTileTap(spriteId, variant) {
+  if (isLongPress) return; // Ignore standard execution paths if a hold was tracked
+  
   let currentLevel = state.inventory[spriteId][variant] || 0;
   let nextLevel = currentLevel + 1;
   if (nextLevel > 5) nextLevel = 0;
@@ -435,11 +451,60 @@ function cycleLevel(spriteId, variant) {
   render();
 }
 
+// Long-press shortcut implementation
+function handleLongPress(spriteId, variant) {
+  state.inventory[spriteId][variant] = 5; // Fast forward directly to MAX level
+  saveState();
+  render();
+}
+
+// Max-out row shortcut implementation
+function maxEntireRow(spriteId) {
+  const sprite = SPRITES.find(s => s.id === spriteId);
+  if (!sprite) return;
+  
+  sprite.variants.forEach(v => {
+    state.inventory[spriteId][v] = 5;
+  });
+  saveState();
+  render();
+}
+
+// Core mobile touch gesture listeners
+function setupTouchListeners(element, spriteId, variant) {
+  const startHandler = (e) => {
+    isLongPress = false;
+    touchTimer = setTimeout(() => {
+      isLongPress = true;
+      handleLongPress(spriteId, variant);
+    }, 400); // 400ms duration barrier triggers max level
+  };
+
+  const endHandler = (e) => {
+    if (touchTimer) clearTimeout(touchTimer);
+    if (!isLongPress) {
+      handleTileTap(spriteId, variant);
+    }
+  };
+
+  const cancelHandler = () => {
+    if (touchTimer) clearTimeout(touchTimer);
+  };
+
+  // Maps touch events for mobile, fallback mouse clicks for desktop browsers
+  element.addEventListener('touchstart', startHandler, { passive: true });
+  element.addEventListener('touchend', endHandler);
+  element.addEventListener('touchmove', cancelHandler, { passive: true });
+  
+  element.addEventListener('mousedown', startHandler);
+  element.addEventListener('mouseup', endHandler);
+  element.addEventListener('mouseleave', cancelHandler);
+}
+
 function updateUsername(newName) {
   state.username = newName;
   saveState();
   
-  // Simultaneously update our static mirror block
   const staticBlock = document.getElementById("username-mirror");
   if(staticBlock) staticBlock.innerText = newName || "PLAYER";
 
@@ -511,6 +576,7 @@ function render() {
     ? `Still leveling: ${missingNames.slice(0, 3).join(", ")}${missingNames.length > 3 ? "..." : ""}`
     : "All styles fully Maxed! 🎉";
 
+  // Renders structural dashboard cards dynamically
   let cardsHtml = SPRITES.map(s => {
     const isSingle = s.variants.length === 1;
     
@@ -534,7 +600,7 @@ function render() {
 
       let imagePath = "";
       if (s.id === "duck" && v === "normal") {
-        imagePath = `Images/IMG_0435.webp`;
+        imagePath = `Images/IMG_0395.webp`;
       } else {
         const currentImgNum = String(imageCounter).padStart(4, '0');
         imagePath = `Images/IMG_${currentImgNum}.webp`;
@@ -542,8 +608,9 @@ function render() {
       
       imageCounter++;
 
+      // Custom attributes hold references dynamically for node listener bindings
       return `
-        <div class="toggle ${btnClass}" onclick="cycleLevel('${s.id}','${v}')">
+        <div class="toggle ${btnClass}" data-sprite="${s.id}" data-variant="${v}">
           <img class="variant-icon" src="${imagePath}" onerror="this.style.opacity='0.15';" alt="">
           <div class="toggle-label">${labelText}</div>
         </div>`;
@@ -553,6 +620,7 @@ function render() {
       <div class="sprite-card">
         <div class="sprite-info">
           <div class="sprite-name">${s.name}</div>
+          <button class="max-row-btn" onclick="maxEntireRow('${s.id}')">MAX ROW</button>
         </div>
         <div class="variants-row ${isSingle ? 'single-variant' : ''}">
           ${cells}
@@ -562,7 +630,7 @@ function render() {
 
   app.innerHTML = `
     <div class="action-bar">
-      <div class="hint">Tap variant tiles below to modify levels. Ready to share? Tap export!</div>
+      <div class="hint">Tap tiles to cycle level. Hold down a tile or tap "MAX ROW" to instantly hit Level 5!</div>
       <button class="export-btn" onclick="exportAsImage()">Export PNG Image</button>
     </div>
 
@@ -597,6 +665,13 @@ function render() {
       </div>
     </div>
   `;
+
+  // Explicitly binds multi-touch handlers to newly injected DOM elements
+  document.querySelectorAll('.toggle').forEach(element => {
+    const spriteId = element.getAttribute('data-sprite');
+    const variant = element.getAttribute('data-variant');
+    setupTouchListeners(element, spriteId, variant);
+  });
 }
 
 loadState();
