@@ -14,6 +14,8 @@
     --gold: #e8b339;
     --gummy: #ff5fa3;
     --galaxy: #7c6cf0;
+    --gem: #a3e2f7;
+    --holofoil: #e0abf5;
     --have: #2ee6a6;
     --need: #ff5566;
     --ink: #eef0f6;
@@ -226,17 +228,21 @@
   }
 
   .variants-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 6px;
   }
 
-  .variants-row.single-variant {
-    grid-template-columns: 1fr;
+  .variants-row .toggle {
+    width: calc(25% - 5px); /* Matches native 4-column pacing, wraps if row features 5+ items */
+    min-width: 68px;
+  }
+
+  .variants-row.single-variant .toggle {
+    width: 100%;
   }
 
   .toggle {
-    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -259,12 +265,16 @@
   .toggle.have.gold { border-color: rgba(232,179,57,0.3); background: rgba(232,179,57,0.04); }
   .toggle.have.gummy { border-color: rgba(255,95,163,0.3); background: rgba(255,95,163,0.04); }
   .toggle.have.galaxy { border-color: rgba(124,108,240,0.3); background: rgba(124,108,240,0.04); }
+  .toggle.have.gem { border-color: rgba(163,226,247,0.3); background: rgba(163,226,247,0.04); }
+  .toggle.have.holofoil { border-color: rgba(224,171,245,0.3); background: rgba(224,171,245,0.04); }
 
   .toggle.max-lvl { border-width: 2px; }
   .toggle.max-lvl.normal { border-color: rgba(184,191,209,0.9); background: rgba(184,191,209,0.12); }
   .toggle.max-lvl.gold { border-color: rgba(232,179,57,0.9); background: rgba(232,179,57,0.12); }
   .toggle.max-lvl.gummy { border-color: rgba(255,95,163,0.9); background: rgba(255,95,163,0.12); }
   .toggle.max-lvl.galaxy { border-color: rgba(124,108,240,0.9); background: rgba(124,108,240,0.14); }
+  .toggle.max-lvl.gem { border-color: rgba(163,226,247,0.9); background: rgba(163,226,247,0.15); }
+  .toggle.max-lvl.holofoil { border-color: rgba(224,171,245,0.9); background: rgba(224,171,245,0.15); }
 
   .variant-icon {
     width: 44px;
@@ -372,25 +382,26 @@
   </div>
 
 <script>
+// UPGRADED RECONSTRUCTED DATA SCHEMA: Allows each item to precisely dictate its style extensions
 const SPRITES = [
-  { id: "water", name: "Water", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "earth", name: "Earth", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "fire", name: "Fire", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "duck", name: "Duck", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "ghost", name: "Ghost", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "water", name: "Water", variants: ["normal","gold","gummy","galaxy","gem","holofoil"] },
+  { id: "earth", name: "Earth", variants: ["normal","gold","gummy","galaxy","gem"] },
+  { id: "fire", name: "Fire", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "duck", name: "Duck", variants: ["normal","gold","gummy","galaxy","gem"] },
+  { id: "ghost", name: "Ghost", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "dream", name: "Dream", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "demon", name: "Demon", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "demon", name: "Demon", variants: ["normal","gold","gummy","galaxy","gem"] },
   { id: "punk", name: "Punk", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
-  { id: "zeropoint", name: "Zero Point", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "zeropoint", name: "Zero Point", variants: ["normal","gold","gummy","galaxy","gem"] },
   { id: "fishy", name: "Fishy", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "striker", name: "Striker", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "aura", name: "Aura", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "striker", name: "Striker", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "aura", name: "Aura", variants: ["normal","gold","gummy","galaxy","gem"] },
   { id: "boss", name: "Boss", variants: ["normal","gold","gummy","galaxy"] },
   { id: "grimreaper", name: "Grim Reaper", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "air", name: "Air", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "seven", name: "Seven", variants: ["normal","gold","gummy","galaxy"] }
+  { id: "air", name: "Air", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "seven", name: "Seven", variants: ["normal","gold","gummy","galaxy","holofoil"] }
 ];
 
 const DEFAULT_STATE = {
@@ -405,7 +416,7 @@ SPRITES.forEach(s => {
   });
 });
 
-const STORAGE_KEY = "sprite-checklist-state-v12"; 
+const STORAGE_KEY = "sprite-checklist-state-v15"; // Stepped version to reset parameters for added columns
 let state = null;
 
 let touchTimer = null;
@@ -595,25 +606,45 @@ function render() {
 
       let imagePath = "";
       
-      // EXPLICIT FIXED PATH ROUTING FOR NEW SPRITE UPDATES
+      // STATIC UPDATE FILE NUMBERS SCHEDULING ROUTER
       if (s.id === "duck" && v === "normal") {
         imagePath = `Images/IMG_0395.webp`;
-      } else if (s.id === "air") {
+      } else if (s.id === "air" && v !== "holofoil") {
         if (v === "normal") imagePath = `Images/IMG_0444.webp`;
         if (v === "gold") imagePath = `Images/IMG_0455.webp`;
         if (v === "gummy") imagePath = `Images/IMG_0456.webp`;
         if (v === "galaxy") imagePath = `Images/IMG_0457.webp`;
-      } else if (s.id === "seven") {
+      } else if (s.id === "seven" && v !== "holofoil") {
         if (v === "normal") imagePath = `Images/IMG_0458.webp`;
         if (v === "gold") imagePath = `Images/IMG_0459.webp`;
         if (v === "gummy") imagePath = `Images/IMG_0460.webp`;
         if (v === "galaxy") imagePath = `Images/IMG_0461.webp`;
+      } 
+      // ADVANCED IMMUTABLE TARGET MATCHING FOR UPCOMING UPDATE PATCH MATERIAL
+      else if (v === "gem") {
+        if (s.id === "water") imagePath = `Images/IMG_0466.webp`;
+        if (s.id === "earth") imagePath = `Images/IMG_0467.webp`;
+        if (s.id === "duck") imagePath = `Images/IMG_0468.webp`;
+        if (s.id === "demon") imagePath = `Images/IMG_0469.webp`;
+        if (s.id === "zeropoint") imagePath = `Images/IMG_0470.webp`;
+        if (s.id === "aura") imagePath = `Images/IMG_0471.webp`;
+      } else if (v === "holofoil") {
+        if (s.id === "water") imagePath = `Images/IMG_0472.webp`;
+        if (s.id === "fire") imagePath = `Images/IMG_0473.webp`;
+        if (s.id === "ghost") imagePath = `Images/IMG_0474.webp`;
+        if (s.id === "king") imagePath = `Images/IMG_0475.webp`;
+        if (s.id === "striker") imagePath = `Images/IMG_0476.webp`;
+        if (s.id === "air") imagePath = `Images/IMG_0477.webp`;
+        if (s.id === "seven") imagePath = `Images/IMG_0478.webp`;
       } else {
         const currentImgNum = String(imageCounter).padStart(4, '0');
         imagePath = `Images/IMG_${currentImgNum}.webp`;
       }
       
-      imageCounter++;
+      // Keep standard layout loop moving naturally only for original asset blocks
+      if (v !== "gem" && v !== "holofoil" && s.id !== "air" && s.id !== "seven") {
+        imageCounter++;
+      }
 
       return `
         <div class="toggle ${btnClass}" data-sprite="${s.id}" data-variant="${v}">
