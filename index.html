@@ -136,10 +136,10 @@
     transition: transform 0.1s ease;
   }
 
-  /* Social Export Mode Constraints */
+  /* ADVANCED SOCIAL EXPORT MODE CONSTRAINTS FOR ALL COLUMNS */
   .social-export-mode {
-    width: 600px !important; 
-    padding: 15px !important;
+    width: 580px !important; 
+    padding: 12px !important;
   }
 
   .social-export-mode .username-input { display: none !important; }
@@ -147,35 +147,50 @@
   .social-export-mode .max-row-btn { display: none !important; }
 
   .social-export-mode .header {
-    padding-left: 6px !important;
-    padding-right: 12px !important;
+    padding-left: 4px !important;
+    padding-right: 8px !important;
+    margin-bottom: 12px !important;
   }
 
   .social-export-mode .sprites-grid {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
-    gap: 5px !important;
+    gap: 6px !important;
   }
 
   .social-export-mode .sprite-card {
-    padding: 5px !important;
-    gap: 4px !important;
+    padding: 6px 4px !important;
+    gap: 5px !important;
     border-radius: 8px !important;
   }
 
-  .social-export-mode .sprite-name { font-size: 13px !important; }
+  .social-export-mode .sprite-name { font-size: 11px !important; letter-spacing: 0px !important; }
   .social-export-mode .variants-row { gap: 3px !important; }
-  .social-export-mode .variant-icon { width: 26px !important; height: 26px !important; }
+  .social-export-mode .variant-icon { width: 22px !important; height: 22px !important; }
 
   .social-export-mode .toggle {
-    padding: 4px 2px !important;
+    padding: 3px 1px !important;
     border-radius: 4px !important;
+    min-width: 0 !important;
+    width: calc(25% - 3px) !important;
+  }
+
+  /* Adjust widths for cards containing extra Gem or Holofoil variations */
+  .social-export-mode .sprite-card:has(.toggle:nth-child(5)) .toggle {
+    width: calc(20% - 3px) !important;
+  }
+  .social-export-mode .sprite-card:has(.toggle:nth-child(6)) .toggle {
+    width: calc(16.66% - 3px) !important;
   }
 
   .social-export-mode .toggle-label {
-    font-size: 6px !important;
-    letter-spacing: 0px !important;
+    font-size: 5px !important;
+    letter-spacing: -0.2px !important;
+    transform: scale(0.95);
   }
+
+  .social-export-mode .legend-bar { display: none !important; }
+  .social-export-mode .footer-bar { margin-top: 12px !important; padding: 10px !important; }
 
   .sprites-grid {
     display: flex;
@@ -234,7 +249,7 @@
   }
 
   .variants-row .toggle {
-    width: calc(25% - 5px); /* Matches native 4-column pacing, wraps if row features 5+ items */
+    width: calc(25% - 5px);
     min-width: 68px;
   }
 
@@ -382,7 +397,6 @@
   </div>
 
 <script>
-// UPGRADED RECONSTRUCTED DATA SCHEMA: Allows each item to precisely dictate its style extensions
 const SPRITES = [
   { id: "water", name: "Water", variants: ["normal","gold","gummy","galaxy","gem","holofoil"] },
   { id: "earth", name: "Earth", variants: ["normal","gold","gummy","galaxy","gem"] },
@@ -416,7 +430,7 @@ SPRITES.forEach(s => {
   });
 });
 
-const STORAGE_KEY = "sprite-checklist-state-v15"; // Stepped version to reset parameters for added columns
+const STORAGE_KEY = "sprite-checklist-state-v15"; 
 let state = null;
 
 let touchTimer = null;
@@ -526,11 +540,12 @@ function resetAll() {
   render();
 }
 
+// UPGRADED EXPORT ENGINE ROUTING VIA THE STABLE WEB SHARE INSTANCE API
 function exportAsImage() {
   const targetElement = document.getElementById("capture-area");
   const exportBtn = document.querySelector(".export-btn");
   
-  exportBtn.innerText = "Generating...";
+  exportBtn.innerText = "Generating Share Screen...";
   targetElement.classList.add("social-export-mode");
   
   setTimeout(() => {
@@ -539,23 +554,52 @@ function exportAsImage() {
       allowTaint: true,
       scale: 2, 
       backgroundColor: "#0b0e14",
-      width: 600, 
+      width: 580, 
       logging: false
     }).then(canvas => {
       const nameString = state.username ? state.username.replace(/\s+/g, '_') : 'My';
-      const link = document.createElement("a");
-      link.download = `${nameString}_Fortnite_Sprite_Checklist.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+      const fileName = `${nameString}_Fortnite_Sprite_Checklist.png`;
       
-      targetElement.classList.remove("social-export-mode");
-      exportBtn.innerText = "Export PNG Image";
+      // Convert canvas render data into a standalone standard file blob structure
+      canvas.toBlob(blob => {
+        const imageFile = new File([blob], fileName, { type: "image/png" });
+        
+        // Execute Native Web Share routing if modern OS instance protocols match
+        if (navigator.canShare && navigator.canShare({ files: [imageFile] })) {
+          navigator.share({
+            files: [imageFile],
+            title: 'My Sprite Collection Checklist',
+            text: 'Check out my current Fortnite Sprite level status!'
+          }).then(() => {
+            targetElement.classList.remove("social-export-mode");
+            exportBtn.innerText = "Export PNG Image";
+          }).catch(err => {
+            console.log("Share sheets closed or canceled:", err);
+            fallbackDownload(canvas, fileName);
+            targetElement.classList.remove("social-export-mode");
+            exportBtn.innerText = "Export PNG Image";
+          });
+        } else {
+          // Fallback sequence directly processes file generation structure if APIs fail
+          fallbackDownload(canvas, fileName);
+          targetElement.classList.remove("social-export-mode");
+          exportBtn.innerText = "Export PNG Image";
+        }
+      }, "image/png");
+
     }).catch(err => {
       console.error("Image synthesis failed:", err);
       targetElement.classList.remove("social-export-mode");
       exportBtn.innerText = "Error! Try Again";
     });
   }, 120);
+}
+
+function fallbackDownload(canvas, fileName) {
+  const link = document.createElement("a");
+  link.download = fileName;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
 }
 
 function render() {
@@ -606,7 +650,6 @@ function render() {
 
       let imagePath = "";
       
-      // STATIC UPDATE FILE NUMBERS SCHEDULING ROUTER
       if (s.id === "duck" && v === "normal") {
         imagePath = `Images/IMG_0395.webp`;
       } else if (s.id === "air" && v !== "holofoil") {
@@ -619,9 +662,7 @@ function render() {
         if (v === "gold") imagePath = `Images/IMG_0459.webp`;
         if (v === "gummy") imagePath = `Images/IMG_0460.webp`;
         if (v === "galaxy") imagePath = `Images/IMG_0461.webp`;
-      } 
-      // ADVANCED IMMUTABLE TARGET MATCHING FOR UPCOMING UPDATE PATCH MATERIAL
-      else if (v === "gem") {
+      } else if (v === "gem") {
         if (s.id === "water") imagePath = `Images/IMG_0466.webp`;
         if (s.id === "earth") imagePath = `Images/IMG_0467.webp`;
         if (s.id === "duck") imagePath = `Images/IMG_0468.webp`;
@@ -641,7 +682,6 @@ function render() {
         imagePath = `Images/IMG_${currentImgNum}.webp`;
       }
       
-      // Keep standard layout loop moving naturally only for original asset blocks
       if (v !== "gem" && v !== "holofoil" && s.id !== "air" && s.id !== "seven") {
         imageCounter++;
       }
@@ -659,7 +699,7 @@ function render() {
           <div class="sprite-name">${s.name}</div>
           <button class="max-row-btn" onclick="maxEntireRow('${s.id}')">MAX ROW</button>
         </div>
-        <div class="variants-row ${isSingle ? 'single-variant' : ''}">
+        <div class="variants-row">
           ${cells}
         </div>
       </div>`;
