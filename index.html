@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fortnite Sprite Checklist</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0b0e14;
+    --panel: #11151f;
+    --gold: #e8b339;
+    --gummy: #ff5fa3;
+    --galaxy: #7c6cf0;
+    --have: #2ee6a6;
+    --need: #ff5566;
+    --ink: #eef0f6;
+    --ink-dim: #8d93a8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(124,108,240,0.18), transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(232,179,57,0.10), transparent 50%);
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 14px 12px 16px;
+  }
+
+  .wrap { max-width: 640px; margin: 0 auto; }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #1d2331;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    gap: 10px;
+  }
+
+  .title-block .eyebrow {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--galaxy);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .title-block h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .epic-tag { text-align: right; }
+
+  .epic-tag .label {
+    font-size: 10px;
+    color: var(--ink-dim);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .username-input {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    background: #161b27;
+    border: 1px solid #1d2331;
+    border-radius: 4px;
+    padding: 2px 6px;
+    text-align: right;
+    max-width: 140px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  
+  .username-input:focus {
+    border-color: var(--gold);
+  }
+
+  .hint {
+    font-size: 11px;
+    color: var(--ink-dim);
+    margin-bottom: 8px;
+  }
+
+  .column-labels {
+    display: grid;
+    grid-template-columns: 90px repeat(4, 1fr);
+    padding: 0 2px;
+    margin-bottom: 6px;
+  }
+
+  .column-labels div {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .column-labels .row-name-label { text-align: left; color: var(--ink-dim); }
+  .column-labels .col-normal { color: var(--ink-dim); }
+  .column-labels .col-gold { color: var(--gold); }
+  .column-labels .col-gummy { color: var(--gummy); }
+  .column-labels .col-galaxy { color: var(--galaxy); }
+
+  .row {
+    display: grid;
+    grid-template-columns: 90px repeat(4, 1fr);
+    align-items: center;
+    background: var(--panel);
+    border: 1px solid #1d2331;
+    border-radius: 10px;
+    padding: 7px 6px;
+    margin-bottom: 6px;
+    gap: 4px;
+  }
+
+  .row.single {
+    grid-template-columns: 90px 1fr;
+  }
+
+  .sprite-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.2px;
+    line-height: 1.1;
+  }
+
+  .variant-grid {
+    display: contents;
+  }
+
+  .cell { display: flex; justify-content: center; }
+
+  .toggle {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 2px;
+    border-radius: 7px;
+    border: 2px solid #1d2331;
+    background: #161b27;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .toggle:hover { border-color: #3a4154; }
+
+  .toggle.have.normal { border-color: rgba(184,191,209,0.5); background: rgba(184,191,209,0.10); }
+  .toggle.have.gold { border-color: rgba(232,179,57,0.5); background: rgba(232,179,57,0.10); }
+  .toggle.have.gummy { border-color: rgba(255,95,163,0.5); background: rgba(255,95,163,0.10); }
+  .toggle.have.galaxy { border-color: rgba(124,108,240,0.5); background: rgba(124,108,240,0.12); }
+
+  .blob {
+    width: 17px;
+    height: 17px;
+    border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%;
+    flex-shrink: 0;
+    opacity: 0.35;
+    transition: opacity 0.15s ease;
+  }
+
+  .toggle.have .blob { opacity: 1; }
+
+  .blob.normal { background: linear-gradient(160deg, #b8bfd1, #5c6478); }
+  .blob.gold { background: linear-gradient(160deg, #f7d97a, #c8901c); }
+  .blob.gummy { background: linear-gradient(160deg, #ff9bc6, #d6357f); }
+  .blob.galaxy { background: linear-gradient(160deg, #a59af5, #4d3fb0); }
+  .blob.peanut { background: linear-gradient(160deg, #d98a4a, #6b3a1a); }
+
+  .toggle-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    line-height: 1.1;
+  }
+
+  .toggle.have .toggle-label { color: var(--have); }
+  .toggle:not(.have) .toggle-label { color: var(--need); }
+
+  .legend {
+    display: flex;
+    gap: 12px;
+    margin: 10px 0 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--ink-dim);
+  }
+
+  .legend .blob { width: 14px; height: 14px; opacity: 1; }
+
+  .footer-bar {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 12px 14px;
+    border: 1px solid #1d2331;
+    gap: 8px;
+  }
+
+  .progress-label {
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.2px;
+    line-height: 1.3;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 8px;
+    background: #1d2331;
+    border-radius: 100px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gummy), var(--galaxy));
+    transition: width 0.3s ease;
+  }
+
+  .cta {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .cta span { color: var(--gold); }
+
+  .loading {
+    text-align: center;
+    color: var(--ink-dim);
+    padding: 40px;
+    font-size: 14px;
+  }
+
+  .reset-btn {
+    background: none;
+    border: 1px solid #3a4154;
+    color: var(--ink-dim);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .reset-btn:hover { border-color: var(--need); color: var(--need); }
+</style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <div class="loading">Loading your checklist…</div>
+  </div>
+
+<script>
+const SPRITES = [
+  { id: "water", name: "Water", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "fire", name: "Fire", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "earth", name: "Earth", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "duck", name: "Duck", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "ghost", name: "Ghost", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "dream", name: "Dream", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "demon", name: "Demon", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "punk", name: "Punk", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "zeropoint", name: "Zero Point", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
+];
+
+const DEFAULT_STATE = {
+  username: "Kayozo",
+  inventory: {
+    water: { normal: true, gold: true, gummy: true, galaxy: true },
+    fire: { normal: true, gold: true, gummy: true, galaxy: true },
+    earth: { normal: true, gold: true, gummy: true, galaxy: true },
+    duck: { normal: true, gold: true, gummy: true, galaxy: true },
+    ghost: { normal: true, gold: true, gummy: true, galaxy: true },
+    dream: { normal: true, gold: true, gummy: true, galaxy: true },
+    demon: { normal: true, gold: true, gummy: true, galaxy: true },
+    punk: { normal: true, gold: true, gummy: true, galaxy: true },
+    king: { normal: true, gold: true, gummy: true, galaxy: true },
+    zeropoint: { normal: true, gold: true, gummy: true, galaxy: true },
+    burntpeanut: { peanut: true },
+  }
+};
+
+const STORAGE_KEY = "sprite-checklist-state";
+let state = null;
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      state = JSON.parse(saved);
+      if (!state.inventory) {
+        state = { username: "Kayozo", inventory: state };
+      }
+    } else {
+      state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+  } catch (e) {
+    state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }
+  render();
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.error("Failed to save state:", e);
+  }
+}
+
+function toggle(spriteId, variant) {
+  if (!state.inventory[spriteId]) state.inventory[spriteId] = {};
+  state.inventory[spriteId][variant] = !state.inventory[spriteId][variant];
+  saveState();
+  render();
+}
+
+function updateUsername(newName) {
+  state.username = newName || "Player";
+  saveState();
+  const ctaName = document.getElementById("cta-username");
+  if(ctaName) ctaName.innerText = state.username;
+}
+
+function resetAll() {
+  if (!confirm("Reset checklist back to default?")) return;
+  state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  saveState();
+  render();
+}
+
+function render() {
+  const app = document.getElementById("app");
+
+  let totalSlots = 0;
+  let haveSlots = 0;
+  SPRITES.forEach(s => {
+    s.variants.forEach(v => {
+      totalSlots++;
+      if (state.inventory[s.id] && state.inventory[s.id][v]) haveSlots++;
+    });
+  });
+  const pct = Math.round((haveSlots / totalSlots) * 100);
+
+  const missingNames = SPRITES.filter(s =>
+    s.variants.some(v => !(state.inventory[s.id] && state.inventory[s.id][v]))
+  ).map(s => s.name);
+
+  const missingLabel = missingNames.length
+    ? `Still need: ${missingNames.join(", ")}`
+    : "Full collection complete! 🎉";
+
+  let rowsHtml = SPRITES.map(s => {
+    if (s.variants.length === 1) {
+      const v = s.variants[0];
+      const has = state.inventory[s.id] && state.inventory[s.id][v];
+      return `
+        <div class="row single">
+          <div class="sprite-name">${s.name}</div>
+          <div class="toggle ${has ? "have" : ""}" style="justify-content:flex-start; padding:7px 10px;" onclick="toggle('${s.id}','${v}')">
+            <div class="blob peanut"></div>
+            <div class="toggle-label">${has ? "✓ Have it" : "✕ Need it"}</div>
+          </div>
+        </div>`;
+    }
+    const cells = s.variants.map(v => {
+      const has = state.inventory[s.id] && state.inventory[s.id][v];
+      return `
+        <div class="cell">
+          <div class="toggle ${has ? "have " + v : ""}" onclick="toggle('${s.id}','${v}')">
+            <div class="blob ${v}"></div>
+            <div class="toggle-label">${has ? "✓" : "✕"}</div>
+          </div>
+        </div>`;
+    }).join("");
+    return `
+      <div class="row">
+        <div class="sprite-name">${s.name}</div>
+        ${cells}
+      </div>`;
+  }).join("");
+
+  app.innerHTML = `
+    <div class="header">
+      <div class="title-block">
+        <div class="eyebrow">Fortnite · Sprite Trading</div>
+        <h1>SPRITE CHECKLIST</h1>
+      </div>
+      <div class="epic-tag">
+        <div class="label">Epic Username</div>
+        <input type="text" class="username-input" value="${state.username}" oninput="updateUsername(this.value)" placeholder="Your Name">
+      </div>
+    </div>
+
+    <div class="hint">Tap a tile to toggle have/need — saves automatically.</div>
+
+    <div class="column-labels">
+      <div class="row-name-label">Sprite</div>
+      <div class="col-normal">Normal</div>
+      <div class="col-gold">Gold</div>
+      <div class="col-gummy">Gummy</div>
+      <div class="col-galaxy">Galaxy</div>
+    </div>
+
+    ${rowsHtml}
+
+    <div class="legend">
+      <div class="legend-item"><div class="blob normal"></div>Normal</div>
+      <div class="legend-item"><div class="blob gold"></div>Gold</div>
+      <div class="legend-item"><div class="blob gummy"></div>Gummy</div>
+      <div class="legend-item"><div class="blob galaxy"></div>Galaxy</div>
+      <button class="reset-btn" onclick="resetAll()">Reset to default</button>
+    </div>
+
+    <div class="footer-bar">
+      <div>
+        <div class="progress-label">${missingLabel} · All sprites Level 5</div>
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="cta">Got what I need? Comment your name & add <span id="cta-username">${state.username}</span></div>
+    </div>
+  `;
+}
+
+loadState();
+</script>
+</body>
+</html>
