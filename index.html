@@ -182,7 +182,8 @@
   }
 
   .toggle.have .toggle-label { color: var(--have); }
-  .toggle.max-lvl .toggle-label { color: var(--gold); font-weight: 900; letter-spacing: 0.5px; }
+  /* Swapped MAX label rule destination to use the main gold asset metric color now! */
+  .toggle.max-lvl .toggle-label { color: var(--gold) !important; font-weight: 900; letter-spacing: 0.5px; }
   .toggle:not(.have) .toggle-label { color: var(--need); }
 
   .legend-bar {
@@ -359,7 +360,7 @@ function render() {
 
   let totalPointsPossible = 0;
   let currentPointsEarned = 0;
-  let imageCounter = 383; // Starts matching IMG_0383.webp precisely!
+  let imageCounter = 383; // Synchronized sequentially with camera uploads
 
   SPRITES.forEach(s => {
     s.variants.forEach(v => {
@@ -400,12 +401,10 @@ function render() {
         if (isSingle) labelText = "MAX";
       }
 
-      // Automatically maps paths to Images/IMG_0383.webp, Images/IMG_0384.webp sequentially
-      // Formats numbers with 4 digits padding (e.g., 0383)
       const currentImgNum = String(imageCounter).padStart(4, '0');
       const imagePath = `Images/IMG_${currentImgNum}.webp`;
       
-      imageCounter++; // Advance mapping index safely to next file variant entry
+      imageCounter++;
 
       return `
         <div class="toggle ${btnClass}" onclick="cycleLevel('${s.id}','${v}')">
