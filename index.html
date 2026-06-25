@@ -138,10 +138,6 @@
     line-height: 1.1;
   }
 
-  .variant-grid {
-    display: contents;
-  }
-
   .cell { display: flex; justify-content: center; }
 
   .toggle {
@@ -150,7 +146,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 4px;
     padding: 6px 2px;
     border-radius: 7px;
     border: 2px solid #1d2331;
@@ -162,21 +158,29 @@
 
   .toggle:hover { border-color: #3a4154; }
 
-  .toggle.have.normal { border-color: rgba(184,191,209,0.5); background: rgba(184,191,209,0.10); }
-  .toggle.have.gold { border-color: rgba(232,179,57,0.5); background: rgba(232,179,57,0.10); }
-  .toggle.have.gummy { border-color: rgba(255,95,163,0.5); background: rgba(255,95,163,0.10); }
-  .toggle.have.galaxy { border-color: rgba(124,108,240,0.5); background: rgba(124,108,240,0.12); }
+  /* Visual changes depending on if you have it or if it's max level */
+  .toggle.have.normal { border-color: rgba(184,191,209,0.4); background: rgba(184,191,209,0.06); }
+  .toggle.have.gold { border-color: rgba(232,179,57,0.4); background: rgba(232,179,57,0.06); }
+  .toggle.have.gummy { border-color: rgba(255,95,163,0.4); background: rgba(255,95,163,0.06); }
+  .toggle.have.galaxy { border-color: rgba(124,108,240,0.4); background: rgba(124,108,240,0.06); }
+
+  .toggle.max-lvl { border-width: 2px; }
+  .toggle.max-lvl.normal { border-color: rgba(184,191,209,0.9); background: rgba(184,191,209,0.15); }
+  .toggle.max-lvl.gold { border-color: rgba(232,179,57,0.9); background: rgba(232,179,57,0.15); }
+  .toggle.max-lvl.gummy { border-color: rgba(255,95,163,0.9); background: rgba(255,95,163,0.15); }
+  .toggle.max-lvl.galaxy { border-color: rgba(124,108,240,0.9); background: rgba(124,108,240,0.18); }
 
   .blob {
-    width: 17px;
-    height: 17px;
+    width: 15px;
+    height: 15px;
     border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%;
     flex-shrink: 0;
-    opacity: 0.35;
+    opacity: 0.25;
     transition: opacity 0.15s ease;
   }
 
-  .toggle.have .blob { opacity: 1; }
+  .toggle.have .blob { opacity: 0.75; }
+  .toggle.max-lvl .blob { opacity: 1; }
 
   .blob.normal { background: linear-gradient(160deg, #b8bfd1, #5c6478); }
   .blob.gold { background: linear-gradient(160deg, #f7d97a, #c8901c); }
@@ -187,11 +191,12 @@
   .toggle-label {
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.1px;
     line-height: 1.1;
   }
 
   .toggle.have .toggle-label { color: var(--have); }
+  .toggle.max-lvl .toggle-label { color: var(--gold); font-weight: 800; }
   .toggle:not(.have) .toggle-label { color: var(--need); }
 
   .legend {
@@ -296,24 +301,25 @@ const SPRITES = [
   { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
 ];
 
+// Initial structure sets everything directly to level 5 by default
 const DEFAULT_STATE = {
   username: "Kayozo",
   inventory: {
-    water: { normal: true, gold: true, gummy: true, galaxy: true },
-    fire: { normal: true, gold: true, gummy: true, galaxy: true },
-    earth: { normal: true, gold: true, gummy: true, galaxy: true },
-    duck: { normal: true, gold: true, gummy: true, galaxy: true },
-    ghost: { normal: true, gold: true, gummy: true, galaxy: true },
-    dream: { normal: true, gold: true, gummy: true, galaxy: true },
-    demon: { normal: true, gold: true, gummy: true, galaxy: true },
-    punk: { normal: true, gold: true, gummy: true, galaxy: true },
-    king: { normal: true, gold: true, gummy: true, galaxy: true },
-    zeropoint: { normal: true, gold: true, gummy: true, galaxy: true },
-    burntpeanut: { peanut: true },
+    water: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
+    fire: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
+    earth: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
+    duck: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
+    ghost: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
+    dream: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
+    demon: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
+    punk: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
+    king: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
+    zeropoint: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
+    burntpeanut: { peanut: 5 },
   }
 };
 
-const STORAGE_KEY = "sprite-checklist-state";
+const STORAGE_KEY = "sprite-checklist-state-v2";
 let state = null;
 
 function loadState() {
@@ -321,9 +327,6 @@ function loadState() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       state = JSON.parse(saved);
-      if (!state.inventory) {
-        state = { username: "Kayozo", inventory: state };
-      }
     } else {
       state = JSON.parse(JSON.stringify(DEFAULT_STATE));
     }
@@ -341,9 +344,19 @@ function saveState() {
   }
 }
 
-function toggle(spriteId, variant) {
+// Cycles level from 0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 0
+function cycleLevel(spriteId, variant) {
   if (!state.inventory[spriteId]) state.inventory[spriteId] = {};
-  state.inventory[spriteId][variant] = !state.inventory[spriteId][variant];
+  
+  let currentLevel = state.inventory[spriteId][variant] || 0;
+  // Handle legacy true/false values if they exist
+  if (currentLevel === true) currentLevel = 5;
+  if (currentLevel === false) currentLevel = 0;
+
+  let nextLevel = currentLevel + 1;
+  if (nextLevel > 5) nextLevel = 0;
+
+  state.inventory[spriteId][variant] = nextLevel;
   saveState();
   render();
 }
@@ -356,7 +369,7 @@ function updateUsername(newName) {
 }
 
 function resetAll() {
-  if (!confirm("Reset checklist back to default?")) return;
+  if (!confirm("Reset checklist back to default levels?")) return;
   state = JSON.parse(JSON.stringify(DEFAULT_STATE));
   saveState();
   render();
@@ -365,47 +378,73 @@ function resetAll() {
 function render() {
   const app = document.getElementById("app");
 
-  let totalSlots = 0;
-  let haveSlots = 0;
+  let totalPointsPossible = 0;
+  let currentPointsEarned = 0;
+  
   SPRITES.forEach(s => {
     s.variants.forEach(v => {
-      totalSlots++;
-      if (state.inventory[s.id] && state.inventory[s.id][v]) haveSlots++;
+      totalPointsPossible += 5; // Max level is 5
+      let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
+      if (lvl === true) lvl = 5;
+      if (lvl === false) lvl = 0;
+      currentPointsEarned += lvl;
     });
   });
-  const pct = Math.round((haveSlots / totalSlots) * 100);
+  
+  const pct = Math.round((currentPointsEarned / totalPointsPossible) * 100);
 
+  // Filter missing items based on items that aren't max level 5
   const missingNames = SPRITES.filter(s =>
-    s.variants.some(v => !(state.inventory[s.id] && state.inventory[s.id][v]))
+    s.variants.some(v => {
+      let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
+      return lvl < 5;
+    })
   ).map(s => s.name);
 
   const missingLabel = missingNames.length
-    ? `Still need: ${missingNames.join(", ")}`
-    : "Full collection complete! 🎉";
+    ? `Still leveling: ${missingNames.slice(0, 3).join(", ")}${missingNames.length > 3 ? "..." : ""}`
+    : "All sprites fully Max Level 5! 🎉";
 
   let rowsHtml = SPRITES.map(s => {
     if (s.variants.length === 1) {
       const v = s.variants[0];
-      const has = state.inventory[s.id] && state.inventory[s.id][v];
+      let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
+      if (lvl === true) lvl = 5;
+      
       return `
         <div class="row single">
           <div class="sprite-name">${s.name}</div>
-          <div class="toggle ${has ? "have" : ""}" style="justify-content:flex-start; padding:7px 10px;" onclick="toggle('${s.id}','${v}')">
+          <div class="toggle ${lvl > 0 ? "have" : ""} ${lvl === 5 ? "max-lvl" : ""}" style="justify-content:flex-start; padding:7px 10px;" onclick="cycleLevel('${s.id}','${v}')">
             <div class="blob peanut"></div>
-            <div class="toggle-label">${has ? "✓ Have it" : "✕ Need it"}</div>
+            <div class="toggle-label">${lvl === 0 ? "✕ Need" : lvl === 5 ? "✓ Max Lvl 5" : "✓ Lvl " + lvl}</div>
           </div>
         </div>`;
     }
+    
     const cells = s.variants.map(v => {
-      const has = state.inventory[s.id] && state.inventory[s.id][v];
+      let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
+      if (lvl === true) lvl = 5;
+
+      let btnClass = "";
+      let labelText = "✕";
+      if (lvl > 0) {
+        btnClass = "have " + v;
+        labelText = "L" + lvl;
+      }
+      if (lvl === 5) {
+        btnClass = "max-lvl " + v;
+        labelText = "🏆";
+      }
+
       return `
         <div class="cell">
-          <div class="toggle ${has ? "have " + v : ""}" onclick="toggle('${s.id}','${v}')">
+          <div class="toggle ${btnClass}" onclick="cycleLevel('${s.id}','${v}')">
             <div class="blob ${v}"></div>
-            <div class="toggle-label">${has ? "✓" : "✕"}</div>
+            <div class="toggle-label">${labelText}</div>
           </div>
         </div>`;
     }).join("");
+
     return `
       <div class="row">
         <div class="sprite-name">${s.name}</div>
@@ -425,7 +464,7 @@ function render() {
       </div>
     </div>
 
-    <div class="hint">Tap a tile to toggle have/need — saves automatically.</div>
+    <div class="hint">Tap a tile to change levels (1-5) or set to missing — saves automatically.</div>
 
     <div class="column-labels">
       <div class="row-name-label">Sprite</div>
@@ -447,7 +486,7 @@ function render() {
 
     <div class="footer-bar">
       <div>
-        <div class="progress-label">${missingLabel} · All sprites Level 5</div>
+        <div class="progress-label">${missingLabel}</div>
         <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
       </div>
       <div class="cta">Got what I need? Comment your name & add <span id="cta-username">${state.username}</span></div>
