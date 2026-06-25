@@ -2,7 +2,7 @@
 
 A high-fidelity, mobile-responsive web utility built for the Fortnite community to track, manage, and seamlessly share their Sprite Trading collection tiers. Designed to look and feel like an authentic in-game digital item locker, this application allows users to effortlessly track item variants and export pixel-perfect progress updates optimized for social sharing.
 
-Live Site: [benitopak96.github.io](https://benitopak96.github.io)
+Live Site: [https://benitopak96.github.io/Fortnite-Sprites-Collection-Checklist/](https://benitopak96.github.io/Fortnite-Sprites-Collection-Checklist/)
 
 ---
 
@@ -15,7 +15,7 @@ Live Site: [benitopak96.github.io](https://benitopak96.github.io)
     *   *Press & Hold (0.4s):* Implements custom gesture detection to immediately fast-forward a specific style straight to Level 5 Max.
     *   *MAX ROW Shortcut:* Utility panel buttons built into each item row header to instantly complete all 4 variant slots with one single interaction.
 *   **Seamless Camera Roll Integration:** Uses optimized `.webp` file mapping to sync directly with sequential files cleanly exported from mobile operating systems without tedious manual renaming rules.
-*   **Smart Social Engine Export:** Driven by a robust client-side implementation of `html2canvas`, tapping "Export PNG Image" temporarily reconstructs the app architecture into a ultra-compact **3-column portrait layout** before saving. This avoids text element clipping and matches the exact dimensional aspect ratios needed for Instagram Stories, TikTok posts, and Discord.
+*   **Smart Social Engine Export:** Driven by a robust client-side implementation of `html2canvas`, tapping "Export PNG Image" temporarily reconstructs the app architecture into an ultra-compact **3-column portrait layout** before saving. This avoids text element clipping and matches the exact dimensional aspect ratios needed for Instagram Stories, TikTok posts, and Discord.
 *   **Persistent Client Storage:** Uses native `localStorage` tracking keys to seamlessly save active inventory configurations and customized Epic usernames without requiring server accounts.
 
 ---
