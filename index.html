@@ -123,10 +123,16 @@
     transition: transform 0.1s ease;
   }
 
-  /* 3-Column Compact Social Export Styles */
+  /* Social Export Mode Constraints */
   .social-export-mode {
-    width: 600px !important; /* Force set width to stop mobile edge cutoff */
+    width: 600px !important; 
     padding: 15px !important;
+  }
+
+  /* Safety padding adjustments to prevent edge trimming on text elements */
+  .social-export-mode .header {
+    padding-left: 6px !important;
+    padding-right: 12px !important;
   }
 
   .social-export-mode .sprites-grid {
@@ -432,17 +438,15 @@ function exportAsImage() {
   
   exportBtn.innerText = "Generating...";
   
-  // Apply 3-column fix
   targetElement.classList.add("social-export-mode");
   
-  // Small delay ensures DOM recalculates width styles smoothly
   setTimeout(() => {
     html2canvas(targetElement, {
       useCORS: true,
       allowTaint: true,
       scale: 2, 
       backgroundColor: "#0b0e14",
-      width: 600, // Forces absolute image crop width boundary
+      width: 600, 
       logging: false
     }).then(canvas => {
       const nameString = state.username ? state.username.replace(/\s+/g, '_') : 'My';
