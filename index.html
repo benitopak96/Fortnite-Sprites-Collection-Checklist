@@ -158,7 +158,6 @@
 
   .toggle:hover { border-color: #3a4154; }
 
-  /* Visual changes depending on if you have it or if it's max level */
   .toggle.have.normal { border-color: rgba(184,191,209,0.4); background: rgba(184,191,209,0.06); }
   .toggle.have.gold { border-color: rgba(232,179,57,0.4); background: rgba(232,179,57,0.06); }
   .toggle.have.gummy { border-color: rgba(255,95,163,0.4); background: rgba(255,95,163,0.06); }
@@ -301,25 +300,25 @@ const SPRITES = [
   { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
 ];
 
-// Initial structure sets everything directly to level 5 by default
+// Defaulting everything to level 0 (nothing) and empty username
 const DEFAULT_STATE = {
-  username: "Kayozo",
+  username: "",
   inventory: {
-    water: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
-    fire: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
-    earth: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
-    duck: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
-    ghost: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
-    dream: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
-    demon: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
-    punk: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
-    king: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
-    zeropoint: { normal: 5, gold: 5, gummy: 5, galaxy: 5 },
-    burntpeanut: { peanut: 5 },
+    water: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
+    fire: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
+    earth: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
+    duck: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
+    ghost: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
+    dream: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
+    demon: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
+    punk: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
+    king: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
+    zeropoint: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
+    burntpeanut: { peanut: 0 },
   }
 };
 
-const STORAGE_KEY = "sprite-checklist-state-v2";
+const STORAGE_KEY = "sprite-checklist-state-v3";
 let state = null;
 
 function loadState() {
@@ -344,15 +343,10 @@ function saveState() {
   }
 }
 
-// Cycles level from 0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 0
 function cycleLevel(spriteId, variant) {
   if (!state.inventory[spriteId]) state.inventory[spriteId] = {};
   
   let currentLevel = state.inventory[spriteId][variant] || 0;
-  // Handle legacy true/false values if they exist
-  if (currentLevel === true) currentLevel = 5;
-  if (currentLevel === false) currentLevel = 0;
-
   let nextLevel = currentLevel + 1;
   if (nextLevel > 5) nextLevel = 0;
 
@@ -362,14 +356,16 @@ function cycleLevel(spriteId, variant) {
 }
 
 function updateUsername(newName) {
-  state.username = newName || "Player";
+  state.username = newName;
   saveState();
   const ctaName = document.getElementById("cta-username");
-  if(ctaName) ctaName.innerText = state.username;
+  if(ctaName) {
+    ctaName.innerText = newName || "[Input Username]";
+  }
 }
 
 function resetAll() {
-  if (!confirm("Reset checklist back to default levels?")) return;
+  if (!confirm("Clear your checklist and reset to zero?")) return;
   state = JSON.parse(JSON.stringify(DEFAULT_STATE));
   saveState();
   render();
@@ -383,17 +379,14 @@ function render() {
   
   SPRITES.forEach(s => {
     s.variants.forEach(v => {
-      totalPointsPossible += 5; // Max level is 5
+      totalPointsPossible += 5;
       let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
-      if (lvl === true) lvl = 5;
-      if (lvl === false) lvl = 0;
       currentPointsEarned += lvl;
     });
   });
   
   const pct = Math.round((currentPointsEarned / totalPointsPossible) * 100);
 
-  // Filter missing items based on items that aren't max level 5
   const missingNames = SPRITES.filter(s =>
     s.variants.some(v => {
       let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
@@ -409,7 +402,6 @@ function render() {
     if (s.variants.length === 1) {
       const v = s.variants[0];
       let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
-      if (lvl === true) lvl = 5;
       
       return `
         <div class="row single">
@@ -423,7 +415,6 @@ function render() {
     
     const cells = s.variants.map(v => {
       let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
-      if (lvl === true) lvl = 5;
 
       let btnClass = "";
       let labelText = "✕";
@@ -460,11 +451,11 @@ function render() {
       </div>
       <div class="epic-tag">
         <div class="label">Epic Username</div>
-        <input type="text" class="username-input" value="${state.username}" oninput="updateUsername(this.value)" placeholder="Your Name">
+        <input type="text" class="username-input" value="${state.username}" oninput="updateUsername(this.value)" placeholder="Type Username...">
       </div>
     </div>
 
-    <div class="hint">Tap a tile to change levels (1-5) or set to missing — saves automatically.</div>
+    <div class="hint">Tap a tile to cycle levels (1-5) or clear back to zero — saves automatically.</div>
 
     <div class="column-labels">
       <div class="row-name-label">Sprite</div>
@@ -481,7 +472,7 @@ function render() {
       <div class="legend-item"><div class="blob gold"></div>Gold</div>
       <div class="legend-item"><div class="blob gummy"></div>Gummy</div>
       <div class="legend-item"><div class="blob galaxy"></div>Galaxy</div>
-      <button class="reset-btn" onclick="resetAll()">Reset to default</button>
+      <button class="reset-btn" onclick="resetAll()">Reset to zero</button>
     </div>
 
     <div class="footer-bar">
@@ -489,7 +480,7 @@ function render() {
         <div class="progress-label">${missingLabel}</div>
         <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
       </div>
-      <div class="cta">Got what I need? Comment your name & add <span id="cta-username">${state.username}</span></div>
+      <div class="cta">Got what I need? Comment your name & add <span id="cta-username">${state.username || "[Input Username]"}</span></div>
     </div>
   `;
 }
