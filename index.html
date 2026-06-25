@@ -37,6 +37,7 @@
     background: var(--bg);
     padding: 4px;
     border-radius: 12px;
+    width: 100%;
   }
 
   .wrap { max-width: 640px; margin: 0 auto; }
@@ -122,24 +123,45 @@
     transition: transform 0.1s ease;
   }
 
-  /* This custom class is toggled by JS right before taking the picture */
+  /* 3-Column Compact Social Export Styles */
+  .social-export-mode {
+    width: 600px !important; /* Force set width to stop mobile edge cutoff */
+    padding: 15px !important;
+  }
+
   .social-export-mode .sprites-grid {
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 6px !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 5px !important;
   }
 
   .social-export-mode .sprite-card {
-    padding: 6px !important;
+    padding: 5px !important;
+    gap: 4px !important;
+    border-radius: 8px !important;
+  }
+
+  .social-export-mode .sprite-name {
+    font-size: 13px !important;
+  }
+
+  .social-export-mode .variants-row {
+    gap: 3px !important;
   }
 
   .social-export-mode .variant-icon {
-    width: 32px !important;
-    height: 32px !important;
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .social-export-mode .toggle {
+    padding: 4px 2px !important;
+    border-radius: 4px !important;
   }
 
   .social-export-mode .toggle-label {
-    font-size: 8px !important;
+    font-size: 6px !important;
+    letter-spacing: 0px !important;
   }
 
   .sprites-grid {
@@ -410,30 +432,33 @@ function exportAsImage() {
   
   exportBtn.innerText = "Generating...";
   
-  // 1. Force the layout into social 2-column mode right before rendering
+  // Apply 3-column fix
   targetElement.classList.add("social-export-mode");
   
-  html2canvas(targetElement, {
-    useCORS: true,
-    allowTaint: true,
-    scale: 2, 
-    backgroundColor: "#0b0e14",
-    logging: false
-  }).then(canvas => {
-    const nameString = state.username ? state.username.replace(/\s+/g, '_') : 'My';
-    const link = document.createElement("a");
-    link.download = `${nameString}_Fortnite_Sprite_Checklist.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-    
-    // 2. Clear the export configuration cleanly so the regular app look returns
-    targetElement.classList.remove("social-export-mode");
-    exportBtn.innerText = "Export PNG Image";
-  }).catch(err => {
-    console.error("Image synthesis failed:", err);
-    targetElement.classList.remove("social-export-mode");
-    exportBtn.innerText = "Error! Try Again";
-  });
+  // Small delay ensures DOM recalculates width styles smoothly
+  setTimeout(() => {
+    html2canvas(targetElement, {
+      useCORS: true,
+      allowTaint: true,
+      scale: 2, 
+      backgroundColor: "#0b0e14",
+      width: 600, // Forces absolute image crop width boundary
+      logging: false
+    }).then(canvas => {
+      const nameString = state.username ? state.username.replace(/\s+/g, '_') : 'My';
+      const link = document.createElement("a");
+      link.download = `${nameString}_Fortnite_Sprite_Checklist.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      
+      targetElement.classList.remove("social-export-mode");
+      exportBtn.innerText = "Export PNG Image";
+    }).catch(err => {
+      console.error("Image synthesis failed:", err);
+      targetElement.classList.remove("social-export-mode");
+      exportBtn.innerText = "Error! Try Again";
+    });
+  }, 100);
 }
 
 function render() {
