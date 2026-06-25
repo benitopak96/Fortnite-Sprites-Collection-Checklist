@@ -289,25 +289,25 @@
 
 <script>
 const SPRITES = [
-  // Original Base Sprites (Linked with direct CDN assets)
-  { id: "water", name: "Water", iconCode: "esd_water", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "fire", name: "Fire", iconCode: "esd_spitfire", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "earth", name: "Earth", iconCode: "esd_earthsprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "duck", name: "Duck", iconCode: "esd_ducksprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "ghost", name: "Ghost", iconCode: "esd_ghostsprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "dream", name: "Dream", iconCode: "esd_sleepysprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "demon", name: "Demon", iconCode: "esd_demonsprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "punk", name: "Punk", iconCode: "esd_punksprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "king", name: "King", iconCode: "esd_kingsprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "zeropoint", name: "Zero Point", iconCode: "esd_zeropointsprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "burntpeanut", name: "Burnt Peanut", iconCode: "eid_burntpeanut", variants: ["peanut"] },
+  // Original Base Sprites (Updated with stable paths)
+  { id: "water", name: "Water", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_water/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "fire", name: "Fire", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_spitfire/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "earth", name: "Earth", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_earthsprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "duck", name: "Duck", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_ducksprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "ghost", name: "Ghost", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_ghostsprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "dream", name: "Dream", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_sleepysprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "demon", name: "Demon", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_demonsprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "punk", name: "Punk", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_punksprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "king", name: "King", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_kingsprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "zeropoint", name: "Zero Point", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_zeropointsprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "burntpeanut", name: "Burnt Peanut", iconUrl: "https://fortnite-api.com/images/cosmetics/br/eid_burntpeanut/icon.png", variants: ["peanut"] },
   
-  // v41.10 Newly Dropped Sprites Added Here
-  { id: "striker", name: "Striker", iconCode: "esd_strikersprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "fishy", name: "Fishy", iconCode: "esd_fishysprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "aura", name: "Aura", iconCode: "esd_aurasprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "boss", name: "Boss", iconCode: "esd_bosssprite", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "grimreaper", name: "Grim Reaper", iconCode: "esd_grimreapersprite", variants: ["normal","gold","gummy","galaxy"] }
+  // Newly Dropped Sprites Today
+  { id: "striker", name: "Striker", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_strikersprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "fishy", name: "Fishy", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_fishysprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "aura", name: "Aura", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_aurasprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "boss", name: "Boss", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_bosssprite/icon.png", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "grimreaper", name: "Grim Reaper", iconUrl: "https://fortnite-api.com/images/cosmetics/br/esd_grimreapersprite/icon.png", variants: ["normal","gold","gummy","galaxy"] }
 ];
 
 const DEFAULT_STATE = {
@@ -322,7 +322,7 @@ SPRITES.forEach(s => {
   });
 });
 
-const STORAGE_KEY = "sprite-checklist-state-v5";
+const STORAGE_KEY = "sprite-checklist-state-v6";
 let state = null;
 
 function loadState() {
@@ -430,13 +430,10 @@ function render() {
         </div>`;
     }).join("");
 
-    // Dynamic direct image parsing from Fortnite.gg structural conventions
-    const imgUrl = `https://fortnite.gg/img/items/f/${s.iconCode}.png`;
-
     return `
       <div class="sprite-card">
         <div class="sprite-info">
-          <img class="sprite-icon" src="${imgUrl}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%238d93a8\' stroke-width=\'2\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'" alt="">
+          <img class="sprite-icon" src="${s.iconUrl}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%238d93a8\' stroke-width=\'2\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><path d=\'M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\'/><line x1=\'12\' y1=\'17\' x2=\'12.01\' y2=\'17\'/></svg>'" alt="">
           <div class="sprite-name">${s.name}</div>
         </div>
         <div class="variants-row ${isSingle ? 'single-variant' : ''}">
