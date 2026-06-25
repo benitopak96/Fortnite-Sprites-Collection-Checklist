@@ -33,7 +33,6 @@
     padding: 14px 12px 16px;
   }
 
-  /* Separate wrapper wrapper for the screenshot area so interface buttons aren't captured */
   .export-container {
     background: var(--bg);
     padding: 4px;
@@ -94,7 +93,6 @@
   
   .username-input:focus { border-color: var(--gold); }
 
-  /* Premium styled Share Button layout */
   .action-bar {
     display: flex;
     justify-content: space-between;
@@ -124,7 +122,25 @@
     transition: transform 0.1s ease;
   }
 
-  .export-btn:active { transform: scale(0.97); }
+  /* This custom class is toggled by JS right before taking the picture */
+  .social-export-mode .sprites-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .social-export-mode .sprite-card {
+    padding: 6px !important;
+  }
+
+  .social-export-mode .variant-icon {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .social-export-mode .toggle-label {
+    font-size: 8px !important;
+  }
 
   .sprites-grid {
     display: flex;
@@ -151,7 +167,7 @@
 
   .sprite-name {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
+    font-size: 18px;
     letter-spacing: 0.5px;
     line-height: 1;
     text-transform: uppercase;
@@ -388,14 +404,15 @@ function resetAll() {
   render();
 }
 
-// Stitches the visual canvas element and drops it into a download sequence
 function exportAsImage() {
   const targetElement = document.getElementById("capture-area");
   const exportBtn = document.querySelector(".export-btn");
   
   exportBtn.innerText = "Generating...";
   
-  // Custom compiler parameters ensuring crisp quality on mobile
+  // 1. Force the layout into social 2-column mode right before rendering
+  targetElement.classList.add("social-export-mode");
+  
   html2canvas(targetElement, {
     useCORS: true,
     allowTaint: true,
@@ -409,9 +426,12 @@ function exportAsImage() {
     link.href = canvas.toDataURL("image/png");
     link.click();
     
+    // 2. Clear the export configuration cleanly so the regular app look returns
+    targetElement.classList.remove("social-export-mode");
     exportBtn.innerText = "Export PNG Image";
   }).catch(err => {
     console.error("Image synthesis failed:", err);
+    targetElement.classList.remove("social-export-mode");
     exportBtn.innerText = "Error! Try Again";
   });
 }
