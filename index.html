@@ -389,7 +389,6 @@ const SPRITES = [
   { id: "aura", name: "Aura", variants: ["normal","gold","gummy","galaxy"] },
   { id: "boss", name: "Boss", variants: ["normal","gold","gummy","galaxy"] },
   { id: "grimreaper", name: "Grim Reaper", variants: ["normal","gold","gummy","galaxy"] },
-  // ADDED: Air & Seven lists tracked inside update configuration
   { id: "air", name: "Air", variants: ["normal","gold","gummy","galaxy"] },
   { id: "seven", name: "Seven", variants: ["normal","gold","gummy","galaxy"] }
 ];
@@ -406,7 +405,7 @@ SPRITES.forEach(s => {
   });
 });
 
-const STORAGE_KEY = "sprite-checklist-state-v12"; // Incremented storage keys so local profiles expand cleanly
+const STORAGE_KEY = "sprite-checklist-state-v12"; 
 let state = null;
 
 let touchTimer = null;
@@ -595,11 +594,20 @@ function render() {
       }
 
       let imagePath = "";
+      
+      // EXPLICIT FIXED PATH ROUTING FOR NEW SPRITE UPDATES
       if (s.id === "duck" && v === "normal") {
         imagePath = `Images/IMG_0395.webp`;
-      } else if (s.id === "air" && v === "normal" && imageCounter === 435) {
-        // Safe check for sequence offset transitions
-         imagePath = `Images/IMG_0444.webp`;
+      } else if (s.id === "air") {
+        if (v === "normal") imagePath = `Images/IMG_0444.webp`;
+        if (v === "gold") imagePath = `Images/IMG_0455.webp`;
+        if (v === "gummy") imagePath = `Images/IMG_0456.webp`;
+        if (v === "galaxy") imagePath = `Images/IMG_0457.webp`;
+      } else if (s.id === "seven") {
+        if (v === "normal") imagePath = `Images/IMG_0458.webp`;
+        if (v === "gold") imagePath = `Images/IMG_0459.webp`;
+        if (v === "gummy") imagePath = `Images/IMG_0460.webp`;
+        if (v === "galaxy") imagePath = `Images/IMG_0461.webp`;
       } else {
         const currentImgNum = String(imageCounter).padStart(4, '0');
         imagePath = `Images/IMG_${currentImgNum}.webp`;
