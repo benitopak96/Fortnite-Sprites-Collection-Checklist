@@ -84,61 +84,63 @@
     transition: border-color 0.2s;
   }
   
-  .username-input:focus {
-    border-color: var(--gold);
-  }
+  .username-input:focus { border-color: var(--gold); }
 
   .hint {
     font-size: 11px;
     color: var(--ink-dim);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
 
-  .column-labels {
-    display: grid;
-    grid-template-columns: 90px repeat(4, 1fr);
-    padding: 0 2px;
-    margin-bottom: 6px;
+  .sprites-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
   }
 
-  .column-labels div {
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-weight: 700;
-    text-align: center;
-  }
-
-  .column-labels .row-name-label { text-align: left; color: var(--ink-dim); }
-  .column-labels .col-normal { color: var(--ink-dim); }
-  .column-labels .col-gold { color: var(--gold); }
-  .column-labels .col-gummy { color: var(--gummy); }
-  .column-labels .col-galaxy { color: var(--galaxy); }
-
-  .row {
-    display: grid;
-    grid-template-columns: 90px repeat(4, 1fr);
-    align-items: center;
+  .sprite-card {
     background: var(--panel);
     border: 1px solid #1d2331;
-    border-radius: 10px;
-    padding: 7px 6px;
-    margin-bottom: 6px;
-    gap: 4px;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .row.single {
-    grid-template-columns: 90px 1fr;
+  .sprite-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sprite-icon {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    background: #161b27;
+    border-radius: 8px;
+    border: 1px solid #1d2331;
+    padding: 2px;
   }
 
   .sprite-name {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 14px;
-    letter-spacing: 0.2px;
-    line-height: 1.1;
+    font-size: 20px;
+    letter-spacing: 0.5px;
+    line-height: 1;
   }
 
-  .cell { display: flex; justify-content: center; }
+  .variants-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .variants-row.single-variant {
+    grid-template-columns: 1fr;
+  }
 
   .toggle {
     width: 100%;
@@ -170,8 +172,8 @@
   .toggle.max-lvl.galaxy { border-color: rgba(124,108,240,0.9); background: rgba(124,108,240,0.18); }
 
   .blob {
-    width: 15px;
-    height: 15px;
+    width: 13px;
+    height: 13px;
     border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%;
     flex-shrink: 0;
     opacity: 0.25;
@@ -195,7 +197,7 @@
   }
 
   .toggle.have .toggle-label { color: var(--have); }
-  .toggle.max-lvl .toggle-label { color: var(--gold); font-weight: 800; }
+  .toggle.max-lvl .toggle-label { color: var(--gold); font-weight: 900; letter-spacing: 0.5px; }
   .toggle:not(.have) .toggle-label { color: var(--need); }
 
   .legend {
@@ -282,43 +284,45 @@
 </head>
 <body>
   <div class="wrap" id="app">
-    <div class="loading">Loading your checklist…</div>
+    <div class="loading">Loading your sprite tracker…</div>
   </div>
 
 <script>
 const SPRITES = [
-  { id: "water", name: "Water", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "fire", name: "Fire", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "earth", name: "Earth", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "duck", name: "Duck", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "ghost", name: "Ghost", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "dream", name: "Dream", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "demon", name: "Demon", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "punk", name: "Punk", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "zeropoint", name: "Zero Point", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
+  // Original Base Sprites (Linked with direct CDN assets)
+  { id: "water", name: "Water", iconCode: "esd_water", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "fire", name: "Fire", iconCode: "esd_spitfire", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "earth", name: "Earth", iconCode: "esd_earthsprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "duck", name: "Duck", iconCode: "esd_ducksprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "ghost", name: "Ghost", iconCode: "esd_ghostsprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "dream", name: "Dream", iconCode: "esd_sleepysprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "demon", name: "Demon", iconCode: "esd_demonsprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "punk", name: "Punk", iconCode: "esd_punksprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "king", name: "King", iconCode: "esd_kingsprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "zeropoint", name: "Zero Point", iconCode: "esd_zeropointsprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "burntpeanut", name: "Burnt Peanut", iconCode: "eid_burntpeanut", variants: ["peanut"] },
+  
+  // v41.10 Newly Dropped Sprites Added Here
+  { id: "striker", name: "Striker", iconCode: "esd_strikersprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "fishy", name: "Fishy", iconCode: "esd_fishysprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "aura", name: "Aura", iconCode: "esd_aurasprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "boss", name: "Boss", iconCode: "esd_bosssprite", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "grimreaper", name: "Grim Reaper", iconCode: "esd_grimreapersprite", variants: ["normal","gold","gummy","galaxy"] }
 ];
 
-// Defaulting everything to level 0 (nothing) and empty username
 const DEFAULT_STATE = {
   username: "",
-  inventory: {
-    water: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
-    fire: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
-    earth: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
-    duck: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
-    ghost: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
-    dream: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
-    demon: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
-    punk: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
-    king: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
-    zeropoint: { normal: 0, gold: 0, gummy: 0, galaxy: 0 },
-    burntpeanut: { peanut: 0 },
-  }
+  inventory: {}
 };
 
-const STORAGE_KEY = "sprite-checklist-state-v3";
+SPRITES.forEach(s => {
+  DEFAULT_STATE.inventory[s.id] = {};
+  s.variants.forEach(v => {
+    DEFAULT_STATE.inventory[s.id][v] = 0;
+  });
+});
+
+const STORAGE_KEY = "sprite-checklist-state-v5";
 let state = null;
 
 function loadState() {
@@ -326,6 +330,12 @@ function loadState() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       state = JSON.parse(saved);
+      SPRITES.forEach(s => {
+        if (!state.inventory[s.id]) state.inventory[s.id] = {};
+        s.variants.forEach(v => {
+          if (state.inventory[s.id][v] === undefined) state.inventory[s.id][v] = 0;
+        });
+      });
     } else {
       state = JSON.parse(JSON.stringify(DEFAULT_STATE));
     }
@@ -344,8 +354,6 @@ function saveState() {
 }
 
 function cycleLevel(spriteId, variant) {
-  if (!state.inventory[spriteId]) state.inventory[spriteId] = {};
-  
   let currentLevel = state.inventory[spriteId][variant] || 0;
   let nextLevel = currentLevel + 1;
   if (nextLevel > 5) nextLevel = 0;
@@ -365,7 +373,7 @@ function updateUsername(newName) {
 }
 
 function resetAll() {
-  if (!confirm("Clear your checklist and reset to zero?")) return;
+  if (!confirm("Clear your checklist and reset all levels to zero?")) return;
   state = JSON.parse(JSON.stringify(DEFAULT_STATE));
   saveState();
   render();
@@ -380,7 +388,7 @@ function render() {
   SPRITES.forEach(s => {
     s.variants.forEach(v => {
       totalPointsPossible += 5;
-      let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
+      let lvl = state.inventory[s.id][v] || 0;
       currentPointsEarned += lvl;
     });
   });
@@ -388,58 +396,52 @@ function render() {
   const pct = Math.round((currentPointsEarned / totalPointsPossible) * 100);
 
   const missingNames = SPRITES.filter(s =>
-    s.variants.some(v => {
-      let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
-      return lvl < 5;
-    })
+    s.variants.some(v => (state.inventory[s.id][v] || 0) < 5)
   ).map(s => s.name);
 
   const missingLabel = missingNames.length
     ? `Still leveling: ${missingNames.slice(0, 3).join(", ")}${missingNames.length > 3 ? "..." : ""}`
-    : "All sprites fully Max Level 5! 🎉";
+    : "All styles fully Maxed! 🎉";
 
-  let rowsHtml = SPRITES.map(s => {
-    if (s.variants.length === 1) {
-      const v = s.variants[0];
-      let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
-      
-      return `
-        <div class="row single">
-          <div class="sprite-name">${s.name}</div>
-          <div class="toggle ${lvl > 0 ? "have" : ""} ${lvl === 5 ? "max-lvl" : ""}" style="justify-content:flex-start; padding:7px 10px;" onclick="cycleLevel('${s.id}','${v}')">
-            <div class="blob peanut"></div>
-            <div class="toggle-label">${lvl === 0 ? "✕ Need" : lvl === 5 ? "✓ Max Lvl 5" : "✓ Lvl " + lvl}</div>
-          </div>
-        </div>`;
-    }
+  let cardsHtml = SPRITES.map(s => {
+    const isSingle = s.variants.length === 1;
     
     const cells = s.variants.map(v => {
-      let lvl = state.inventory[s.id] ? state.inventory[s.id][v] : 0;
+      let lvl = state.inventory[s.id][v] || 0;
 
       let btnClass = "";
-      let labelText = "✕";
+      let labelText = "✕ NEED";
+      if (!isSingle) labelText = "✕";
+      
       if (lvl > 0) {
         btnClass = "have " + v;
-        labelText = "L" + lvl;
+        labelText = "LVL " + lvl;
+        if (!isSingle) labelText = "L" + lvl;
       }
       if (lvl === 5) {
         btnClass = "max-lvl " + v;
-        labelText = "🏆";
+        labelText = "MAX";
       }
 
       return `
-        <div class="cell">
-          <div class="toggle ${btnClass}" onclick="cycleLevel('${s.id}','${v}')">
-            <div class="blob ${v}"></div>
-            <div class="toggle-label">${labelText}</div>
-          </div>
+        <div class="toggle ${btnClass}" onclick="cycleLevel('${s.id}','${v}')">
+          <div class="blob ${v}"></div>
+          <div class="toggle-label">${labelText}</div>
         </div>`;
     }).join("");
 
+    // Dynamic direct image parsing from Fortnite.gg structural conventions
+    const imgUrl = `https://fortnite.gg/img/items/f/${s.iconCode}.png`;
+
     return `
-      <div class="row">
-        <div class="sprite-name">${s.name}</div>
-        ${cells}
+      <div class="sprite-card">
+        <div class="sprite-info">
+          <img class="sprite-icon" src="${imgUrl}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%238d93a8\' stroke-width=\'2\'><circle cx=\'12\' cy=\'12\' r=\'10\'/></svg>'" alt="">
+          <div class="sprite-name">${s.name}</div>
+        </div>
+        <div class="variants-row ${isSingle ? 'single-variant' : ''}">
+          ${cells}
+        </div>
       </div>`;
   }).join("");
 
@@ -455,17 +457,11 @@ function render() {
       </div>
     </div>
 
-    <div class="hint">Tap a tile to cycle levels (1-5) or clear back to zero — saves automatically.</div>
+    <div class="hint">Tap a style box below to change its custom level (1-5) or clear back to zero.</div>
 
-    <div class="column-labels">
-      <div class="row-name-label">Sprite</div>
-      <div class="col-normal">Normal</div>
-      <div class="col-gold">Gold</div>
-      <div class="col-gummy">Gummy</div>
-      <div class="col-galaxy">Galaxy</div>
+    <div class="sprites-grid">
+      ${cardsHtml}
     </div>
-
-    ${rowsHtml}
 
     <div class="legend">
       <div class="legend-item"><div class="blob normal"></div>Normal</div>
