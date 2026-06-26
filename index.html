@@ -328,6 +328,12 @@
     align-items: center;
   }
 
+  .link-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
   .tip-link {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
@@ -347,6 +353,17 @@
   .tip-link:hover {
     background: rgba(232,179,57,0.08);
     border-color: var(--gold);
+  }
+
+  .discord-link {
+    color: var(--galaxy);
+    border-color: rgba(124,108,240,0.4);
+    background: rgba(124,108,240,0.03);
+  }
+
+  .discord-link:hover {
+    background: rgba(124,108,240,0.08);
+    border-color: var(--galaxy);
   }
 
   .footer-bar {
@@ -749,8 +766,11 @@ function render() {
       </div>
 
       <div class="legend-bar">
-        <a href="https://buymeacoffee.com/benitopak96" target="_blank" class="tip-link">☕ Support the Dev</a>
-        <button class="reset-btn" onclick="resetAll()">Reset all to zero</button>
+        <div class="link-group">
+          <a href="https://buymeacoffee.com/benitopak96" target="_blank" class="tip-link">☕ Support the Dev</a>
+          <a href="https://discord.gg/sfat9mcv73" target="_blank" class="tip-link discord-link">💬 Join Discord</a>
+        </div>
+        <button class="reset-btn" onclick="resetAll()">Reset all</button>
       </div>
 
       <div class="footer-bar">
