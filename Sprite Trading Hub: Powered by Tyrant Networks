@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STH Discord Logo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@600;700&display=swap');
+  
+  body { 
+    background-color: #0b0e14; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    margin: 0; 
+  }
+  
+  .logo-wrapper {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    filter: drop-shadow(0 0 25px rgba(124,108,240,0.4));
+  }
+</style>
+</head>
+<body>
+
+  <div class="logo-wrapper">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+      <defs>
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#11151f" />
+          <stop offset="100%" stop-color="#0b0e14" />
+        </linearGradient>
+        <linearGradient id="gemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#a3e2f7" />
+          <stop offset="100%" stop-color="#7c6cf0" />
+        </linearGradient>
+      </defs>
+
+      <circle cx="250" cy="250" r="240" fill="url(#bgGrad)" stroke="#7c6cf0" stroke-width="8"/>
+      <circle cx="250" cy="250" r="225" fill="none" stroke="#e8b339" stroke-width="2" opacity="0.6" stroke-dasharray="10 6"/>
+      
+      <polygon points="250,70 340,220 250,370 160,220" fill="url(#gemGrad)" opacity="0.1"/>
+      <polygon points="250,100 310,220 250,340 190,220" fill="url(#gemGrad)" opacity="0.25"/>
+      <polygon points="250,130 280,220 250,310 220,220" fill="none" stroke="#a3e2f7" stroke-width="3"/>
+
+      <text x="250" y="240" font-family="'Bebas Neue', sans-serif" font-size="120" fill="#ffffff" text-anchor="middle" letter-spacing="4">STH</text>
+      <text x="250" y="295" font-family="'Bebas Neue', sans-serif" font-size="34" fill="#e8b339" text-anchor="middle" letter-spacing="2.5">SPRITE TRADING HUB</text>
+      
+      <rect x="115" y="335" width="270" height="32" rx="8" fill="#161b27" stroke="#7c6cf0" stroke-width="1.5"/>
+      <text x="250" y="356" font-family="'Space Grotesk', sans-serif" font-weight="700" font-size="12.5" fill="#a3e2f7" text-anchor="middle" letter-spacing="1.5">POWERED BY TYRANT NETWORKS</text>
+    </svg>
+  </div>
+
+</body>
+</html>
