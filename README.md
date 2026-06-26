@@ -2,7 +2,7 @@
 
 A high-fidelity, mobile-responsive web utility built for the Fortnite community to track, manage, and seamlessly share their Sprite Trading collection tiers. Designed to look and feel like an authentic in-game digital item locker, this application allows users to effortlessly track item variants and export pixel-perfect progress updates optimized for social sharing.
 
-Live Site: [https://benitopak96.github.io/Fortnite-Sprites-Collection-Checklist/](https://benitopak96.github.io/Fortnite-Sprites-Collection-Checklist/)
+Live Site: [https://sprites.tyrantnetworks.com](https://sprites.tyrantnetworks.com)
 
 ---
 
@@ -22,36 +22,38 @@ Live Site: [https://benitopak96.github.io/Fortnite-Sprites-Collection-Checklist/
 
 ## 🗂️ Managed Sprite Inventory
 
-The compilation script handles standard and newly released tiers in an ordered structural sequence:
+The compilation script handles standard, newly released, and upcoming tiers in an ordered structural sequence:
 
-1.  **Water**
-2.  **Earth**
-3.  **Fire**
-4.  **Duck** *(Includes direct target routing for decoupled historical image variants)*
-5.  **Ghost**
+1.  **Water** *(Supports Gem & Holofoil variants)*
+2.  **Earth** *(Supports Gem variant)*
+3.  **Fire** *(Supports Holofoil variant)*
+4.  **Duck** *(Includes target routing for decoupled historical image variants; supports Gem variant)*
+5.  **Ghost** *(Supports Holofoil variant)*
 6.  **Dream**
-7.  **Demon**
+7.  **Demon** *(Supports Gem variant)*
 8.  **Punk**
-9.  **King**
+9.  **King** *(Supports Holofoil variant)*
 10. **Burnt Peanut** *(Standalone item variant style)*
-11. **Zero Point**
-12. **Fishy** *(v41.10 New Release)*
-13. **Striker** *(v41.10 New Release)*
-14. **Aura** *(v41.10 New Release)*
-15. **Boss** *(v41.10 New Release)*
-16. **Grim Reaper** *(v41.10 New Release)*
+11. **Zero Point** *(Supports Gem variant)*
+12. **Fishy** 
+13. **Striker** *(Supports Holofoil variant)*
+14. **Aura** *(Supports Gem variant)*
+15. **Boss** 
+16. **Grim Reaper** 
+17. **Air** *(Supports Holofoil variant)*
+18. **Seven** *(Supports Holofoil variant)*
 
 ---
 
 ## 📂 Asset Locker Architecture
 
-File image paths are resolved natively based on their digital asset sequence values. To supplement future content drops, maintain raw screenshots inside the primary media tree:
+File image paths are resolved natively based on their digital asset sequence values or advanced static mapping arrays. To supplement future content drops, maintain raw screenshots inside the primary media tree:
 
 ```text
 ├── index.html              # Core tracking architecture, custom logic script, and styles
 └── Images/                 # Capital-mapped image asset directory
     ├── IMG_0383.webp       # Water Normal Base
     ├── IMG_0384.webp       # Water Gold Variant
-    ├── IMG_0385.webp       # Water Gummy Variant
-    ├── IMG_0386.webp       # Water Galaxy Variant
-    └── ...                 # Sequential asset mapping through all 61 locker items
+    ├── IMG_0466.webp       # Water Gem Variant
+    ├── IMG_0472.webp       # Water Holofoil Variant
+    └── ...                 # Advanced structural asset mapping through all 73 locker options
