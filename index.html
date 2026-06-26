@@ -136,7 +136,7 @@
     transition: transform 0.1s ease;
   }
 
-  /* ADVANCED SOCIAL EXPORT MODE CONSTRAINTS FOR ALL COLUMNS */
+  /* Social Export Mode Constraints */
   .social-export-mode {
     width: 580px !important; 
     padding: 12px !important;
@@ -175,7 +175,6 @@
     width: calc(25% - 3px) !important;
   }
 
-  /* Adjust widths for cards containing extra Gem or Holofoil variations */
   .social-export-mode .sprite-card:has(.toggle:nth-child(5)) .toggle {
     width: calc(20% - 3px) !important;
   }
@@ -325,6 +324,27 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+
+  .tip-link {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px dashed rgba(232,179,57,0.4);
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(232,179,57,0.03);
+    transition: all 0.1s ease;
+  }
+
+  .tip-link:hover {
+    background: rgba(232,179,57,0.08);
+    border-color: var(--gold);
   }
 
   .footer-bar {
@@ -540,7 +560,6 @@ function resetAll() {
   render();
 }
 
-// UPGRADED EXPORT ENGINE ROUTING VIA THE STABLE WEB SHARE INSTANCE API
 function exportAsImage() {
   const targetElement = document.getElementById("capture-area");
   const exportBtn = document.querySelector(".export-btn");
@@ -560,11 +579,9 @@ function exportAsImage() {
       const nameString = state.username ? state.username.replace(/\s+/g, '_') : 'My';
       const fileName = `${nameString}_Fortnite_Sprite_Checklist.png`;
       
-      // Convert canvas render data into a standalone standard file blob structure
       canvas.toBlob(blob => {
         const imageFile = new File([blob], fileName, { type: "image/png" });
         
-        // Execute Native Web Share routing if modern OS instance protocols match
         if (navigator.canShare && navigator.canShare({ files: [imageFile] })) {
           navigator.share({
             files: [imageFile],
@@ -574,13 +591,12 @@ function exportAsImage() {
             targetElement.classList.remove("social-export-mode");
             exportBtn.innerText = "Export PNG Image";
           }).catch(err => {
-            console.log("Share sheets closed or canceled:", err);
+            console.log("Share sheet action dismissed.", err);
             fallbackDownload(canvas, fileName);
             targetElement.classList.remove("social-export-mode");
             exportBtn.innerText = "Export PNG Image";
           });
         } else {
-          // Fallback sequence directly processes file generation structure if APIs fail
           fallbackDownload(canvas, fileName);
           targetElement.classList.remove("social-export-mode");
           exportBtn.innerText = "Export PNG Image";
@@ -729,7 +745,8 @@ function render() {
       </div>
 
       <div class="legend-bar">
-        <span>Cycle levels by tapping styles</span>
+        <!-- LIVE DEPLOYED MONETIZATION TIP LINK -->
+        <a href="https://buymeacoffee.com/benitopak96" target="_blank" class="tip-link">☕ Support the Dev</a>
         <button class="reset-btn" onclick="resetAll()">Reset all to zero</button>
       </div>
 
