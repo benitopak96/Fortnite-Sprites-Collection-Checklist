@@ -45,6 +45,45 @@
   }
 
   .wrap { max-width: 640px; margin: 0 auto; }
+  
+  /* Sheet Manager UI */
+  .sheet-manager {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    background: var(--panel);
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #1d2331;
+    align-items: center;
+  }
+  .sheet-selector {
+    flex-grow: 1;
+    background: #161b27;
+    color: var(--gold);
+    border: 1px solid #1d2331;
+    padding: 6px;
+    border-radius: 4px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+  }
+  .sheet-btn {
+    background: #161b27;
+    color: var(--ink);
+    border: 1px solid #1d2331;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    transition: all 0.2s;
+    font-weight: 600;
+  }
+  .sheet-btn:hover { border-color: var(--galaxy); color: var(--galaxy); }
+  .sheet-btn.delete { color: var(--need); border-color: #3a1a1f; background: rgba(255,85,102,0.05); }
+  .sheet-btn.delete:hover { border-color: var(--need); background: rgba(255,85,102,0.15); }
 
   .header {
     display: flex;
@@ -147,6 +186,7 @@
   .social-export-mode .username-input { display: none !important; }
   .social-export-mode .username-static { display: block !important; }
   .social-export-mode .max-row-btn { display: none !important; }
+  .social-export-mode .sheet-manager { display: none !important; }
 
   .social-export-mode .header {
     padding-left: 4px !important;
@@ -474,47 +514,109 @@ SPRITES.forEach(s => {
   });
 });
 
-const STORAGE_KEY = "sprite-checklist-state-v15"; 
-let state = null;
+// MULTI-SHEET STORAGE ENGINE
+const LEGACY_KEY = "sprite-checklist-state-v15";
+const MULTI_STORAGE_KEY = "sprite-checklist-multi-v1"; 
+
+let appState = {
+  activeId: "default",
+  profiles: {
+    "default": JSON.parse(JSON.stringify(DEFAULT_STATE))
+  }
+};
+let state = null; // Pointer to the currently active sheet
 
 let touchTimer = null;
 let isLongPress = false;
 
 function loadState() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      state = JSON.parse(saved);
+    const savedMulti = localStorage.getItem(MULTI_STORAGE_KEY);
+    
+    if (savedMulti) {
+      appState = JSON.parse(savedMulti);
+    } else {
+      // MIGRATION: Move old users to the new multi-sheet system automatically
+      const legacySaved = localStorage.getItem(LEGACY_KEY);
+      if (legacySaved) {
+        appState.profiles["default"] = JSON.parse(legacySaved);
+      }
+    }
+    
+    // Ensure data integrity for new sprites added to older sheets
+    Object.keys(appState.profiles).forEach(profId => {
+      let prof = appState.profiles[profId];
       SPRITES.forEach(s => {
-        if (!state.inventory[s.id]) state.inventory[s.id] = {};
+        if (!prof.inventory[s.id]) prof.inventory[s.id] = {};
         s.variants.forEach(v => {
-          if (state.inventory[s.id][v] === undefined) state.inventory[s.id][v] = 0;
+          if (prof.inventory[s.id][v] === undefined) prof.inventory[s.id][v] = 0;
         });
       });
-    } else {
-      state = JSON.parse(JSON.stringify(DEFAULT_STATE));
-    }
+    });
+
   } catch (e) {
-    state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    console.error("State load failed, resetting...", e);
+    appState = { activeId: "default", profiles: { "default": JSON.parse(JSON.stringify(DEFAULT_STATE)) } };
   }
+  
+  state = appState.profiles[appState.activeId];
   render();
 }
 
 function saveState() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    appState.profiles[appState.activeId] = state;
+    localStorage.setItem(MULTI_STORAGE_KEY, JSON.stringify(appState));
   } catch (e) {
     console.error("Failed to save state:", e);
   }
 }
 
+// MULTI-SHEET CONTROLS
+function newSheet() {
+  const name = prompt("Enter a name for this new sheet (e.g., Friend's Username):");
+  if (!name || name.trim() === "") return;
+  
+  const id = "sheet_" + Date.now().toString();
+  appState.profiles[id] = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  appState.profiles[id].username = name.trim();
+  
+  appState.activeId = id;
+  state = appState.profiles[id];
+  saveState();
+  render();
+}
+
+function switchSheet(id) {
+  appState.activeId = id;
+  state = appState.profiles[id];
+  saveState(); 
+  render();
+}
+
+function deleteSheet() {
+  if (Object.keys(appState.profiles).length <= 1) {
+    alert("You cannot delete your only sheet. You can use the 'Reset all' button below instead.");
+    return;
+  }
+  
+  const activeName = state.username || "this unnamed sheet";
+  if (!confirm(`Are you sure you want to permanently delete ${activeName}?`)) return;
+  
+  delete appState.profiles[appState.activeId];
+  appState.activeId = Object.keys(appState.profiles)[0]; // Fallback to first available sheet
+  state = appState.profiles[appState.activeId];
+  
+  saveState();
+  render();
+}
+
+// INVENTORY CONTROLS
 function handleTileTap(spriteId, variant) {
   if (isLongPress) return;
-  
   let currentLevel = state.inventory[spriteId][variant] || 0;
   let nextLevel = currentLevel + 1;
   if (nextLevel > 5) nextLevel = 0;
-
   state.inventory[spriteId][variant] = nextLevel;
   saveState();
   render();
@@ -529,7 +631,6 @@ function handleLongPress(spriteId, variant) {
 function maxEntireRow(spriteId) {
   const sprite = SPRITES.find(s => s.id === spriteId);
   if (!sprite) return;
-  
   sprite.variants.forEach(v => {
     state.inventory[spriteId][v] = 5;
   });
@@ -578,8 +679,8 @@ function updateUsername(newName) {
 }
 
 function resetAll() {
-  if (!confirm("Clear your checklist and reset all levels to zero?")) return;
-  state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  if (!confirm("Clear this checklist and reset all levels to zero?")) return;
+  state.inventory = JSON.parse(JSON.stringify(DEFAULT_STATE.inventory));
   saveState();
   render();
 }
@@ -756,7 +857,22 @@ function render() {
       </div>`;
   }).join("");
 
+  // Generate options for the dropdown
+  const sheetOptions = Object.keys(appState.profiles).map(id => {
+    const prof = appState.profiles[id];
+    const displayName = prof.username || "Unnamed Sheet";
+    return `<option value="${id}" ${id === appState.activeId ? "selected" : ""}>📋 ${displayName}</option>`;
+  }).join("");
+
   app.innerHTML = `
+    <div class="sheet-manager">
+      <select class="sheet-selector" onchange="switchSheet(this.value)">
+        ${sheetOptions}
+      </select>
+      <button class="sheet-btn" onclick="newSheet()">+ New Sheet</button>
+      <button class="sheet-btn delete" onclick="deleteSheet()" title="Delete Sheet">✕</button>
+    </div>
+
     <div class="action-bar">
       <div class="hint">Tap tiles to cycle level. Hold down a tile or tap "MAX ROW" to instantly hit Level 5!</div>
       <button class="export-btn" onclick="exportAsImage()">Export PNG Image</button>
@@ -784,7 +900,7 @@ function render() {
           <a href="https://buymeacoffee.com/benitopak96" target="_blank" class="tip-link">☕ Support the Dev</a>
           <a href="https://discord.gg/sfat9mcv73" target="_blank" class="tip-link discord-link">💬 Join Discord</a>
         </div>
-        <button class="reset-btn" onclick="resetAll()">Reset all</button>
+        <button class="reset-btn" onclick="resetAll()">Reset Sheet</button>
       </div>
 
       <div class="footer-bar">
