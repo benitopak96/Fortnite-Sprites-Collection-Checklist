@@ -18,6 +18,7 @@
     --galaxy: #7c6cf0;
     --gem: #a3e2f7;
     --holofoil: #e0abf5;
+    --cube: #b847ff;
     --have: #2ee6a6;
     --need: #ff5566;
     --ink: #eef0f6;
@@ -229,6 +230,25 @@
   .social-export-mode .legend-bar { display: none !important; }
   .social-export-mode .footer-bar { margin-top: 12px !important; padding: 10px !important; }
 
+  /* Export Watermark - Only visible during export */
+  .export-watermark { display: none; }
+  .social-export-mode .export-watermark {
+    display: block !important;
+    text-align: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink-dim);
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 2px dashed #1d2331;
+    letter-spacing: 0.5px;
+  }
+  .social-export-mode .export-watermark span {
+    color: var(--gold);
+    margin-left: 4px;
+  }
+
   .sprites-grid {
     display: flex;
     flex-direction: column;
@@ -319,6 +339,7 @@
   .toggle.have.galaxy { border-color: rgba(124,108,240,0.3); background: rgba(124,108,240,0.04); }
   .toggle.have.gem { border-color: rgba(163,226,247,0.3); background: rgba(163,226,247,0.04); }
   .toggle.have.holofoil { border-color: rgba(224,171,245,0.3); background: rgba(224,171,245,0.04); }
+  .toggle.have.cube { border-color: rgba(184,71,255,0.3); background: rgba(184,71,255,0.04); }
 
   .toggle.max-lvl { border-width: 2px; }
   .toggle.max-lvl.normal { border-color: rgba(184,191,209,0.9); background: rgba(184,191,209,0.12); }
@@ -327,6 +348,7 @@
   .toggle.max-lvl.galaxy { border-color: rgba(124,108,240,0.9); background: rgba(124,108,240,0.14); }
   .toggle.max-lvl.gem { border-color: rgba(163,226,247,0.9); background: rgba(163,226,247,0.15); }
   .toggle.max-lvl.holofoil { border-color: rgba(224,171,245,0.9); background: rgba(224,171,245,0.15); }
+  .toggle.max-lvl.cube { border-color: rgba(184,71,255,0.9); background: rgba(184,71,255,0.14); }
 
   .variant-icon {
     width: 44px;
@@ -474,28 +496,29 @@
   </div>
 
 <script>
+// UPDATED SPRITE ORDER AND NEW "CUBE" VARIANTS
 const SPRITES = [
+  { id: "batman", name: "Batman", variants: ["normal","gold","gummy","galaxy","holofoil","cube"] },
   { id: "water", name: "Water", variants: ["normal","gold","gummy","galaxy","gem","holofoil"] },
-  { id: "earth", name: "Earth", variants: ["normal","gold","gummy","galaxy","gem"] },
-  { id: "fire", name: "Fire", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "earth", name: "Earth", variants: ["normal","gold","gummy","galaxy","gem","cube"] },
+  { id: "fire", name: "Fire", variants: ["normal","gold","gummy","galaxy","holofoil","cube"] },
   { id: "duck", name: "Duck", variants: ["normal","gold","gummy","galaxy","gem"] },
   { id: "ghost", name: "Ghost", variants: ["normal","gold","gummy","galaxy","holofoil"] },
-  { id: "dream", name: "Dream", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "dream", name: "Dream", variants: ["normal","gold","gummy","galaxy","cube"] },
   { id: "demon", name: "Demon", variants: ["normal","gold","gummy","galaxy","gem"] },
-  { id: "punk", name: "Punk", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "punk", name: "Punk", variants: ["normal","gold","gummy","galaxy","cube"] },
   { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
+  { id: "vinijr", name: "Vini Jr", variants: ["vinijr"] },
   { id: "zeropoint", name: "Zero Point", variants: ["normal","gold","gummy","galaxy","gem"] },
-  { id: "fishy", name: "Fishy", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "fishy", name: "Fishy", variants: ["normal","gold","gummy","galaxy","cube"] },
   { id: "striker", name: "Striker", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "aura", name: "Aura", variants: ["normal","gold","gummy","galaxy","gem"] },
-  { id: "boss", name: "Boss", variants: ["normal","gold","gummy","galaxy"] },
-  { id: "grimreaper", name: "Grim Reaper", variants: ["normal","gold","gummy","galaxy"] },
+  { id: "boss", name: "Boss", variants: ["normal","gold","gummy","galaxy","cube"] },
+  { id: "grimreaper", name: "Grim Reaper", variants: ["normal","gold","gummy","galaxy","cube"] },
   { id: "air", name: "Air", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "seven", name: "Seven", variants: ["normal","gold","gummy","galaxy","holofoil"] },
-  { id: "batman", name: "Batman", variants: ["normal","gold","gummy","galaxy","holofoil"] },
-  { id: "pollo", name: "Pollo", variants: ["pollo"] },
-  { id: "vinijr", name: "Vini Jr", variants: ["vinijr"] }
+  { id: "pollo", name: "Pollo", variants: ["pollo"] }
 ];
 
 const DEFAULT_STATE = {
@@ -793,6 +816,15 @@ function render() {
         if (v === "gummy") imagePath = `Images/IMG_0772.webp`;
         if (v === "galaxy") imagePath = `Images/IMG_0773.webp`;
         if (v === "holofoil") imagePath = `Images/IMG_0774.webp`;
+        if (v === "cube") imagePath = `Images/IMG_1003.webp`;
+      } else if (v === "cube") {
+        if (s.id === "earth") imagePath = `Images/IMG_1004.webp`;
+        if (s.id === "fire") imagePath = `Images/IMG_1005.webp`;
+        if (s.id === "dream") imagePath = `Images/IMG_1006.webp`;
+        if (s.id === "punk") imagePath = `Images/IMG_1007.webp`;
+        if (s.id === "fishy") imagePath = `Images/IMG_1008.webp`;
+        if (s.id === "boss") imagePath = `Images/IMG_1009.webp`;
+        if (s.id === "grimreaper") imagePath = `Images/IMG_1010.webp`;
       } else if (s.id === "pollo") {
         imagePath = `Images/IMG_0775.webp`;
       } else if (s.id === "vinijr") {
@@ -830,7 +862,7 @@ function render() {
         imagePath = `Images/IMG_${currentImgNum}.webp`;
       }
       
-      if (v !== "gem" && v !== "holofoil" && s.id !== "air" && s.id !== "seven" && s.id !== "batman" && s.id !== "pollo" && s.id !== "vinijr") {
+      if (v !== "gem" && v !== "holofoil" && v !== "cube" && s.id !== "air" && s.id !== "seven" && s.id !== "batman" && s.id !== "pollo" && s.id !== "vinijr") {
         imageCounter++;
       }
 
@@ -902,6 +934,11 @@ function render() {
           <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
         </div>
         <div class="cta">Got what I need? Comment your name & add <span id="cta-username">${state.username || "[Input Username]"}</span></div>
+      </div>
+      
+      <!-- EXPORT ONLY WATERMARK -->
+      <div class="export-watermark">
+        Track your collection at <span>sprites.tyrantnetworks.com</span>
       </div>
     </div>
 
