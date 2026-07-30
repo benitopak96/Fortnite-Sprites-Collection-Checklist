@@ -19,6 +19,7 @@
     --gem: #a3e2f7;
     --holofoil: #e0abf5;
     --cube: #b847ff;
+    --quack: #ffb703;
     --have: #2ee6a6;
     --need: #ff5566;
     --ink: #eef0f6;
@@ -220,6 +221,10 @@
   .social-export-mode .sprite-card:has(.toggle:nth-child(6)) .toggle {
     width: calc(16.66% - 3px) !important;
   }
+  /* Rule for 7 variants (Water, Zero Point) */
+  .social-export-mode .sprite-card:has(.toggle:nth-child(7)) .toggle {
+    width: calc(14.28% - 3px) !important;
+  }
 
   .social-export-mode .toggle-label {
     font-size: 5px !important;
@@ -340,6 +345,7 @@
   .toggle.have.gem { border-color: rgba(163,226,247,0.3); background: rgba(163,226,247,0.04); }
   .toggle.have.holofoil { border-color: rgba(224,171,245,0.3); background: rgba(224,171,245,0.04); }
   .toggle.have.cube { border-color: rgba(184,71,255,0.3); background: rgba(184,71,255,0.04); }
+  .toggle.have.quack { border-color: rgba(255,183,3,0.3); background: rgba(255,183,3,0.04); }
 
   .toggle.max-lvl { border-width: 2px; }
   .toggle.max-lvl.normal { border-color: rgba(184,191,209,0.9); background: rgba(184,191,209,0.12); }
@@ -349,6 +355,7 @@
   .toggle.max-lvl.gem { border-color: rgba(163,226,247,0.9); background: rgba(163,226,247,0.15); }
   .toggle.max-lvl.holofoil { border-color: rgba(224,171,245,0.9); background: rgba(224,171,245,0.15); }
   .toggle.max-lvl.cube { border-color: rgba(184,71,255,0.9); background: rgba(184,71,255,0.14); }
+  .toggle.max-lvl.quack { border-color: rgba(255,183,3,0.9); background: rgba(255,183,3,0.14); }
 
   .variant-icon {
     width: 44px;
@@ -496,12 +503,13 @@
   </div>
 
 <script>
-// UPDATED SPRITE ORDER AND NEW "CUBE" VARIANTS
+// SPRITE DEFINITIONS
 const SPRITES = [
+  { id: "johnwick", name: "John Wick", variants: ["johnwick"] },
   { id: "batman", name: "Batman", variants: ["normal","gold","gummy","galaxy","holofoil","cube"] },
-  { id: "water", name: "Water", variants: ["normal","gold","gummy","galaxy","gem","holofoil"] },
-  { id: "earth", name: "Earth", variants: ["normal","gold","gummy","galaxy","gem","cube"] },
-  { id: "fire", name: "Fire", variants: ["normal","gold","gummy","galaxy","holofoil","cube"] },
+  { id: "water", name: "Water", variants: ["normal","gold","gummy","galaxy","gem","holofoil","quack"] },
+  { id: "earth", name: "Earth", variants: ["normal","gold","gummy","galaxy","gem","cube","quack"] },
+  { id: "fire", name: "Fire", variants: ["normal","gold","gummy","galaxy","holofoil","cube","quack"] },
   { id: "duck", name: "Duck", variants: ["normal","gold","gummy","galaxy","gem"] },
   { id: "ghost", name: "Ghost", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "dream", name: "Dream", variants: ["normal","gold","gummy","galaxy","cube"] },
@@ -510,15 +518,18 @@ const SPRITES = [
   { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
   { id: "vinijr", name: "Vini Jr", variants: ["vinijr"] },
-  { id: "zeropoint", name: "Zero Point", variants: ["normal","gold","gummy","galaxy","gem"] },
+  { id: "zeropoint", name: "Zero Point", variants: ["normal","gold","gummy","galaxy","gem","cube","quack"] },
   { id: "fishy", name: "Fishy", variants: ["normal","gold","gummy","galaxy","cube"] },
   { id: "striker", name: "Striker", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "aura", name: "Aura", variants: ["normal","gold","gummy","galaxy","gem"] },
   { id: "boss", name: "Boss", variants: ["normal","gold","gummy","galaxy","cube"] },
-  { id: "grimreaper", name: "Grim Reaper", variants: ["normal","gold","gummy","galaxy","cube"] },
+  { id: "grimreaper", name: "Grim", variants: ["normal","gold","gummy","galaxy","cube","gem"] },
   { id: "air", name: "Air", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "seven", name: "Seven", variants: ["normal","gold","gummy","galaxy","holofoil"] },
-  { id: "pollo", name: "Pollo", variants: ["pollo"] }
+  { id: "pollo", name: "Pollo", variants: ["pollo"] },
+  { id: "lootinllama", name: "Lootin' Llama", variants: ["normal","gold","gummy","galaxy","gem"] },
+  { id: "peekypeely", name: "Peeky Peely", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "ironmouse", name: "Ironmouse", variants: ["ironmouse"] }
 ];
 
 const DEFAULT_STATE = {
@@ -810,7 +821,33 @@ function render() {
 
       let imagePath = "";
       
-      if (s.id === "batman") {
+      // NEW SPRITE EXCEPTIONS
+      if (s.id === "johnwick") {
+        imagePath = `Images/IMG_1070.webp`;
+      } else if (s.id === "lootinllama") {
+        if (v === "normal") imagePath = `Images/IMG_1060.webp`;
+        if (v === "gold") imagePath = `Images/IMG_1061.webp`;
+        if (v === "gummy") imagePath = `Images/IMG_1062.webp`;
+        if (v === "galaxy") imagePath = `Images/IMG_1063.webp`;
+        if (v === "gem") imagePath = `Images/IMG_1064.webp`;
+      } else if (s.id === "peekypeely") {
+        if (v === "normal") imagePath = `Images/IMG_1065.webp`;
+        if (v === "gold") imagePath = `Images/IMG_1066.webp`;
+        if (v === "gummy") imagePath = `Images/IMG_1067.webp`;
+        if (v === "galaxy") imagePath = `Images/IMG_1068.webp`;
+        if (v === "holofoil") imagePath = `Images/IMG_1069.webp`;
+      } else if (s.id === "ironmouse") {
+        imagePath = `Images/IMG_1059.webp`;
+      } else if (v === "quack") {
+        if (s.id === "water") imagePath = `Images/IMG_1053.webp`;
+        if (s.id === "earth") imagePath = `Images/IMG_1054.webp`;
+        if (s.id === "fire") imagePath = `Images/IMG_1055.webp`;
+        if (s.id === "zeropoint") imagePath = `Images/IMG_1057.webp`;
+      } else if (s.id === "grimreaper" && v === "gem") {
+        imagePath = `Images/IMG_1058.webp`;
+      } 
+      // PREVIOUS SPRITE EXCEPTIONS
+      else if (s.id === "batman") {
         if (v === "normal") imagePath = `Images/IMG_0770.webp`;
         if (v === "gold") imagePath = `Images/IMG_0771.webp`;
         if (v === "gummy") imagePath = `Images/IMG_0772.webp`;
@@ -825,12 +862,12 @@ function render() {
         if (s.id === "fishy") imagePath = `Images/IMG_1008.webp`;
         if (s.id === "boss") imagePath = `Images/IMG_1009.webp`;
         if (s.id === "grimreaper") imagePath = `Images/IMG_1010.webp`;
+        if (s.id === "zeropoint") imagePath = `Images/IMG_1056.webp`;
       } else if (s.id === "pollo") {
         imagePath = `Images/IMG_0775.webp`;
       } else if (s.id === "vinijr") {
         imagePath = `Images/IMG_0776.webp`;
-      } 
-      else if (s.id === "duck" && v === "normal") {
+      } else if (s.id === "duck" && v === "normal") {
         imagePath = `Images/IMG_0395.webp`;
       } else if (s.id === "air" && v !== "holofoil") {
         if (v === "normal") imagePath = `Images/IMG_0444.webp`;
@@ -862,7 +899,11 @@ function render() {
         imagePath = `Images/IMG_${currentImgNum}.webp`;
       }
       
-      if (v !== "gem" && v !== "holofoil" && v !== "cube" && s.id !== "air" && s.id !== "seven" && s.id !== "batman" && s.id !== "pollo" && s.id !== "vinijr") {
+      // Preserve sequential numbering logic strictly by ignoring new sprite types
+      if (v !== "gem" && v !== "holofoil" && v !== "cube" && v !== "quack" 
+          && s.id !== "air" && s.id !== "seven" && s.id !== "batman" 
+          && s.id !== "pollo" && s.id !== "vinijr" && s.id !== "johnwick"
+          && s.id !== "lootinllama" && s.id !== "peekypeely" && s.id !== "ironmouse") {
         imageCounter++;
       }
 
