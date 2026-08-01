@@ -735,8 +735,8 @@ function render() {
   if (discordUser) {
     discordUI = `<div class="discord-status">Linked to Discord: <strong>${discordUser.username}</strong></div>`;
   } else {
-    // ⚠️ REPLACE THIS CLIENT ID BEFORE LAUNCHING!
-    discordUI = `<a href="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID_HERE&response_type=code&redirect_uri=https%3A%2F%2Fsprites.tyrantnetworks.com%2F&scope=identify" class="discord-login-btn">Link Discord Account</a>`;
+    // Client ID successfully updated here
+    discordUI = `<a href="https://discord.com/oauth2/authorize?client_id=1533044841611792464&response_type=code&redirect_uri=https%3A%2F%2Fsprites.tyrantnetworks.com%2F&scope=identify" class="discord-login-btn">Link Discord Account</a>`;
   }
 
   app.innerHTML = `
