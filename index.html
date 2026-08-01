@@ -48,6 +48,34 @@
 
   .wrap { max-width: 640px; margin: 0 auto; }
   
+  /* Discord Integration UI */
+  .discord-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(124,108,240,0.1);
+    border: 1px solid rgba(124,108,240,0.3);
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .discord-status {
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .discord-status strong { color: var(--galaxy); }
+  .discord-login-btn {
+    background: var(--galaxy);
+    color: white;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+  .discord-login-btn:hover { background: #5b49db; }
+
   /* Sheet Manager UI */
   .sheet-manager {
     display: flex;
@@ -185,6 +213,7 @@
   .social-export-mode .username-static { display: block !important; }
   .social-export-mode .max-row-btn { display: none !important; }
   .social-export-mode .sheet-manager { display: none !important; }
+  .social-export-mode .discord-panel { display: none !important; }
 
   .social-export-mode .header {
     padding-left: 4px !important;
@@ -221,7 +250,6 @@
   .social-export-mode .sprite-card:has(.toggle:nth-child(6)) .toggle {
     width: calc(16.66% - 3px) !important;
   }
-  /* Rule for 7 variants (Water, Zero Point) */
   .social-export-mode .sprite-card:has(.toggle:nth-child(7)) .toggle {
     width: calc(14.28% - 3px) !important;
   }
@@ -235,7 +263,6 @@
   .social-export-mode .legend-bar { display: none !important; }
   .social-export-mode .footer-bar { margin-top: 12px !important; padding: 10px !important; }
 
-  /* Export Watermark - Only visible during export */
   .export-watermark { display: none; }
   .social-export-mode .export-watermark {
     display: block !important;
@@ -254,88 +281,26 @@
     margin-left: 4px;
   }
 
-  .sprites-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .sprite-card {
-    background: var(--panel);
-    border: 1px solid #1d2331;
-    border-radius: 12px;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .sprite-info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .sprite-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    letter-spacing: 0.5px;
-    line-height: 1;
-    text-transform: uppercase;
-  }
+  .sprites-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .sprite-card { background: var(--panel); border: 1px solid #1d2331; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .sprite-info { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .sprite-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.5px; line-height: 1; text-transform: uppercase; }
 
   .max-row-btn {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 12px;
-    color: var(--ink-dim);
-    background: #161b27;
-    border: 1px solid #1d2331;
-    padding: 2px 6px;
-    border-radius: 4px;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    transition: all 0.1s ease;
+    font-family: 'Bebas Neue', sans-serif; font-size: 12px; color: var(--ink-dim); background: #161b27;
+    border: 1px solid #1d2331; padding: 2px 6px; border-radius: 4px; cursor: pointer; letter-spacing: 0.5px; transition: all 0.1s ease;
   }
+  .max-row-btn:hover { color: var(--gold); border-color: var(--gold); }
 
-  .max-row-btn:hover {
-    color: var(--gold);
-    border-color: var(--gold);
-  }
-
-  .variants-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .variants-row .toggle {
-    width: calc(25% - 5px);
-    min-width: 68px;
-  }
-
-  .variants-row.single-variant .toggle {
-    width: 100%;
-  }
+  .variants-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .variants-row .toggle { width: calc(25% - 5px); min-width: 68px; }
+  .variants-row.single-variant .toggle { width: 100%; }
 
   .toggle {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 8px 4px;
-    border-radius: 8px;
-    border: 2px solid #1d2331;
-    background: #161b27;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    padding: 8px 4px; border-radius: 8px; border: 2px solid #1d2331; background: #161b27;
+    cursor: pointer; transition: all 0.15s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   }
-
   .toggle:hover { border-color: #3a4154; }
 
   .toggle.have.normal { border-color: rgba(184,191,209,0.3); background: rgba(184,191,209,0.04); }
@@ -357,141 +322,30 @@
   .toggle.max-lvl.cube { border-color: rgba(184,71,255,0.9); background: rgba(184,71,255,0.14); }
   .toggle.max-lvl.quack { border-color: rgba(255,183,3,0.9); background: rgba(255,183,3,0.14); }
 
-  .variant-icon {
-    width: 44px;
-    height: 44px;
-    object-fit: contain;
-    opacity: 0.3;
-    transition: opacity 0.15s ease;
-    pointer-events: none;
-  }
-
+  .variant-icon { width: 44px; height: 44px; object-fit: contain; opacity: 0.3; transition: opacity 0.15s ease; pointer-events: none; }
   .toggle.have .variant-icon { opacity: 0.75; }
   .toggle.max-lvl .variant-icon { opacity: 1; }
 
-  .toggle-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.1px;
-    line-height: 1.1;
-    margin-top: 2px;
-    pointer-events: none;
-  }
-
+  .toggle-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1px; line-height: 1.1; margin-top: 2px; pointer-events: none; }
   .toggle.have .toggle-label { color: var(--have); }
   .toggle.max-lvl .toggle-label { color: var(--gold) !important; font-weight: 900; letter-spacing: 0.5px; }
   .toggle:not(.have) .toggle-label { color: var(--need); }
 
-  .legend-bar {
-    font-size: 11px;
-    color: var(--ink-dim);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 8px 2px 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  .legend-bar { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; margin: 8px 2px 4px; display: flex; justify-content: space-between; align-items: center; }
+  .link-group { display: flex; gap: 8px; align-items: center; }
+  .tip-link { font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--gold); text-decoration: none; font-size: 11px; display: inline-flex; align-items: center; gap: 5px; border: 1px dashed rgba(232,179,57,0.4); padding: 4px 8px; border-radius: 6px; background: rgba(232,179,57,0.03); transition: all 0.1s ease; }
+  .tip-link:hover { background: rgba(232,179,57,0.08); border-color: var(--gold); }
+  .discord-link { color: var(--galaxy); border-color: rgba(124,108,240,0.4); background: rgba(124,108,240,0.03); }
+  .discord-link:hover { background: rgba(124,108,240,0.08); border-color: var(--galaxy); }
 
-  .link-group {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .tip-link {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 600;
-    color: var(--gold);
-    text-decoration: none;
-    font-size: 11px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    border: 1px dashed rgba(232,179,57,0.4);
-    padding: 4px 8px;
-    border-radius: 6px;
-    background: rgba(232,179,57,0.03);
-    transition: all 0.1s ease;
-  }
-
-  .tip-link:hover {
-    background: rgba(232,179,57,0.08);
-    border-color: var(--gold);
-  }
-
-  .discord-link {
-    color: var(--galaxy);
-    border-color: rgba(124,108,240,0.4);
-    background: rgba(124,108,240,0.03);
-  }
-
-  .discord-link:hover {
-    background: rgba(124,108,240,0.08);
-    border-color: var(--galaxy);
-  }
-
-  .footer-bar {
-    margin-top: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    background: var(--panel);
-    border-radius: 12px;
-    padding: 12px 14px;
-    border: 1px solid #1d2331;
-    gap: 8px;
-  }
-
-  .progress-label {
-    font-size: 11px;
-    color: var(--ink-dim);
-    letter-spacing: 0.2px;
-    line-height: 1.3;
-  }
-
-  .progress-track {
-    width: 100%;
-    height: 8px;
-    background: #1d2331;
-    border-radius: 100px;
-    overflow: hidden;
-    margin-top: 6px;
-  }
-
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold), var(--gummy), var(--galaxy));
-    transition: width 0.3s ease;
-  }
-
-  .cta {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 15px;
-    color: var(--ink);
-    line-height: 1.2;
-  }
-
+  .footer-bar { margin-top: 8px; display: flex; flex-direction: column; align-items: flex-start; background: var(--panel); border-radius: 12px; padding: 12px 14px; border: 1px solid #1d2331; gap: 8px; }
+  .progress-label { font-size: 11px; color: var(--ink-dim); letter-spacing: 0.2px; line-height: 1.3; }
+  .progress-track { width: 100%; height: 8px; background: #1d2331; border-radius: 100px; overflow: hidden; margin-top: 6px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gummy), var(--galaxy)); transition: width 0.3s ease; }
+  .cta { font-family: 'Bebas Neue', sans-serif; font-size: 15px; color: var(--ink); line-height: 1.2; }
   .cta span { color: var(--gold); }
-
-  .loading {
-    text-align: center;
-    color: var(--ink-dim);
-    padding: 40px;
-    font-size: 14px;
-  }
-
-  .reset-btn {
-    background: none;
-    border: 1px solid #3a4154;
-    color: var(--ink-dim);
-    font-size: 12px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: 'Space Grotesk', sans-serif;
-  }
-
+  .loading { text-align: center; color: var(--ink-dim); padding: 40px; font-size: 14px; }
+  .reset-btn { background: none; border: 1px solid #3a4154; color: var(--ink-dim); font-size: 12px; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
   .reset-btn:hover { border-color: var(--need); color: var(--need); }
 </style>
 <!-- MONETAG IMMORTAL AD ZONE SCRIPTS -->
@@ -532,85 +386,86 @@ const SPRITES = [
   { id: "ironmouse", name: "Ironmouse", variants: ["ironmouse"] }
 ];
 
-const DEFAULT_STATE = {
-  username: "",
-  inventory: {}
-};
-
+const DEFAULT_STATE = { username: "", inventory: {} };
 SPRITES.forEach(s => {
   DEFAULT_STATE.inventory[s.id] = {};
-  s.variants.forEach(v => {
-    DEFAULT_STATE.inventory[s.id][v] = 0;
-  });
+  s.variants.forEach(v => { DEFAULT_STATE.inventory[s.id][v] = 0; });
 });
 
-// MULTI-SHEET STORAGE ENGINE
 const LEGACY_KEY = "sprite-checklist-state-v15";
 const MULTI_STORAGE_KEY = "sprite-checklist-multi-v1"; 
 
-let appState = {
-  activeId: "default",
-  profiles: {
-    "default": JSON.parse(JSON.stringify(DEFAULT_STATE))
-  }
-};
-let state = null; // Pointer to the currently active sheet
-
+let appState = { activeId: "default", profiles: { "default": JSON.parse(JSON.stringify(DEFAULT_STATE)) } };
+let state = null;
 let touchTimer = null;
 let isLongPress = false;
 
-function loadState() {
-  try {
-    const savedMulti = localStorage.getItem(MULTI_STORAGE_KEY);
-    
-    if (savedMulti) {
-      appState = JSON.parse(savedMulti);
-    } else {
-      // MIGRATION: Move old users to the new multi-sheet system automatically
-      const legacySaved = localStorage.getItem(LEGACY_KEY);
-      if (legacySaved) {
-        appState.profiles["default"] = JSON.parse(legacySaved);
-      }
-    }
-    
-    // Ensure data integrity for new sprites added to older sheets
-    Object.keys(appState.profiles).forEach(profId => {
-      let prof = appState.profiles[profId];
-      SPRITES.forEach(s => {
-        if (!prof.inventory[s.id]) prof.inventory[s.id] = {};
-        s.variants.forEach(v => {
-          if (prof.inventory[s.id][v] === undefined) prof.inventory[s.id][v] = 0;
-        });
-      });
-    });
+// --- API SYNC ENGINE ---
+function syncToVPS() {
+  const user = JSON.parse(localStorage.getItem("discord_user"));
+  if (!user) return; 
 
-  } catch (e) {
-    console.error("State load failed, resetting...", e);
-    appState = { activeId: "default", profiles: { "default": JSON.parse(JSON.stringify(DEFAULT_STATE)) } };
+  // Wrap appState in an array to satisfy FastAPI's "list" validation rule without changing the python code
+  fetch("https://sapi.tyrantnetworks.com/api/sprites/save", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id: user.user_id, collection_data: [appState] })
+  }).catch(e => console.error("Database sync failed:", e));
+}
+
+function loadState() {
+  // 1. Fetch Local Data First for speed
+  const savedMulti = localStorage.getItem(MULTI_STORAGE_KEY);
+  if (savedMulti) {
+    appState = JSON.parse(savedMulti);
+  } else {
+    const legacySaved = localStorage.getItem(LEGACY_KEY);
+    if (legacySaved) appState.profiles["default"] = JSON.parse(legacySaved);
   }
+
+  // Ensure data integrity
+  Object.keys(appState.profiles).forEach(profId => {
+    let prof = appState.profiles[profId];
+    SPRITES.forEach(s => {
+      if (!prof.inventory[s.id]) prof.inventory[s.id] = {};
+      s.variants.forEach(v => { if (prof.inventory[s.id][v] === undefined) prof.inventory[s.id][v] = 0; });
+    });
+  });
   
   state = appState.profiles[appState.activeId];
-  render();
+  render(); // Initial paint
+
+  // 2. Fetch remote VPS database if linked
+  const user = JSON.parse(localStorage.getItem("discord_user"));
+  if (user) {
+    fetch(`https://sapi.tyrantnetworks.com/api/sprites/${user.user_id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.collection_data && data.collection_data.length > 0) {
+          appState = data.collection_data[0];
+          state = appState.profiles[appState.activeId];
+          localStorage.setItem(MULTI_STORAGE_KEY, JSON.stringify(appState));
+          render(); // Repaint with VPS truth
+        }
+      }).catch(e => console.error("VPS Load error:", e));
+  }
 }
 
 function saveState() {
   try {
     appState.profiles[appState.activeId] = state;
     localStorage.setItem(MULTI_STORAGE_KEY, JSON.stringify(appState));
-  } catch (e) {
-    console.error("Failed to save state:", e);
-  }
+    syncToVPS(); // Broadcast change to VPS
+  } catch (e) { console.error("Failed to save state:", e); }
 }
 
 // MULTI-SHEET CONTROLS
 function newSheet() {
   const name = prompt("Enter a name for this new sheet (e.g., Friend's Username):");
   if (!name || name.trim() === "") return;
-  
   const id = "sheet_" + Date.now().toString();
   appState.profiles[id] = JSON.parse(JSON.stringify(DEFAULT_STATE));
   appState.profiles[id].username = name.trim();
-  
   appState.activeId = id;
   state = appState.profiles[id];
   saveState();
@@ -629,14 +484,11 @@ function deleteSheet() {
     alert("You cannot delete your only sheet. You can use the 'Reset all' button below instead.");
     return;
   }
-  
   const activeName = state.username || "this unnamed sheet";
   if (!confirm(`Are you sure you want to permanently delete ${activeName}?`)) return;
-  
   delete appState.profiles[appState.activeId];
-  appState.activeId = Object.keys(appState.profiles)[0]; // Fallback to first available sheet
+  appState.activeId = Object.keys(appState.profiles)[0];
   state = appState.profiles[appState.activeId];
-  
   saveState();
   render();
 }
@@ -661,9 +513,7 @@ function handleLongPress(spriteId, variant) {
 function maxEntireRow(spriteId) {
   const sprite = SPRITES.find(s => s.id === spriteId);
   if (!sprite) return;
-  sprite.variants.forEach(v => {
-    state.inventory[spriteId][v] = 5;
-  });
+  sprite.variants.forEach(v => { state.inventory[spriteId][v] = 5; });
   saveState();
   render();
 }
@@ -676,22 +526,15 @@ function setupTouchListeners(element, spriteId, variant) {
       handleLongPress(spriteId, variant);
     }, 400);
   };
-
   const endHandler = (e) => {
     if (touchTimer) clearTimeout(touchTimer);
-    if (!isLongPress) {
-      handleTileTap(spriteId, variant);
-    }
+    if (!isLongPress) handleTileTap(spriteId, variant);
   };
-
-  const cancelHandler = () => {
-    if (touchTimer) clearTimeout(touchTimer);
-  };
+  const cancelHandler = () => { if (touchTimer) clearTimeout(touchTimer); };
 
   element.addEventListener('touchstart', startHandler, { passive: true });
   element.addEventListener('touchend', endHandler);
   element.addEventListener('touchmove', cancelHandler, { passive: true });
-  
   element.addEventListener('mousedown', startHandler);
   element.addEventListener('mouseup', endHandler);
   element.addEventListener('mouseleave', cancelHandler);
@@ -700,10 +543,8 @@ function setupTouchListeners(element, spriteId, variant) {
 function updateUsername(newName) {
   state.username = newName;
   saveState();
-  
   const staticBlock = document.getElementById("username-mirror");
   if(staticBlock) staticBlock.innerText = newName || "PLAYER";
-
   const ctaName = document.getElementById("cta-username");
   if(ctaName) ctaName.innerText = newName || "[Input Username]";
 }
@@ -718,35 +559,24 @@ function resetAll() {
 function exportAsImage() {
   const targetElement = document.getElementById("capture-area");
   const exportBtn = document.querySelector(".export-btn");
-  
   exportBtn.innerText = "Generating Share Screen...";
   targetElement.classList.add("social-export-mode");
   
   setTimeout(() => {
     html2canvas(targetElement, {
-      useCORS: true,
-      allowTaint: true,
-      scale: 2, 
-      backgroundColor: "#0b0e14",
-      width: 580, 
-      logging: false
+      useCORS: true, allowTaint: true, scale: 2, backgroundColor: "#0b0e14", width: 580, logging: false
     }).then(canvas => {
       const nameString = state.username ? state.username.replace(/\s+/g, '_') : 'My';
       const fileName = `${nameString}_Fortnite_Sprite_Checklist.png`;
-      
       canvas.toBlob(blob => {
         const imageFile = new File([blob], fileName, { type: "image/png" });
-        
         if (navigator.canShare && navigator.canShare({ files: [imageFile] })) {
           navigator.share({
-            files: [imageFile],
-            title: 'My Sprite Collection Checklist',
-            text: 'Check out my current Fortnite Sprite level status!'
+            files: [imageFile], title: 'My Sprite Collection Checklist', text: 'Check out my current Fortnite Sprite level status!'
           }).then(() => {
             targetElement.classList.remove("social-export-mode");
             exportBtn.innerText = "Export PNG Image";
           }).catch(err => {
-            console.log("Share sheet action dismissed.", err);
             fallbackDownload(canvas, fileName);
             targetElement.classList.remove("social-export-mode");
             exportBtn.innerText = "Export PNG Image";
@@ -757,7 +587,6 @@ function exportAsImage() {
           exportBtn.innerText = "Export PNG Image";
         }
       }, "image/png");
-
     }).catch(err => {
       console.error("Image synthesis failed:", err);
       targetElement.classList.remove("social-export-mode");
@@ -789,42 +618,23 @@ function render() {
   });
   
   const pct = Math.round((currentPointsEarned / totalPointsPossible) * 100);
-
-  const missingNames = SPRITES.filter(s =>
-    s.variants.some(v => (state.inventory[s.id][v] || 0) < 5)
-  ).map(s => s.name);
-
-  const missingLabel = missingNames.length
-    ? `Still leveling: ${missingNames.slice(0, 3).join(", ")}${missingNames.length > 3 ? "..." : ""}`
-    : "All styles fully Maxed! 🎉";
+  const missingNames = SPRITES.filter(s => s.variants.some(v => (state.inventory[s.id][v] || 0) < 5)).map(s => s.name);
+  const missingLabel = missingNames.length ? `Still leveling: ${missingNames.slice(0, 3).join(", ")}${missingNames.length > 3 ? "..." : ""}` : "All styles fully Maxed! 🎉";
 
   let cardsHtml = SPRITES.map(s => {
     const isSingle = s.variants.length === 1;
-    
     const cells = s.variants.map(v => {
       let lvl = state.inventory[s.id][v] || 0;
-
       let btnClass = "";
       let labelText = "✕ NEED";
       if (!isSingle) labelText = v;
-      
-      if (lvl > 0) {
-        btnClass = "have " + v;
-        labelText = "LVL " + lvl;
-        if (!isSingle) labelText = v.toUpperCase() + " L" + lvl;
-      }
-      if (lvl === 5) {
-        btnClass = "max-lvl " + v;
-        labelText = v.toUpperCase() + " MAX";
-        if (isSingle) labelText = "MAX";
-      }
+      if (lvl > 0) { btnClass = "have " + v; labelText = "LVL " + lvl; if (!isSingle) labelText = v.toUpperCase() + " L" + lvl; }
+      if (lvl === 5) { btnClass = "max-lvl " + v; labelText = v.toUpperCase() + " MAX"; if (isSingle) labelText = "MAX"; }
 
       let imagePath = "";
       
-      // NEW SPRITE EXCEPTIONS
-      if (s.id === "johnwick") {
-        imagePath = `Images/IMG_1070.webp`;
-      } else if (s.id === "lootinllama") {
+      if (s.id === "johnwick") imagePath = `Images/IMG_1070.webp`;
+      else if (s.id === "lootinllama") {
         if (v === "normal") imagePath = `Images/IMG_1060.webp`;
         if (v === "gold") imagePath = `Images/IMG_1061.webp`;
         if (v === "gummy") imagePath = `Images/IMG_1062.webp`;
@@ -836,17 +646,13 @@ function render() {
         if (v === "gummy") imagePath = `Images/IMG_1067.webp`;
         if (v === "galaxy") imagePath = `Images/IMG_1068.webp`;
         if (v === "holofoil") imagePath = `Images/IMG_1069.webp`;
-      } else if (s.id === "ironmouse") {
-        imagePath = `Images/IMG_1059.webp`;
-      } else if (v === "quack") {
+      } else if (s.id === "ironmouse") imagePath = `Images/IMG_1059.webp`;
+      else if (v === "quack") {
         if (s.id === "water") imagePath = `Images/IMG_1053.webp`;
         if (s.id === "earth") imagePath = `Images/IMG_1054.webp`;
         if (s.id === "fire") imagePath = `Images/IMG_1055.webp`;
         if (s.id === "zeropoint") imagePath = `Images/IMG_1057.webp`;
-      } else if (s.id === "grimreaper" && v === "gem") {
-        imagePath = `Images/IMG_1058.webp`;
-      } 
-      // PREVIOUS SPRITE EXCEPTIONS
+      } else if (s.id === "grimreaper" && v === "gem") imagePath = `Images/IMG_1058.webp`;
       else if (s.id === "batman") {
         if (v === "normal") imagePath = `Images/IMG_0770.webp`;
         if (v === "gold") imagePath = `Images/IMG_0771.webp`;
@@ -863,13 +669,10 @@ function render() {
         if (s.id === "boss") imagePath = `Images/IMG_1009.webp`;
         if (s.id === "grimreaper") imagePath = `Images/IMG_1010.webp`;
         if (s.id === "zeropoint") imagePath = `Images/IMG_1056.webp`;
-      } else if (s.id === "pollo") {
-        imagePath = `Images/IMG_0775.webp`;
-      } else if (s.id === "vinijr") {
-        imagePath = `Images/IMG_0776.webp`;
-      } else if (s.id === "duck" && v === "normal") {
-        imagePath = `Images/IMG_0395.webp`;
-      } else if (s.id === "air" && v !== "holofoil") {
+      } else if (s.id === "pollo") imagePath = `Images/IMG_0775.webp`;
+      else if (s.id === "vinijr") imagePath = `Images/IMG_0776.webp`;
+      else if (s.id === "duck" && v === "normal") imagePath = `Images/IMG_0395.webp`;
+      else if (s.id === "air" && v !== "holofoil") {
         if (v === "normal") imagePath = `Images/IMG_0444.webp`;
         if (v === "gold") imagePath = `Images/IMG_0455.webp`;
         if (v === "gummy") imagePath = `Images/IMG_0456.webp`;
@@ -899,7 +702,6 @@ function render() {
         imagePath = `Images/IMG_${currentImgNum}.webp`;
       }
       
-      // Preserve sequential numbering logic strictly by ignoring new sprite types
       if (v !== "gem" && v !== "holofoil" && v !== "cube" && v !== "quack" 
           && s.id !== "air" && s.id !== "seven" && s.id !== "batman" 
           && s.id !== "pollo" && s.id !== "vinijr" && s.id !== "johnwick"
@@ -907,37 +709,43 @@ function render() {
         imageCounter++;
       }
 
-      return `
-        <div class="toggle ${btnClass}" data-sprite="${s.id}" data-variant="${v}">
+      return `<div class="toggle ${btnClass}" data-sprite="${s.id}" data-variant="${v}">
           <img class="variant-icon" src="${imagePath}" onerror="this.style.opacity='0.15';" alt="">
           <div class="toggle-label">${labelText}</div>
         </div>`;
     }).join("");
 
-    return `
-      <div class="sprite-card">
+    return `<div class="sprite-card">
         <div class="sprite-info">
           <div class="sprite-name">${s.name}</div>
           <button class="max-row-btn" onclick="maxEntireRow('${s.id}')">MAX ROW</button>
         </div>
-        <div class="variants-row">
-          ${cells}
-        </div>
+        <div class="variants-row">${cells}</div>
       </div>`;
   }).join("");
 
-  // Generate options for the dropdown
   const sheetOptions = Object.keys(appState.profiles).map(id => {
     const prof = appState.profiles[id];
-    const displayName = prof.username || "Unnamed Sheet";
-    return `<option value="${id}" ${id === appState.activeId ? "selected" : ""}>📋 ${displayName}</option>`;
+    return `<option value="${id}" ${id === appState.activeId ? "selected" : ""}>📋 ${prof.username || "Unnamed Sheet"}</option>`;
   }).join("");
 
+  // Discord UI injection
+  const discordUser = JSON.parse(localStorage.getItem("discord_user"));
+  let discordUI = "";
+  if (discordUser) {
+    discordUI = `<div class="discord-status">Linked to Discord: <strong>${discordUser.username}</strong></div>`;
+  } else {
+    // ⚠️ REPLACE THIS CLIENT ID BEFORE LAUNCHING!
+    discordUI = `<a href="https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID_HERE&response_type=code&redirect_uri=https%3A%2F%2Fsprites.tyrantnetworks.com%2F&scope=identify" class="discord-login-btn">Link Discord Account</a>`;
+  }
+
   app.innerHTML = `
+    <div class="discord-panel">
+      ${discordUI}
+    </div>
+
     <div class="sheet-manager">
-      <select class="sheet-selector" onchange="switchSheet(this.value)">
-        ${sheetOptions}
-      </select>
+      <select class="sheet-selector" onchange="switchSheet(this.value)">${sheetOptions}</select>
       <button class="sheet-btn" onclick="newSheet()">+ New Sheet</button>
       <button class="sheet-btn delete" onclick="deleteSheet()" title="Delete Sheet">✕</button>
     </div>
@@ -956,11 +764,7 @@ function render() {
           <div class="username-static" id="username-mirror">${state.username || "PLAYER"}</div>
         </div>
       </div>
-
-      <div class="sprites-grid">
-        ${cardsHtml}
-      </div>
-
+      <div class="sprites-grid">${cardsHtml}</div>
       <div class="legend-bar">
         <div class="link-group">
           <a href="https://buymeacoffee.com/benitopak96" target="_blank" class="tip-link">☕ Support the Dev</a>
@@ -968,7 +772,6 @@ function render() {
         </div>
         <button class="reset-btn" onclick="resetAll()">Reset Sheet</button>
       </div>
-
       <div class="footer-bar">
         <div>
           <div class="progress-label">${missingLabel}</div>
@@ -976,24 +779,43 @@ function render() {
         </div>
         <div class="cta">Got what I need? Comment your name & add <span id="cta-username">${state.username || "[Input Username]"}</span></div>
       </div>
-      
-      <!-- EXPORT ONLY WATERMARK -->
-      <div class="export-watermark">
-        Track your collection at <span>sprites.tyrantnetworks.com</span>
-      </div>
+      <div class="export-watermark">Track your collection at <span>sprites.tyrantnetworks.com</span></div>
     </div>
-
     <button class="export-btn" onclick="exportAsImage()">Export PNG Image</button>
   `;
 
   document.querySelectorAll('.toggle').forEach(element => {
-    const spriteId = element.getAttribute('data-sprite');
-    const variant = element.getAttribute('data-variant');
-    setupTouchListeners(element, spriteId, variant);
+    setupTouchListeners(element, element.getAttribute('data-sprite'), element.getAttribute('data-variant'));
   });
 }
 
-loadState();
+// --- INITIALIZATION & OAUTH ENGINE ---
+const urlParams = new URLSearchParams(window.location.search);
+const authCode = urlParams.get('code');
+
+if (authCode) {
+  document.getElementById('app').innerHTML = '<div class="loading">Authenticating with Discord...</div>';
+  fetch("https://sapi.tyrantnetworks.com/auth/discord", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code: authCode })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.user_id) {
+      localStorage.setItem("discord_user", JSON.stringify(data));
+      window.history.replaceState({}, document.title, window.location.pathname);
+      loadState();
+    }
+  })
+  .catch(error => {
+    console.error("Discord Auth Failed:", error);
+    window.history.replaceState({}, document.title, window.location.pathname);
+    loadState();
+  });
+} else {
+  loadState();
+}
 </script>
 </body>
 </html>
