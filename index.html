@@ -420,7 +420,7 @@ const SPRITES_ORGANIZE = [
   { id: "ironmouse", name: "Ironmouse", variants: ["ironmouse"] }
 ];
 
-// SPRITE DEFINITIONS (Fortnite Order with Gem variants included for unreleased toggle support)
+// SPRITE DEFINITIONS (Fortnite Order with Gem variants included)
 const SPRITES_FORTNITE = [
   { id: "johnwick", name: "John Wick", variants: ["johnwick"] },
   { id: "batman", name: "Batman", variants: ["cube","normal","gold","gummy","galaxy","holofoil"] },
@@ -453,7 +453,6 @@ const SPRITES = SPRITES_ORGANIZE;
 
 const DEFAULT_STATE = { username: "", sortMode: "organize", showUnreleased: true, inventory: {} };
 
-// Ensure master inventory covers all possible variants from both lists
 const ALL_VARIANTS_MAP = {};
 [SPRITES_ORGANIZE, SPRITES_FORTNITE].forEach(list => {
   list.forEach(s => {
@@ -474,12 +473,6 @@ let appState = { activeId: "default", profiles: { "default": JSON.parse(JSON.str
 let state = null;
 let touchTimer = null;
 let isLongPress = false;
-
-// Unreleased definitions
-const UNRELEASED_SET = new Set([
-  "water_gem", "earth_gem", "duck_gem", "demon_gem", 
-  "punk_gem", "zeropoint_gem", "aura_gem", "grimreaper_gem", "ironmouse"
-]);
 
 function isUnreleased(spriteId, variant) {
   if (spriteId === "ironmouse") return true;
@@ -703,13 +696,90 @@ function fallbackDownload(canvas, fileName) {
   link.click();
 }
 
+function getImagePath(sId, v) {
+  if (sId === "johnwick") return `Images/IMG_1070.webp`;
+  if (sId === "ironmouse") return `Images/IMG_1059.webp`;
+  if (sId === "lootinllama") {
+    if (v === "normal") return `Images/IMG_1060.webp`;
+    if (v === "gold") return `Images/IMG_1061.webp`;
+    if (v === "gummy") return `Images/IMG_1062.webp`;
+    if (v === "galaxy") return `Images/IMG_1063.webp`;
+    if (v === "gem") return `Images/IMG_1064.webp`;
+  }
+  if (sId === "peekypeely") {
+    if (v === "normal") return `Images/IMG_1065.webp`;
+    if (v === "gold") return `Images/IMG_1066.webp`;
+    if (v === "gummy") return `Images/IMG_1067.webp`;
+    if (v === "galaxy") return `Images/IMG_1068.webp`;
+    if (v === "holofoil") return `Images/IMG_1069.webp`;
+  }
+  if (v === "quack") {
+    if (sId === "water") return `Images/IMG_1053.webp`;
+    if (sId === "earth") return `Images/IMG_1054.webp`;
+    if (sId === "fire") return `Images/IMG_1055.webp`;
+    if (sId === "zeropoint") return `Images/IMG_1057.webp`;
+  }
+  if (sId === "grimreaper" && v === "gem") return `Images/IMG_1058.webp`;
+  if (sId === "batman") {
+    if (v === "normal") return `Images/IMG_0770.webp`;
+    if (v === "gold") return `Images/IMG_0771.webp`;
+    if (v === "gummy") return `Images/IMG_0772.webp`;
+    if (v === "galaxy") return `Images/IMG_0773.webp`;
+    if (v === "holofoil") return `Images/IMG_0774.webp`;
+    if (v === "cube") return `Images/IMG_1003.webp`;
+  }
+  if (v === "cube") {
+    if (sId === "earth") return `Images/IMG_1004.webp`;
+    if (sId === "fire") return `Images/IMG_1005.webp`;
+    if (sId === "dream") return `Images/IMG_1006.webp`;
+    if (sId === "punk") return `Images/IMG_1007.webp`;
+    if (sId === "fishy") return `Images/IMG_1008.webp`;
+    if (sId === "boss") return `Images/IMG_1009.webp`;
+    if (sId === "grimreaper") return `Images/IMG_1010.webp`;
+    if (sId === "zeropoint") return `Images/IMG_1056.webp`;
+  }
+  if (sId === "pollo") return `Images/IMG_0775.webp`;
+  if (sId === "vinijr") return `Images/IMG_0776.webp`;
+  if (sId === "duck" && v === "normal") return `Images/IMG_0395.webp`;
+  if (sId === "air" && v !== "holofoil") {
+    if (v === "normal") return `Images/IMG_0444.webp`;
+    if (v === "gold") return `Images/IMG_0455.webp`;
+    if (v === "gummy") return `Images/IMG_0456.webp`;
+    if (v === "galaxy") return `Images/IMG_0457.webp`;
+  }
+  if (sId === "seven" && v !== "holofoil") {
+    if (v === "normal") return `Images/IMG_0458.webp`;
+    if (v === "gold") return `Images/IMG_0459.webp`;
+    if (v === "gummy") return `Images/IMG_0460.webp`;
+    if (v === "galaxy") return `Images/IMG_0461.webp`;
+  }
+  if (v === "gem") {
+    if (sId === "water") return `Images/IMG_0466.webp`;
+    if (sId === "earth") return `Images/IMG_0467.webp`;
+    if (sId === "duck") return `Images/IMG_0468.webp`;
+    if (sId === "demon") return `Images/IMG_0469.webp`;
+    if (sId === "zeropoint") return `Images/IMG_0470.webp`;
+    if (sId === "aura") return `Images/IMG_0471.webp`;
+  }
+  if (v === "holofoil") {
+    if (sId === "water") return `Images/IMG_0472.webp`;
+    if (sId === "fire") return `Images/IMG_0473.webp`;
+    if (sId === "ghost") return `Images/IMG_0474.webp`;
+    if (sId === "king") return `Images/IMG_0475.webp`;
+    if (sId === "striker") return `Images/IMG_0476.webp`;
+    if (sId === "air") return `Images/IMG_0477.webp`;
+    if (sId === "seven") return `Images/IMG_0478.webp`;
+    if (sId === "grimreaper") return `Images/IMG_1089.webp`;
+    if (sId === "zeropoint") return `Images/IMG_1090.webp`;
+  }
+  return null;
+}
+
 function render() {
   const app = document.getElementById("app");
 
-  // Choose source list based on sortMode
   let rawList = state.sortMode === "fortnite" ? SPRITES_FORTNITE : SPRITES_ORGANIZE;
 
-  // Filter variants/sprites based on unreleased toggle switch
   let activeList = [];
   rawList.forEach(s => {
     let filteredVariants = s.variants.filter(v => {
@@ -749,75 +819,9 @@ function render() {
       if (lvl > 0) { btnClass = "have " + v; labelText = "LVL " + lvl; if (!isSingle) labelText = v.toUpperCase() + " L" + lvl; }
       if (lvl === 5) { btnClass = "max-lvl " + v; labelText = v.toUpperCase() + " MAX"; if (isSingle) labelText = "MAX"; }
 
-      let imagePath = "";
+      let imagePath = getImagePath(s.id, v);
       
-      if (s.id === "johnwick") imagePath = `Images/IMG_1070.webp`;
-      else if (s.id === "lootinllama") {
-        if (v === "normal") imagePath = `Images/IMG_1060.webp`;
-        if (v === "gold") imagePath = `Images/IMG_1061.webp`;
-        if (v === "gummy") imagePath = `Images/IMG_1062.webp`;
-        if (v === "galaxy") imagePath = `Images/IMG_1063.webp`;
-        if (v === "gem") imagePath = `Images/IMG_1064.webp`;
-      } else if (s.id === "peekypeely") {
-        if (v === "normal") imagePath = `Images/IMG_1065.webp`;
-        if (v === "gold") imagePath = `Images/IMG_1066.webp`;
-        if (v === "gummy") imagePath = `Images/IMG_1067.webp`;
-        if (v === "galaxy") imagePath = `Images/IMG_1068.webp`;
-        if (v === "holofoil") imagePath = `Images/IMG_1069.webp`;
-      } else if (s.id === "ironmouse") imagePath = `Images/IMG_1059.webp`;
-      else if (v === "quack") {
-        if (s.id === "water") imagePath = `Images/IMG_1053.webp`;
-        if (s.id === "earth") imagePath = `Images/IMG_1054.webp`;
-        if (s.id === "fire") imagePath = `Images/IMG_1055.webp`;
-        if (s.id === "zeropoint") imagePath = `Images/IMG_1057.webp`;
-      } else if (s.id === "grimreaper" && v === "gem") imagePath = `Images/IMG_1058.webp`;
-      else if (s.id === "batman") {
-        if (v === "normal") imagePath = `Images/IMG_0770.webp`;
-        if (v === "gold") imagePath = `Images/IMG_0771.webp`;
-        if (v === "gummy") imagePath = `Images/IMG_0772.webp`;
-        if (v === "galaxy") imagePath = `Images/IMG_0773.webp`;
-        if (v === "holofoil") imagePath = `Images/IMG_0774.webp`;
-        if (v === "cube") imagePath = `Images/IMG_1003.webp`;
-      } else if (v === "cube") {
-        if (s.id === "earth") imagePath = `Images/IMG_1004.webp`;
-        if (s.id === "fire") imagePath = `Images/IMG_1005.webp`;
-        if (s.id === "dream") imagePath = `Images/IMG_1006.webp`;
-        if (s.id === "punk") imagePath = `Images/IMG_1007.webp`;
-        if (s.id === "fishy") imagePath = `Images/IMG_1008.webp`;
-        if (s.id === "boss") imagePath = `Images/IMG_1009.webp`;
-        if (s.id === "grimreaper") imagePath = `Images/IMG_1010.webp`;
-        if (s.id === "zeropoint") imagePath = `Images/IMG_1056.webp`;
-      } else if (s.id === "pollo") imagePath = `Images/IMG_0775.webp`;
-      else if (s.id === "vinijr") imagePath = `Images/IMG_0776.webp`;
-      else if (s.id === "duck" && v === "normal") imagePath = `Images/IMG_0395.webp`;
-      else if (s.id === "air" && v !== "holofoil") {
-        if (v === "normal") imagePath = `Images/IMG_0444.webp`;
-        if (v === "gold") imagePath = `Images/IMG_0455.webp`;
-        if (v === "gummy") imagePath = `Images/IMG_0456.webp`;
-        if (v === "galaxy") imagePath = `Images/IMG_0457.webp`;
-      } else if (s.id === "seven" && v !== "holofoil") {
-        if (v === "normal") imagePath = `Images/IMG_0458.webp`;
-        if (v === "gold") imagePath = `Images/IMG_0459.webp`;
-        if (v === "gummy") imagePath = `Images/IMG_0460.webp`;
-        if (v === "galaxy") imagePath = `Images/IMG_0461.webp`;
-      } else if (v === "gem") {
-        if (s.id === "water") imagePath = `Images/IMG_0466.webp`;
-        if (s.id === "earth") imagePath = `Images/IMG_0467.webp`;
-        if (s.id === "duck") imagePath = `Images/IMG_0468.webp`;
-        if (s.id === "demon") imagePath = `Images/IMG_0469.webp`;
-        if (s.id === "zeropoint") imagePath = `Images/IMG_0470.webp`;
-        if (s.id === "aura") imagePath = `Images/IMG_0471.webp`;
-      } else if (v === "holofoil") {
-        if (s.id === "water") imagePath = `Images/IMG_0472.webp`;
-        if (s.id === "fire") imagePath = `Images/IMG_0473.webp`;
-        if (s.id === "ghost") imagePath = `Images/IMG_0474.webp`;
-        if (s.id === "king") imagePath = `Images/IMG_0475.webp`;
-        if (s.id === "striker") imagePath = `Images/IMG_0476.webp`;
-        if (s.id === "air") imagePath = `Images/IMG_0477.webp`;
-        if (s.id === "seven") imagePath = `Images/IMG_0478.webp`;
-        if (s.id === "grimreaper") imagePath = `Images/IMG_1089.webp`;
-        if (s.id === "zeropoint") imagePath = `Images/IMG_1090.webp`;
-      } else {
+      if (!imagePath) {
         const currentImgNum = String(imageCounter).padStart(4, '0');
         imagePath = `Images/IMG_${currentImgNum}.webp`;
       }
