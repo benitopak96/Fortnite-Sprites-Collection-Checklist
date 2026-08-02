@@ -402,7 +402,7 @@ const SPRITES_ORGANIZE = [
   { id: "ghost", name: "Ghost", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "dream", name: "Dream", variants: ["normal","gold","gummy","galaxy","cube"] },
   { id: "demon", name: "Demon", variants: ["normal","gold","gummy","galaxy","gem"] },
-  { id: "punk", name: "Punk", variants: ["normal","gold","gummy","galaxy","cube"] },
+  { id: "punk", name: "Punk", variants: ["normal","gold","gummy","galaxy","cube", "gem"] },
   { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
   { id: "vinijr", name: "Vini Jr", variants: ["vinijr"] },
@@ -760,6 +760,7 @@ function getImagePath(sId, v) {
     if (sId === "demon") return `Images/IMG_0469.webp`;
     if (sId === "zeropoint") return `Images/IMG_0470.webp`;
     if (sId === "aura") return `Images/IMG_0471.webp`;
+    if (sId === "punk") return `Images/IMG_1091.webp`;
   }
   if (v === "holofoil") {
     if (sId === "water") return `Images/IMG_0472.webp`;
