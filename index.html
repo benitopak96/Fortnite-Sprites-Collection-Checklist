@@ -87,7 +87,7 @@
     border: 1px solid #1d2331;
     align-items: center;
   }
-  .sheet-selector {
+  .sheet-selector, .sort-selector {
     flex-grow: 1;
     background: #161b27;
     color: var(--gold);
@@ -357,8 +357,8 @@
   </div>
 
 <script>
-// SPRITE DEFINITIONS
-const SPRITES = [
+// SPRITE DEFINITIONS (Organize Order / Default)
+const SPRITES_ORGANIZE = [
   { id: "johnwick", name: "John Wick", variants: ["johnwick"] },
   { id: "batman", name: "Batman", variants: ["normal","gold","gummy","galaxy","holofoil","cube"] },
   { id: "water", name: "Water", variants: ["normal","gold","gummy","galaxy","gem","holofoil","quack"] },
@@ -372,12 +372,12 @@ const SPRITES = [
   { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
   { id: "vinijr", name: "Vini Jr", variants: ["vinijr"] },
-  { id: "zeropoint", name: "Zero Point", variants: ["normal","gold","gummy","galaxy","gem","cube","quack"] },
+  { id: "zeropoint", name: "Zero Point", variants: ["normal","gold","gummy","galaxy","gem","cube","quack","holofoil"] },
   { id: "fishy", name: "Fishy", variants: ["normal","gold","gummy","galaxy","cube"] },
   { id: "striker", name: "Striker", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "aura", name: "Aura", variants: ["normal","gold","gummy","galaxy","gem"] },
   { id: "boss", name: "Boss", variants: ["normal","gold","gummy","galaxy","cube"] },
-  { id: "grimreaper", name: "Grim", variants: ["normal","gold","gummy","galaxy","cube","gem"] },
+  { id: "grimreaper", name: "Grim", variants: ["normal","gold","gummy","galaxy","cube","gem","holofoil"] },
   { id: "air", name: "Air", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "seven", name: "Seven", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "pollo", name: "Pollo", variants: ["pollo"] },
@@ -386,7 +386,39 @@ const SPRITES = [
   { id: "ironmouse", name: "Ironmouse", variants: ["ironmouse"] }
 ];
 
-const DEFAULT_STATE = { username: "", inventory: {} };
+// SPRITE DEFINITIONS (Sprite's Order)
+const SPRITES_SPRITE = [
+  { id: "batman", name: "Batman", variants: ["normal","gold","gummy","galaxy","holofoil","cube"] },
+  { id: "water", name: "Water", variants: ["normal","gold","gummy","galaxy","gem","holofoil","quack"] },
+  { id: "earth", name: "Earth", variants: ["normal","gold","gummy","galaxy","gem","cube","quack"] },
+  { id: "fire", name: "Fire", variants: ["normal","gold","gummy","galaxy","holofoil","cube","quack"] },
+  { id: "duck", name: "Duck", variants: ["normal","gold","gummy","galaxy","gem"] },
+  { id: "ghost", name: "Ghost", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "dream", name: "Dream", variants: ["normal","gold","gummy","galaxy","cube"] },
+  { id: "demon", name: "Demon", variants: ["normal","gold","gummy","galaxy","gem"] },
+  { id: "punk", name: "Punk", variants: ["normal","gold","gummy","galaxy","cube"] },
+  { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
+  { id: "vinijr", name: "Vini Jr", variants: ["vinijr"] },
+  { id: "zeropoint", name: "Zero Point", variants: ["normal","gold","gummy","galaxy","gem","cube","quack","holofoil"] },
+  { id: "fishy", name: "Fishy", variants: ["normal","gold","gummy","galaxy","cube"] },
+  { id: "striker", name: "Striker", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "aura", name: "Aura", variants: ["normal","gold","gummy","galaxy","gem"] },
+  { id: "boss", name: "Boss", variants: ["normal","gold","gummy","galaxy","cube"] },
+  { id: "grimreaper", name: "Grim", variants: ["normal","gold","gummy","galaxy","cube","gem","holofoil"] },
+  { id: "air", name: "Air", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "seven", name: "Seven", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "pollo", name: "Pollo", variants: ["pollo"] },
+  { id: "lootinllama", name: "Lootin' Llama", variants: ["normal","gold","gummy","galaxy","gem"] },
+  { id: "peekypeely", name: "Peeky Peely", variants: ["normal","gold","gummy","galaxy","holofoil"] },
+  { id: "johnwick", name: "John Wick", variants: ["johnwick"] },
+  { id: "ironmouse", name: "Ironmouse", variants: ["ironmouse"] }
+];
+
+// Helper master list for iterating all possible sprites/variants
+const SPRITES = SPRITES_ORGANIZE;
+
+const DEFAULT_STATE = { username: "", sortMode: "organize", inventory: {} };
 SPRITES.forEach(s => {
   DEFAULT_STATE.inventory[s.id] = {};
   s.variants.forEach(v => { DEFAULT_STATE.inventory[s.id][v] = 0; });
@@ -405,7 +437,6 @@ function syncToVPS() {
   const user = JSON.parse(localStorage.getItem("discord_user"));
   if (!user) return; 
 
-  // Wrap appState in an array to satisfy FastAPI's "list" validation rule without changing the python code
   fetch("https://sapi.tyrantnetworks.com/api/sprites/save", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -414,18 +445,17 @@ function syncToVPS() {
 }
 
 function loadState() {
-  // 1. Fetch Local Data First for speed
   const savedMulti = localStorage.getItem(MULTI_STORAGE_KEY);
   if (savedMulti) {
     appState = JSON.parse(savedMulti);
   } else {
     const legacySaved = localStorage.getItem(LEGACY_KEY);
-    if (legacySaved) appState.profiles["default"] = JSON.parse(legacySaved);
+    if (legacySaved) appState.profiles["default"].inventory = JSON.parse(legacySaved);
   }
 
-  // Ensure data integrity
   Object.keys(appState.profiles).forEach(profId => {
     let prof = appState.profiles[profId];
+    if (!prof.sortMode) prof.sortMode = "organize";
     SPRITES.forEach(s => {
       if (!prof.inventory[s.id]) prof.inventory[s.id] = {};
       s.variants.forEach(v => { if (prof.inventory[s.id][v] === undefined) prof.inventory[s.id][v] = 0; });
@@ -433,9 +463,8 @@ function loadState() {
   });
   
   state = appState.profiles[appState.activeId];
-  render(); // Initial paint
+  render();
 
-  // 2. Fetch remote VPS database if linked
   const user = JSON.parse(localStorage.getItem("discord_user"));
   if (user) {
     fetch(`https://sapi.tyrantnetworks.com/api/sprites/${user.user_id}`)
@@ -445,7 +474,7 @@ function loadState() {
           appState = data.collection_data[0];
           state = appState.profiles[appState.activeId];
           localStorage.setItem(MULTI_STORAGE_KEY, JSON.stringify(appState));
-          render(); // Repaint with VPS truth
+          render();
         }
       }).catch(e => console.error("VPS Load error:", e));
   }
@@ -455,11 +484,11 @@ function saveState() {
   try {
     appState.profiles[appState.activeId] = state;
     localStorage.setItem(MULTI_STORAGE_KEY, JSON.stringify(appState));
-    syncToVPS(); // Broadcast change to VPS
+    syncToVPS();
   } catch (e) { console.error("Failed to save state:", e); }
 }
 
-// MULTI-SHEET CONTROLS
+// MULTI-SHEET & SORT CONTROLS
 function newSheet() {
   const name = prompt("Enter a name for this new sheet (e.g., Friend's Username):");
   if (!name || name.trim() === "") return;
@@ -476,6 +505,12 @@ function switchSheet(id) {
   appState.activeId = id;
   state = appState.profiles[id];
   saveState(); 
+  render();
+}
+
+function updateSortMode(mode) {
+  state.sortMode = mode;
+  saveState();
   render();
 }
 
@@ -621,7 +656,11 @@ function render() {
   const missingNames = SPRITES.filter(s => s.variants.some(v => (state.inventory[s.id][v] || 0) < 5)).map(s => s.name);
   const missingLabel = missingNames.length ? `Still leveling: ${missingNames.slice(0, 3).join(", ")}${missingNames.length > 3 ? "..." : ""}` : "All styles fully Maxed! 🎉";
 
-  let cardsHtml = SPRITES.map(s => {
+  // Determine active list based on user's sort preference
+  let currentList = SPRITES_ORGANIZE;
+  if (state.sortMode === "sprite") currentList = SPRITES_SPRITE;
+
+  let cardsHtml = currentList.map(s => {
     const isSingle = s.variants.length === 1;
     const cells = s.variants.map(v => {
       let lvl = state.inventory[s.id][v] || 0;
@@ -697,6 +736,8 @@ function render() {
         if (s.id === "striker") imagePath = `Images/IMG_0476.webp`;
         if (s.id === "air") imagePath = `Images/IMG_0477.webp`;
         if (s.id === "seven") imagePath = `Images/IMG_0478.webp`;
+        if (s.id === "grimreaper") imagePath = `Images/IMG_1088.webp`;
+        if (s.id === "zeropoint") imagePath = `Images/IMG_1089.webp`;
       } else {
         const currentImgNum = String(imageCounter).padStart(4, '0');
         imagePath = `Images/IMG_${currentImgNum}.webp`;
@@ -729,25 +770,25 @@ function render() {
     return `<option value="${id}" ${id === appState.activeId ? "selected" : ""}>📋 ${prof.username || "Unnamed Sheet"}</option>`;
   }).join("");
 
-  // Discord UI injection
   const discordUser = JSON.parse(localStorage.getItem("discord_user"));
-  let discordUI = "";
-  if (discordUser) {
-    discordUI = `<div class="discord-status">Linked to Discord: <strong>${discordUser.username}</strong></div>`;
-  } else {
-    // Client ID successfully updated here
-    discordUI = `<a href="https://discord.com/oauth2/authorize?client_id=1533044841611792464&response_type=code&redirect_uri=https%3A%2F%2Fsprites.tyrantnetworks.com%2F&scope=identify" class="discord-login-btn">Link Discord Account</a>`;
-  }
+  let discordUI = discordUser 
+    ? `<div class="discord-status">Linked to Discord: <strong>${discordUser.username}</strong></div>`
+    : `<a href="https://discord.com/oauth2/authorize?client_id=1533044841611792464&response_type=code&redirect_uri=https%3A%2F%2Fsprites.tyrantnetworks.com%2F&scope=identify" class="discord-login-btn">Link Discord Account</a>`;
 
   app.innerHTML = `
-    <div class="discord-panel">
-      ${discordUI}
-    </div>
+    <div class="discord-panel">${discordUI}</div>
 
     <div class="sheet-manager">
       <select class="sheet-selector" onchange="switchSheet(this.value)">${sheetOptions}</select>
       <button class="sheet-btn" onclick="newSheet()">+ New Sheet</button>
       <button class="sheet-btn delete" onclick="deleteSheet()" title="Delete Sheet">✕</button>
+    </div>
+
+    <div class="sheet-manager">
+      <select class="sort-selector" onchange="updateSortMode(this.value)">
+        <option value="organize" ${state.sortMode === 'organize' ? 'selected' : ''}>📂 Organize Order (Default)</option>
+        <option value="sprite" ${state.sortMode === 'sprite' ? 'selected' : ''}>⚡ Sprite’s Order</option>
+      </select>
     </div>
 
     <div class="hint">Tap tiles to cycle level. Hold down a tile or tap "MAX ROW" to instantly hit Level 5!</div>
