@@ -475,7 +475,6 @@ let touchTimer = null;
 let isLongPress = false;
 
 function isUnreleased(spriteId, variant) {
-  if (spriteId === "ironmouse") return true;
   if (variant === "gem") {
     if (["water", "earth", "duck", "demon", "punk", "zeropoint", "aura", "grimreaper"].includes(spriteId)) {
       return true;
