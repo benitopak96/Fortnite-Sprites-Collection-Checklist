@@ -482,12 +482,8 @@ let state = null;
 let touchTimer = null;
 let isLongPress = false;
 
+// All gem sprites have now been released — nothing is flagged as unreleased anymore.
 function isUnreleased(spriteId, variant) {
-  if (variant === "gem") {
-    if (["water", "earth", "duck", "demon", "punk", "zeropoint", "aura", "grimreaper"].includes(spriteId)) {
-      return true;
-    }
-  }
   return false;
 }
 
@@ -882,14 +878,6 @@ function render() {
         <option value="organize" ${state.sortMode === 'organize' ? 'selected' : ''}>📂 Organize Order (Default)</option>
         <option value="fortnite" ${state.sortMode === 'fortnite' ? 'selected' : ''}>🎮 Fortnite’s Order</option>
       </select>
-    </div>
-
-    <div class="toggle-bar">
-      <span>Show Unreleased Sprites</span>
-      <label class="switch">
-        <input type="checkbox" id="unreleasedToggle" ${state.showUnreleased ? 'checked' : ''} onchange="toggleUnreleased()">
-        <span class="slider"></span>
-      </label>
     </div>
 
     <div class="hint">Tap tiles to cycle level. Hold down a tile or tap "MAX ROW" to instantly hit Level 5!</div>
