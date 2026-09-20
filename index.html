@@ -640,17 +640,9 @@ function syncToVPS() {
   }).catch(e => console.error("Database sync failed:", e));
 }
 
-function loadState() {
-  const savedMulti = localStorage.getItem(MULTI_STORAGE_KEY);
-  if (savedMulti) {
-    appState = JSON.parse(savedMulti);
-  } else {
-    const legacySaved = localStorage.getItem(LEGACY_KEY);
-    if (legacySaved) appState.profiles["default"].inventory = JSON.parse(legacySaved);
-  }
-
-  Object.keys(appState.profiles).forEach(profId => {
-    let prof = appState.profiles[profId];
+function normalizeProfiles(app) {
+  Object.keys(app.profiles).forEach(profId => {
+    let prof = app.profiles[profId];
     if (!prof.sortMode) prof.sortMode = "organize";
     if (prof.showUnreleased === undefined) prof.showUnreleased = true;
     if (!prof.season) prof.season = "s3";
@@ -671,7 +663,21 @@ function loadState() {
 
     LOBBY_CODES.forEach(c => { if (prof.codes[c.code] === undefined) prof.codes[c.code] = false; });
   });
-  
+  if (!app.profiles[app.activeId]) {
+    app.activeId = Object.keys(app.profiles)[0];
+  }
+}
+
+function loadState() {
+  const savedMulti = localStorage.getItem(MULTI_STORAGE_KEY);
+  if (savedMulti) {
+    appState = JSON.parse(savedMulti);
+  } else {
+    const legacySaved = localStorage.getItem(LEGACY_KEY);
+    if (legacySaved) appState.profiles["default"].inventory = JSON.parse(legacySaved);
+  }
+
+  normalizeProfiles(appState);
   state = appState.profiles[appState.activeId];
   render();
 
@@ -682,6 +688,7 @@ function loadState() {
       .then(data => {
         if (data.collection_data && data.collection_data.length > 0) {
           appState = data.collection_data[0];
+          normalizeProfiles(appState);
           state = appState.profiles[appState.activeId];
           localStorage.setItem(MULTI_STORAGE_KEY, JSON.stringify(appState));
           render();
