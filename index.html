@@ -382,6 +382,7 @@
   .toggle.have.cheatmaster { border-color: rgba(57,230,120,0.3); background: rgba(57,230,120,0.04); }
   .toggle.have.loothacker { border-color: rgba(255,159,67,0.3); background: rgba(255,159,67,0.04); }
   .toggle.have.bountyhacker { border-color: rgba(255,47,110,0.3); background: rgba(255,47,110,0.04); }
+  .toggle.have.bountyhunter { border-color: rgba(255,47,110,0.3); background: rgba(255,47,110,0.04); }
 
   .toggle.max-lvl { border-width: 2px; }
   .toggle.max-lvl.normal { border-color: rgba(184,191,209,0.9); background: rgba(184,191,209,0.12); }
@@ -400,6 +401,7 @@
   .toggle.max-lvl.cheatmaster { border-color: rgba(57,230,120,0.9); background: rgba(57,230,120,0.14); }
   .toggle.max-lvl.loothacker { border-color: rgba(255,159,67,0.9); background: rgba(255,159,67,0.14); }
   .toggle.max-lvl.bountyhacker { border-color: rgba(255,47,110,0.9); background: rgba(255,47,110,0.14); }
+  .toggle.max-lvl.bountyhunter { border-color: rgba(255,47,110,0.9); background: rgba(255,47,110,0.14); }
 
   .variant-icon { width: 44px; height: 44px; object-fit: contain; opacity: 0.3; transition: opacity 0.15s ease; pointer-events: none; }
   .toggle.have .variant-icon { opacity: 0.75; }
@@ -510,29 +512,31 @@ const SPRITES_FORTNITE = [
   { id: "peekypeely", name: "Peeky Peely", variants: ["normal","gold","gummy","galaxy","holofoil"] }
 ];
 
-// ============ SEASON 4 "OVERRIDE" SPRITE DEFINITIONS (new) ============
-// 19 sprites total. Most have Base/Gold/Cheat Master/Loot Hacker; Crown adds
-// an exclusive Bounty Hacker variant; Mega Man is Base-only so far.
+// ============ SEASON 4 "OVERRIDE" SPRITE DEFINITIONS ============
+// 20 sprites total. Most have Base/Gold/Cheat Master/Loot Hacker/Bounty
+// Hunter; Crown has its own separate exclusive Bounty Hacker variant
+// instead; Mega Man is Base-only so far. Morgana is the newest addition.
 const SEASON4_SPRITES = [
-  { id: "jonesy4", name: "Jonesy", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "adventure4", name: "Adventure", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "bush4", name: "Bush", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "sonic4", name: "Sonic", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "tails4", name: "Tails", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "shadow4", name: "Shadow", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "8bit4", name: "8-Bit", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "jackrabbit4", name: "Jackrabbit", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "jonesy4", name: "Jonesy", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "adventure4", name: "Adventure", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "bush4", name: "Bush", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "sonic4", name: "Sonic", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "tails4", name: "Tails", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "shadow4", name: "Shadow", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "8bit4", name: "8-Bit", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "jackrabbit4", name: "Jackrabbit", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "crown4", name: "Crown", variants: ["normal","gold","cheatmaster","loothacker","bountyhacker"] },
-  { id: "killswitch4", name: "Kill Switch", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "klombo4", name: "Klombo", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "killswitch4", name: "Kill Switch", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "klombo4", name: "Klombo", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "megaman4", name: "Mega Man", variants: ["normal"] },
-  { id: "overshield4", name: "Overshield", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "xray4", name: "X-Ray", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "onigiri4", name: "Onigiri", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "stormscout4", name: "Storm Scout", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "blinky4", name: "Blinky", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "crashbandicoot4", name: "Crash Bandicoot", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "pond4", name: "Pond", variants: ["normal","gold","cheatmaster","loothacker"] }
+  { id: "overshield4", name: "Overshield", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "xray4", name: "X-Ray", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "onigiri4", name: "Onigiri", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "stormscout4", name: "Storm Scout", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "blinky4", name: "Blinky", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "crashbandicoot4", name: "Crash Bandicoot", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "pond4", name: "Pond", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "morgana4", name: "Morgana", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] }
 ];
 
 // ============ LOBBY HACK / ADMIN PANEL CODES (Season 4 only) ============
@@ -568,6 +572,7 @@ const LOBBY_CODES = [
   { code: "PERFECTORDER", category: "Gizmos", reward: "4 Spicy Tacos" },
   { code: "SURVIVETHENIGHT", category: "Gizmos", reward: "2 Cheat Code Locators" },
   { code: "TAKEYOURHEART", category: "Gizmos", reward: "2 Extraction Accelerators" },
+  { code: "ALMOSTSCARINGSEASON", category: "Gizmos", reward: "2 Cheat Code Locators" },
 
   { code: "BEMOREALIEN", category: "Cosmetics", reward: "Override Ready Loading Screen" },
   { code: "BRB", category: "Cosmetics", reward: "Briefly turn into a toilet (repeatable)" },
@@ -576,7 +581,8 @@ const LOBBY_CODES = [
   { code: "LETSBLOCKANDROLL", category: "Cosmetics", reward: "Briefly turn into a Tetris piece (repeatable)" },
   { code: "OVERRIDEXP", category: "Cosmetics", reward: "40,000 XP" },
   { code: "REACHYOURIMPOSSIBLE", category: "Cosmetics", reward: "Block Party Loading Screen" },
-  { code: "SAYH12WR1X3L", category: "Cosmetics", reward: "Wrixel's Hero Portrait Spray" }
+  { code: "SAYH12WR1X3L", category: "Cosmetics", reward: "Wrixel's Hero Portrait Spray" },
+  { code: "9YEARS", category: "Cosmetics", reward: "9th Birthday Sprite Spray" }
 ];
 const CODE_CATEGORIES = ["Sprites", "Sprite Dust", "Gizmos", "Cosmetics"];
 
@@ -972,19 +978,69 @@ function getImagePath(sId, v) {
   return null;
 }
 
-// Season 4 art lives in Images2/, numbered sequentially IMG_2613.webp through
-// IMG_2686.webp in the exact order SEASON4_SPRITES/variants are defined above.
+// Season 4 art lives in Images2/. The ORIGINAL 19 sprites (74 images total)
+// were uploaded in one uninterrupted batch and map sequentially to
+// IMG_2613.webp through IMG_2686.webp, in this exact original order/variant
+// order. This frozen list must NOT be edited going forward — it exists only
+// to preserve that original sequential mapping even as SEASON4_SPRITES above
+// keeps growing with new content batches.
+const SEASON4_SPRITES_ORIGINAL_ORDER = [
+  { id: "jonesy4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "adventure4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "bush4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "sonic4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "tails4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "shadow4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "8bit4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "jackrabbit4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "crown4", variants: ["normal","gold","cheatmaster","loothacker","bountyhacker"] },
+  { id: "killswitch4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "klombo4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "megaman4", variants: ["normal"] },
+  { id: "overshield4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "xray4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "onigiri4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "stormscout4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "blinky4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "crashbandicoot4", variants: ["normal","gold","cheatmaster","loothacker"] },
+  { id: "pond4", variants: ["normal","gold","cheatmaster","loothacker"] }
+];
+
 const S4_IMAGE_START = 2613;
 const S4_IMAGE_MAP = {};
 (function buildS4ImageMap() {
   let n = S4_IMAGE_START;
-  SEASON4_SPRITES.forEach(s => {
+  SEASON4_SPRITES_ORIGINAL_ORDER.forEach(s => {
     S4_IMAGE_MAP[s.id] = {};
     s.variants.forEach(v => {
       S4_IMAGE_MAP[s.id][v] = `Images2/IMG_${n}.webp`;
       n++;
     });
   });
+
+  // New "Bounty Hunter" variant added to 17 existing sprites — uploaded as
+  // one batch, IMG_2905.webp through IMG_2921.webp, in this exact order.
+  const BOUNTY_HUNTER_ORDER = [
+    "jonesy4","adventure4","bush4","sonic4","tails4","shadow4","8bit4",
+    "jackrabbit4","killswitch4","klombo4","overshield4","xray4","onigiri4",
+    "stormscout4","blinky4","crashbandicoot4","pond4"
+  ];
+  let bh = 2905;
+  BOUNTY_HUNTER_ORDER.forEach(id => {
+    if (!S4_IMAGE_MAP[id]) S4_IMAGE_MAP[id] = {};
+    S4_IMAGE_MAP[id]["bountyhunter"] = `Images2/IMG_${bh}.webp`;
+    bh++;
+  });
+
+  // New sprite "Morgana" — Base/Gold/Cheat Master/Loot Hacker/Bounty Hunter,
+  // IMG_2922.webp through IMG_2926.webp in that order.
+  S4_IMAGE_MAP["morgana4"] = {
+    normal: "Images2/IMG_2922.webp",
+    gold: "Images2/IMG_2923.webp",
+    cheatmaster: "Images2/IMG_2924.webp",
+    loothacker: "Images2/IMG_2925.webp",
+    bountyhunter: "Images2/IMG_2926.webp"
+  };
 })();
 
 function getImagePathS4(sId, v) {
