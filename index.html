@@ -513,9 +513,10 @@ const SPRITES_FORTNITE = [
 ];
 
 // ============ SEASON 4 "OVERRIDE" SPRITE DEFINITIONS ============
-// 20 sprites total. Most have Base/Gold/Cheat Master/Loot Hacker/Bounty
+// 21 sprites total. Most have Base/Gold/Cheat Master/Loot Hacker/Bounty
 // Hunter; Crown has its own separate exclusive Bounty Hacker variant
-// instead; Mega Man is Base-only so far. Morgana is the newest addition.
+// instead; Mega Man is Base-only so far. Birthday (Fortnite's 9th
+// anniversary sprite) is the newest addition, released Sept 26.
 const SEASON4_SPRITES = [
   { id: "jonesy4", name: "Jonesy", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "adventure4", name: "Adventure", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
@@ -536,7 +537,8 @@ const SEASON4_SPRITES = [
   { id: "blinky4", name: "Blinky", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "crashbandicoot4", name: "Crash Bandicoot", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "pond4", name: "Pond", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
-  { id: "morgana4", name: "Morgana", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] }
+  { id: "morgana4", name: "Morgana", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "birthday4", name: "Birthday", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] }
 ];
 
 // ============ LOBBY HACK / ADMIN PANEL CODES (Season 4 only) ============
@@ -559,6 +561,7 @@ const LOBBY_CODES = [
   { code: "PLAYTOLEVELUP", category: "Sprite Dust", reward: "2,000 Sprite Dust" },
   { code: "WHEREISTHEDUSTYTREE", category: "Sprite Dust", reward: "5,000 Sprite Dust" },
   { code: "YOURTHOUGHTSAREMINE", category: "Sprite Dust", reward: "5,000 Sprite Dust + Void Master Geno style (requires Geno Part 1 quests)" },
+  { code: "DUSTYSPRITES", category: "Sprite Dust", reward: "5,000 Sprite Dust" },
 
   { code: "BEAMMEUP", category: "Gizmos", reward: "2 Extraction Accelerators" },
   { code: "CHATFINDMEANOTHERCODE", category: "Gizmos", reward: "2 Cheat Code Locators" },
@@ -582,7 +585,9 @@ const LOBBY_CODES = [
   { code: "OVERRIDEXP", category: "Cosmetics", reward: "40,000 XP" },
   { code: "REACHYOURIMPOSSIBLE", category: "Cosmetics", reward: "Block Party Loading Screen" },
   { code: "SAYH12WR1X3L", category: "Cosmetics", reward: "Wrixel's Hero Portrait Spray" },
-  { code: "9YEARS", category: "Cosmetics", reward: "9th Birthday Sprite Spray" }
+  { code: "9YEARS", category: "Cosmetics", reward: "9th Birthday Sprite Spray" },
+  { code: "WEARETHEWORLDCHAMPIONSTODAY", category: "Cosmetics", reward: "Limited-Edition FNCS Back Bling" },
+  { code: "WHOCRACKEDTHECODE", category: "Cosmetics", reward: "40,000 XP" }
 ];
 const CODE_CATEGORIES = ["Sprites", "Sprite Dust", "Gizmos", "Cosmetics"];
 
@@ -1018,8 +1023,8 @@ const S4_IMAGE_MAP = {};
     });
   });
 
-  // New "Bounty Hunter" variant added to 17 existing sprites — uploaded as
-  // one batch, IMG_2905.webp through IMG_2921.webp, in this exact order.
+  // "Bounty Hunter" variant added to 17 existing sprites — uploaded as one
+  // batch, IMG_2905.webp through IMG_2921.webp, in this exact order.
   const BOUNTY_HUNTER_ORDER = [
     "jonesy4","adventure4","bush4","sonic4","tails4","shadow4","8bit4",
     "jackrabbit4","killswitch4","klombo4","overshield4","xray4","onigiri4",
@@ -1032,7 +1037,7 @@ const S4_IMAGE_MAP = {};
     bh++;
   });
 
-  // New sprite "Morgana" — Base/Gold/Cheat Master/Loot Hacker/Bounty Hunter,
+  // "Morgana" — Base/Gold/Cheat Master/Loot Hacker/Bounty Hunter,
   // IMG_2922.webp through IMG_2926.webp in that order.
   S4_IMAGE_MAP["morgana4"] = {
     normal: "Images2/IMG_2922.webp",
@@ -1040,6 +1045,16 @@ const S4_IMAGE_MAP = {};
     cheatmaster: "Images2/IMG_2924.webp",
     loothacker: "Images2/IMG_2925.webp",
     bountyhunter: "Images2/IMG_2926.webp"
+  };
+
+  // "Birthday" (Fortnite's 9th anniversary sprite) — Base/Gold/Cheat
+  // Master/Loot Hacker/Bounty Hunter, IMG_2941.webp through IMG_2945.webp.
+  S4_IMAGE_MAP["birthday4"] = {
+    normal: "Images2/IMG_2941.webp",
+    gold: "Images2/IMG_2942.webp",
+    cheatmaster: "Images2/IMG_2943.webp",
+    loothacker: "Images2/IMG_2944.webp",
+    bountyhunter: "Images2/IMG_2945.webp"
   };
 })();
 
