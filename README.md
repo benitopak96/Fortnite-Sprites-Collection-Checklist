@@ -9,7 +9,7 @@ Live Site: [https://sprites.tyrantnetworks.com](https://sprites.tyrantnetworks.c
 ## 🚀 Key Features
 
 *   **Digital Locker Layout:** Sleek dark-mode grid UI inspired by Fortnite's aesthetic, complete with dynamic card themes that seamlessly transition using precise, theme-matched tier colors.
-*   **Dual-Season Tracking:** A dedicated season selector switches the entire locker between **Season 3** (18 items) and **Season 4: Override** (20 items), each with its own independently tracked inventory, so progress on one season never overwrites the other.
+*   **Dual-Season Tracking:** A dedicated season selector switches the entire locker between **Season 3** (18 items) and **Season 4: Override** (21 items), each with its own independently tracked inventory, so progress on one season never overwrites the other.
 *   **Gold Master Tier Badge:** Reaching Level 5 updates the badge to a striking **GOLD MAX** text indicator, ensuring completion stands out across the tracker.
 *   **Rapid Management Gestures:**
     *   *Normal Tap:* Increments individual variant styles by single level steps (1-5).
@@ -50,7 +50,7 @@ Standard, gem, and holofoil-era tiers in ordered structural sequence:
 
 *(Plus standalone single-variant collectibles carried over from the broader Season 3 set: John Wick, Batman, Vini Jr, Ironmouse, Pollo, Lootin' Llama, Peeky Peely.)*
 
-### Chapter 7 Season 4: Override (20 items)
+### Chapter 7 Season 4: Override (21 items)
 Base / Gold / Cheat Master / Loot Hacker tier structure, with a fifth exclusive variant on most items:
 
 1.  **Jonesy** *(+ Bounty Hunter variant)*
@@ -73,8 +73,9 @@ Base / Gold / Cheat Master / Loot Hacker tier structure, with a fifth exclusive 
 18. **Crash Bandicoot** *(+ Bounty Hunter variant)*
 19. **Pond** *(+ Bounty Hunter variant)*
 20. **Morgana** *(Base / Gold / Cheat Master / Loot Hacker / Bounty Hunter — full 5-variant set)*
+21. **Birthday** *(Fortnite's 9th anniversary sprite — Base / Gold / Cheat Master / Loot Hacker / Bounty Hunter)*
 
-### Lobby Hack Codes (39 total)
+### Lobby Hack Codes (42 total)
 Tracked across four reward categories — Sprites, Sprite Dust, Gizmos, and Cosmetics — covering every known active Admin Panel code for the season, kept current as Epic adds new ones.
 
 ---
@@ -97,4 +98,6 @@ File image paths are resolved natively based on their digital asset sequence val
     ├── IMG_2905.webp        # Bounty Hunter variant batch starts here (17 images)
     ├── ...                  # Sequential through IMG_2921.webp
     ├── IMG_2922.webp        # Morgana Base (5-image batch)
-    └── IMG_2926.webp        # Morgana Bounty Hunter (batch ends here)
+    ├── IMG_2926.webp        # Morgana Bounty Hunter (batch ends here)
+    ├── IMG_2941.webp        # Birthday Base (5-image batch)
+    └── IMG_2945.webp        # Birthday Bounty Hunter (batch ends here)
