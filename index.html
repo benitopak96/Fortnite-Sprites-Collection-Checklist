@@ -871,7 +871,7 @@ function exportAsImage() {
       const fileName = `${nameString}_Fortnite_${seasonTag}_Checklist.png`;
       canvas.toBlob(blob => {
         const imageFile = new File([blob], fileName, { type: "image/png" });
-        if (navigator.canShare && navigator.canShare({ files: [imageFile] })) {
+        if (isMobileDevice() && navigator.canShare && navigator.canShare({ files: [imageFile] })) {
           navigator.share({
             files: [imageFile], title: 'My Sprite Collection Checklist', text: 'Check out my current Fortnite Sprite level status!'
           }).then(() => {
@@ -901,6 +901,10 @@ function fallbackDownload(canvas, fileName) {
   link.download = fileName;
   link.href = canvas.toDataURL("image/png");
   link.click();
+}
+
+function isMobileDevice() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
 function getImagePath(sId, v) {
