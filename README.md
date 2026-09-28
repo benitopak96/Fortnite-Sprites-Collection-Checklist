@@ -75,7 +75,7 @@ Base / Gold / Cheat Master / Loot Hacker tier structure, with a fifth exclusive 
 20. **Morgana** *(Base / Gold / Cheat Master / Loot Hacker / Bounty Hunter — full 5-variant set)*
 21. **Birthday** *(Fortnite's 9th anniversary sprite — Base / Gold / Cheat Master / Loot Hacker / Bounty Hunter)*
 
-### Lobby Hack Codes (42 total)
+### Lobby Hack Codes (43 total)
 Tracked across four reward categories — Sprites, Sprite Dust, Gizmos, and Cosmetics — covering every known active Admin Panel code for the season, kept current as Epic adds new ones.
 
 ---
