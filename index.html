@@ -48,6 +48,31 @@
   }
 
   .wrap { max-width: 640px; margin: 0 auto; }
+
+  /* Page Nav (Checklist / Item Shop) */
+  .page-nav { display: flex; gap: 8px; margin-bottom: 12px; }
+  .page-nav-btn {
+    flex: 1; background: var(--panel); border: 1px solid #1d2331; color: var(--ink-dim);
+    padding: 12px; border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 16px;
+    letter-spacing: 0.5px; cursor: pointer; transition: all 0.15s ease;
+  }
+  .page-nav-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(232,179,57,0.08); }
+  .page-nav-btn:hover { border-color: #3a4154; }
+
+  /* Item Shop */
+  .shop-section { margin-bottom: 16px; }
+  .shop-section-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.5px;
+    color: var(--galaxy); margin-bottom: 8px; text-transform: uppercase;
+  }
+  .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .shop-card {
+    background: var(--panel); border: 1px solid #1d2331; border-radius: 10px; padding: 8px;
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+  }
+  .shop-card-img { width: 90px; height: 90px; object-fit: contain; border-radius: 6px; background: #161b27; }
+  .shop-card-name { font-size: 11px; font-weight: 700; line-height: 1.2; }
+  .shop-card-price { font-size: 12px; color: var(--gold); font-weight: 700; }
   
   /* Discord Integration UI */
   .discord-panel {
@@ -631,6 +656,11 @@ let state = null;
 let touchTimer = null;
 let isLongPress = false;
 
+let currentPage = "checklist"; // "checklist" | "shop"
+let shopData = null;
+let shopLoadedAt = null;
+let shopLoading = false;
+
 // All Season 3 gem sprites have now been released — nothing is flagged as unreleased anymore.
 function isUnreleased(spriteId, variant) {
   return false;
@@ -715,6 +745,87 @@ function saveState() {
     localStorage.setItem(MULTI_STORAGE_KEY, JSON.stringify(appState));
     syncToVPS();
   } catch (e) { console.error("Failed to save state:", e); }
+}
+
+// --- ITEM SHOP ENGINE ---
+function switchPage(page) {
+  currentPage = page;
+  render();
+  if (page === "shop" && !shopData && !shopLoading) {
+    loadShop();
+  }
+}
+
+async function loadShop() {
+  shopLoading = true;
+  render();
+  try {
+    const res = await fetch("https://fortnite-api.com/v2/shop");
+    if (!res.ok) throw new Error("Shop request failed: " + res.status);
+    const json = await res.json();
+    shopData = json.data;
+    shopLoadedAt = new Date();
+  } catch (e) {
+    console.error("Shop load error:", e);
+    shopData = null;
+  }
+  shopLoading = false;
+  render();
+}
+
+function renderShop() {
+  if (shopLoading) {
+    return `<div class="loading">Loading today's Item Shop…</div>`;
+  }
+  if (!shopData || !Array.isArray(shopData.entries)) {
+    return `<div class="loading">Couldn't load the Item Shop right now.
+      <br><button class="reset-btn" style="margin-top:10px;" onclick="loadShop()">Try Again</button></div>`;
+  }
+
+  const sections = {};
+  shopData.entries.forEach(entry => {
+    const sectionName = (entry.layout && entry.layout.name) ? entry.layout.name : "Item Shop";
+    if (!sections[sectionName]) sections[sectionName] = [];
+    sections[sectionName].push(entry);
+  });
+
+  const updatedLabel = shopLoadedAt
+    ? `Last updated ${shopLoadedAt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`
+    : "";
+
+  const sectionsHtml = Object.keys(sections).map(sectionName => {
+    const items = sections[sectionName].map(entry => {
+      const isBundle = !!entry.bundle;
+      const displayName = isBundle
+        ? entry.bundle.name
+        : (entry.brItems && entry.brItems.length ? entry.brItems.map(i => i.name).join(" + ") : "Unknown Item");
+
+      let imagePath = null;
+      if (entry.newDisplayAsset && entry.newDisplayAsset.renderImages && entry.newDisplayAsset.renderImages.length) {
+        imagePath = entry.newDisplayAsset.renderImages[0].image;
+      } else if (entry.brItems && entry.brItems.length && entry.brItems[0].images) {
+        imagePath = entry.brItems[0].images.icon || entry.brItems[0].images.smallIcon;
+      } else if (isBundle && entry.bundle.image) {
+        imagePath = entry.bundle.image;
+      }
+
+      return `<div class="shop-card">
+          <img class="shop-card-img" src="${imagePath || ''}" onerror="this.style.opacity='0.15';" alt="">
+          <div class="shop-card-name">${displayName}</div>
+          <div class="shop-card-price">🪙 ${entry.finalPrice}</div>
+        </div>`;
+    }).join("");
+
+    return `<div class="shop-section">
+        <div class="shop-section-title">${sectionName}</div>
+        <div class="shop-grid">${items}</div>
+      </div>`;
+  }).join("");
+
+  return `<div class="hint">${updatedLabel} — 
+      <a href="#" onclick="loadShop(); return false;" style="color:var(--gold);">Refresh</a>
+    </div>
+    ${sectionsHtml}`;
 }
 
 // MULTI-SHEET & CONTROLS
@@ -1067,8 +1178,7 @@ function getImagePathS4(sId, v) {
   return (S4_IMAGE_MAP[sId] && S4_IMAGE_MAP[sId][v]) || `Images2/IMG_${S4_IMAGE_START}.webp`;
 }
 
-function render() {
-  const app = document.getElementById("app");
+function renderChecklist() {
   const isS4 = state.season === "s4";
   const showCodes = isS4 && state.view === "codes";
 
@@ -1227,7 +1337,7 @@ function render() {
   const eyebrowText = isS4 ? "Fortnite · Chapter 7 Season 4: Override" : "Fortnite · Chapter 7 Season 3";
   const hintText = showCodes ? "Tap a code to mark it claimed." : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5!";
 
-  app.innerHTML = `
+  return `
     <div class="discord-panel">${discordUI}</div>
 
     <div class="sheet-manager">
@@ -1272,10 +1382,24 @@ function render() {
     </div>
     <button class="export-btn" onclick="exportAsImage()">Export PNG Image</button>
   `;
+}
 
-  document.querySelectorAll('.toggle').forEach(element => {
-    setupTouchListeners(element, element.getAttribute('data-sprite'), element.getAttribute('data-variant'));
-  });
+function render() {
+  const app = document.getElementById("app");
+  const navHtml = `<div class="page-nav">
+      <button class="page-nav-btn ${currentPage === 'checklist' ? 'active' : ''}" onclick="switchPage('checklist')">📋 Sprite Checklist</button>
+      <button class="page-nav-btn ${currentPage === 'shop' ? 'active' : ''}" onclick="switchPage('shop')">🛒 Item Shop</button>
+    </div>`;
+
+  const contentHtml = currentPage === "shop" ? renderShop() : renderChecklist();
+
+  app.innerHTML = navHtml + contentHtml;
+
+  if (currentPage === "checklist") {
+    document.querySelectorAll('.toggle').forEach(element => {
+      setupTouchListeners(element, element.getAttribute('data-sprite'), element.getAttribute('data-variant'));
+    });
+  }
 }
 
 // --- INITIALIZATION & OAUTH ENGINE ---
