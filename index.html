@@ -74,6 +74,7 @@
   .shop-card-img { width: 90px; height: 90px; object-fit: contain; border-radius: 6px; background: #161b27; }
   .shop-card-name { font-size: 11px; font-weight: 700; line-height: 1.2; }
   .shop-card-price { font-size: 12px; color: var(--gold); font-weight: 700; }
+  .shop-card-countdown { font-size: 10px; color: var(--ink-dim); }
 
   /* Item Preview Modal */
   .item-preview-overlay {
@@ -90,10 +91,29 @@
     color: var(--ink-dim); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px;
   }
   .item-preview-close:hover { color: var(--need); border-color: var(--need); }
-  .item-preview-img { width: 100%; max-height: 320px; object-fit: contain; border-radius: 10px; background: #161b27; margin-bottom: 12px; }
+  .item-preview-nav-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .item-preview-nav {
+    background: #161b27; border: 1px solid #1d2331; color: var(--ink);
+    width: 32px; height: 32px; min-width: 32px; border-radius: 50%; cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .item-preview-nav:hover { border-color: var(--gold); color: var(--gold); }
+  .item-preview-img { flex: 1; min-width: 0; max-height: 300px; object-fit: contain; border-radius: 10px; background: #161b27; }
+  .item-preview-badges { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .item-preview-badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 20px; background: rgba(124,108,240,0.15); color: var(--galaxy);
+    border: 1px solid rgba(124,108,240,0.3);
+  }
+  .item-preview-badge.type { background: rgba(232,179,57,0.12); color: var(--gold); border-color: rgba(232,179,57,0.3); }
   .item-preview-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.5px; margin-bottom: 6px; }
   .item-preview-desc { font-size: 12px; color: var(--ink-dim); margin-bottom: 10px; }
   .item-preview-price { font-size: 15px; color: var(--gold); font-weight: 700; }
+  .item-preview-expiry { font-size: 11px; color: var(--ink-dim); margin-top: 8px; }
+  .item-preview-id { font-size: 10px; color: var(--ink-dim); margin-top: 4px; font-family: monospace; word-break: break-all; }
+  .item-preview-assets { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+  .item-preview-asset-btn { font-size: 10px; background: #161b27; border: 1px solid #1d2331; color: var(--ink-dim); padding: 4px 10px; border-radius: 20px; cursor: pointer; }
+  .item-preview-asset-btn:hover { color: var(--gold); border-color: var(--gold); }
   .item-preview-sublist { margin-top: 14px; padding-top: 12px; border-top: 1px solid #1d2331; text-align: left; max-height: 200px; overflow-y: auto; }
   .item-preview-subtitle { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
   .item-preview-subrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #1d2331; font-size: 12px; }
@@ -687,6 +707,7 @@ let shopData = null;
 let shopLoadedAt = null;
 let shopLoading = false;
 let shopCardData = [];
+let currentPreviewIdx = null;
 
 // All Season 3 gem sprites have now been released — nothing is flagged as unreleased anymore.
 function isUnreleased(spriteId, variant) {
@@ -800,6 +821,18 @@ async function loadShop() {
   render();
 }
 
+function formatCountdown(outDate) {
+  if (!outDate) return "";
+  const end = new Date(outDate).getTime();
+  const diff = end - Date.now();
+  if (isNaN(end) || diff <= 0) return "";
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  if (days > 0) return `${days}D ${hours}H`;
+  const mins = Math.floor((diff % 3600000) / 60000);
+  return `${hours}H ${mins}M`;
+}
+
 function getEntryDisplay(entry) {
   const isBundle = !!entry.bundle;
   let name = "Unknown Item";
@@ -807,6 +840,10 @@ function getEntryDisplay(entry) {
   let previewImage = null;
   let description = "";
   let items = [];
+  let typeLabel = "";
+  let seriesLabel = "";
+  let itemId = entry.offerId || "";
+  let assetVariants = [];
 
   if (entry.brItems && entry.brItems.length) {
     items = entry.brItems.map(i => ({
@@ -814,30 +851,43 @@ function getEntryDisplay(entry) {
       image: (i.images && (i.images.featured || i.images.icon || i.images.smallIcon)) || null,
       description: i.description || ""
     }));
+    const first = entry.brItems[0];
+    typeLabel = (first.type && first.type.displayValue) || "";
+    seriesLabel = (first.series && first.series.value) || "";
+    if (!isBundle && first.id) itemId = first.id;
+    if (first.images) {
+      if (first.images.icon) assetVariants.push({ label: "Icon", url: first.images.icon });
+      if (first.images.featured) assetVariants.push({ label: "Featured", url: first.images.featured });
+      if (first.images.smallIcon && first.images.smallIcon !== first.images.icon) assetVariants.push({ label: "Small", url: first.images.smallIcon });
+    }
   } else if (entry.tracks && entry.tracks.length) {
     items = entry.tracks.map(t => ({
       name: t.title || t.name || "Track",
       image: t.albumArt || null,
       description: t.artist ? `by ${t.artist}${t.album ? " — " + t.album : ""}` : ""
     }));
+    typeLabel = "Jam Track";
   } else if (entry.instruments && entry.instruments.length) {
     items = entry.instruments.map(it => ({
       name: it.name || "Instrument",
       image: (it.images && (it.images.large || it.images.small)) || it.image || null,
       description: it.description || ""
     }));
+    typeLabel = "Instrument";
   } else if (entry.cars && entry.cars.length) {
     items = entry.cars.map(c => ({
       name: c.name || "Car",
       image: (c.images && (c.images.large || c.images.small)) || c.image || null,
       description: c.description || ""
     }));
+    typeLabel = "Car Body";
   } else if (entry.legoKits && entry.legoKits.length) {
     items = entry.legoKits.map(lk => ({
       name: lk.name || "LEGO Kit",
       image: (lk.images && (lk.images.large || lk.images.small)) || lk.image || null,
       description: lk.description || ""
     }));
+    typeLabel = "LEGO Kit";
   }
 
   if (isBundle) {
@@ -845,6 +895,8 @@ function getEntryDisplay(entry) {
     thumbImage = entry.bundle.image || (items[0] && items[0].image) || null;
     previewImage = thumbImage;
     description = entry.bundle.info || "";
+    typeLabel = "Bundle";
+    if (entry.bundle.image) assetVariants = [{ label: "Bundle Art", url: entry.bundle.image }];
   } else if (items.length) {
     name = items.map(i => i.name).join(" + ");
     thumbImage = items[0].image;
@@ -857,7 +909,15 @@ function getEntryDisplay(entry) {
     previewImage = previewImage || thumbImage;
   }
 
-  return { name, thumbImage, previewImage, description, price: entry.finalPrice, items, isBundle };
+  let expiryLabel = "";
+  if (entry.outDate) {
+    const d = new Date(entry.outDate);
+    if (!isNaN(d.getTime())) {
+      expiryLabel = `Leaving Shop on ${d.toLocaleDateString([], {month:'numeric', day:'numeric'})}, ${d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})}`;
+    }
+  }
+
+  return { name, thumbImage, previewImage, description, price: entry.finalPrice, items, isBundle, typeLabel, seriesLabel, expiryLabel, countdown: formatCountdown(entry.outDate), itemId, assetVariants };
 }
 
 function renderShop() {
@@ -892,6 +952,7 @@ function renderShop() {
           <img class="shop-card-img" src="${display.thumbImage || ''}" onerror="this.style.opacity='0.15';" alt="">
           <div class="shop-card-name">${display.name}</div>
           <div class="shop-card-price">🪙 ${display.price}</div>
+          ${display.countdown ? `<div class="shop-card-countdown">🕐 ${display.countdown}</div>` : ""}
         </div>`;
     }).join("");
 
@@ -908,9 +969,10 @@ function renderShop() {
 }
 
 function openItemPreview(idx) {
+  if (idx < 0 || idx >= shopCardData.length) return;
+  currentPreviewIdx = idx;
   const item = shopCardData[idx];
   if (!item) return;
-  closeItemPreview();
 
   const subItemsHtml = (item.items && item.items.length > 1)
     ? `<div class="item-preview-sublist">
@@ -924,26 +986,57 @@ function openItemPreview(idx) {
       </div>`
     : "";
 
-  const overlay = document.createElement("div");
-  overlay.id = "item-preview-overlay";
-  overlay.className = "item-preview-overlay";
-  overlay.onclick = (e) => { if (e.target === overlay) closeItemPreview(); };
+  const badgesHtml = `<div class="item-preview-badges">
+      ${item.seriesLabel ? `<div class="item-preview-badge">${item.seriesLabel}</div>` : ""}
+      ${item.typeLabel ? `<div class="item-preview-badge type">${item.typeLabel}</div>` : ""}
+    </div>`;
+
+  let overlay = document.getElementById("item-preview-overlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "item-preview-overlay";
+    overlay.className = "item-preview-overlay";
+    overlay.onclick = (e) => { if (e.target === overlay) closeItemPreview(); };
+    document.body.appendChild(overlay);
+  }
+
   overlay.innerHTML = `
     <div class="item-preview-card">
       <button class="item-preview-close" onclick="closeItemPreview()">✕</button>
-      <img class="item-preview-img" src="${item.previewImage || item.thumbImage || ''}" onerror="this.style.opacity='0.15';" alt="">
+      <div class="item-preview-nav-row">
+        <button class="item-preview-nav" onclick="navigateItemPreview(-1)">‹</button>
+        <img id="item-preview-img" class="item-preview-img" src="${item.previewImage || item.thumbImage || ''}" onerror="this.style.opacity='0.15';" alt="">
+        <button class="item-preview-nav" onclick="navigateItemPreview(1)">›</button>
+      </div>
+      ${badgesHtml}
       <div class="item-preview-name">${item.name}</div>
       ${item.description ? `<div class="item-preview-desc">${item.description}</div>` : ""}
       <div class="item-preview-price">🪙 ${item.price}</div>
+      ${item.expiryLabel ? `<div class="item-preview-expiry">🕐 ${item.expiryLabel}</div>` : ""}
+      ${item.itemId ? `<div class="item-preview-id">ID: ${item.itemId}</div>` : ""}
+      ${item.assetVariants.length > 1 ? `<div class="item-preview-assets">${item.assetVariants.map(v => `<button class="item-preview-asset-btn" onclick="swapPreviewImage('${v.url.replace(/'/g, "&apos;")}')">${v.label}</button>`).join("")}</div>` : ""}
       ${subItemsHtml}
     </div>
   `;
-  document.body.appendChild(overlay);
+}
+
+function navigateItemPreview(delta) {
+  if (currentPreviewIdx === null) return;
+  let next = currentPreviewIdx + delta;
+  if (next < 0) next = shopCardData.length - 1;
+  if (next >= shopCardData.length) next = 0;
+  openItemPreview(next);
 }
 
 function closeItemPreview() {
   const existing = document.getElementById("item-preview-overlay");
   if (existing) existing.remove();
+  currentPreviewIdx = null;
+}
+
+function swapPreviewImage(url) {
+  const img = document.getElementById("item-preview-img");
+  if (img) { img.src = url; img.style.opacity = '1'; }
 }
 
 // MULTI-SHEET & CONTROLS
