@@ -69,10 +69,36 @@
   .shop-card {
     background: var(--panel); border: 1px solid #1d2331; border-radius: 10px; padding: 8px;
     display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+    cursor: pointer;
   }
   .shop-card-img { width: 90px; height: 90px; object-fit: contain; border-radius: 6px; background: #161b27; }
   .shop-card-name { font-size: 11px; font-weight: 700; line-height: 1.2; }
   .shop-card-price { font-size: 12px; color: var(--gold); font-weight: 700; }
+
+  /* Item Preview Modal */
+  .item-preview-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .item-preview-card {
+    background: var(--panel); border: 1px solid #1d2331; border-radius: 16px;
+    padding: 20px; max-width: 360px; width: 100%; text-align: center; position: relative;
+    max-height: 85vh; overflow-y: auto;
+  }
+  .item-preview-close {
+    position: absolute; top: 10px; right: 10px; background: #161b27; border: 1px solid #1d2331;
+    color: var(--ink-dim); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px;
+  }
+  .item-preview-close:hover { color: var(--need); border-color: var(--need); }
+  .item-preview-img { width: 100%; max-height: 320px; object-fit: contain; border-radius: 10px; background: #161b27; margin-bottom: 12px; }
+  .item-preview-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .item-preview-desc { font-size: 12px; color: var(--ink-dim); margin-bottom: 10px; }
+  .item-preview-price { font-size: 15px; color: var(--gold); font-weight: 700; }
+  .item-preview-sublist { margin-top: 14px; padding-top: 12px; border-top: 1px solid #1d2331; text-align: left; max-height: 200px; overflow-y: auto; }
+  .item-preview-subtitle { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .item-preview-subrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #1d2331; font-size: 12px; }
+  .item-preview-subrow:last-child { border-bottom: none; }
+  .item-preview-subimg { width: 32px; height: 32px; object-fit: contain; background: #161b27; border-radius: 6px; flex-shrink: 0; }
   
   /* Discord Integration UI */
   .discord-panel {
@@ -660,6 +686,7 @@ let currentPage = "checklist"; // "checklist" | "shop"
 let shopData = null;
 let shopLoadedAt = null;
 let shopLoading = false;
+let shopCardData = [];
 
 // All Season 3 gem sprites have now been released — nothing is flagged as unreleased anymore.
 function isUnreleased(spriteId, variant) {
@@ -773,6 +800,66 @@ async function loadShop() {
   render();
 }
 
+function getEntryDisplay(entry) {
+  const isBundle = !!entry.bundle;
+  let name = "Unknown Item";
+  let thumbImage = null;
+  let previewImage = null;
+  let description = "";
+  let items = [];
+
+  if (entry.brItems && entry.brItems.length) {
+    items = entry.brItems.map(i => ({
+      name: i.name || "Item",
+      image: (i.images && (i.images.featured || i.images.icon || i.images.smallIcon)) || null,
+      description: i.description || ""
+    }));
+  } else if (entry.tracks && entry.tracks.length) {
+    items = entry.tracks.map(t => ({
+      name: t.title || t.name || "Track",
+      image: t.albumArt || null,
+      description: t.artist ? `by ${t.artist}${t.album ? " — " + t.album : ""}` : ""
+    }));
+  } else if (entry.instruments && entry.instruments.length) {
+    items = entry.instruments.map(it => ({
+      name: it.name || "Instrument",
+      image: (it.images && (it.images.large || it.images.small)) || it.image || null,
+      description: it.description || ""
+    }));
+  } else if (entry.cars && entry.cars.length) {
+    items = entry.cars.map(c => ({
+      name: c.name || "Car",
+      image: (c.images && (c.images.large || c.images.small)) || c.image || null,
+      description: c.description || ""
+    }));
+  } else if (entry.legoKits && entry.legoKits.length) {
+    items = entry.legoKits.map(lk => ({
+      name: lk.name || "LEGO Kit",
+      image: (lk.images && (lk.images.large || lk.images.small)) || lk.image || null,
+      description: lk.description || ""
+    }));
+  }
+
+  if (isBundle) {
+    name = entry.bundle.name || name;
+    thumbImage = entry.bundle.image || (items[0] && items[0].image) || null;
+    previewImage = thumbImage;
+    description = entry.bundle.info || "";
+  } else if (items.length) {
+    name = items.map(i => i.name).join(" + ");
+    thumbImage = items[0].image;
+    previewImage = items[0].image;
+    description = items[0].description;
+  }
+
+  if (!thumbImage && entry.newDisplayAsset && entry.newDisplayAsset.renderImages && entry.newDisplayAsset.renderImages.length) {
+    thumbImage = entry.newDisplayAsset.renderImages[0].image;
+    previewImage = previewImage || thumbImage;
+  }
+
+  return { name, thumbImage, previewImage, description, price: entry.finalPrice, items, isBundle };
+}
+
 function renderShop() {
   if (shopLoading) {
     return `<div class="loading">Loading today's Item Shop…</div>`;
@@ -781,6 +868,8 @@ function renderShop() {
     return `<div class="loading">Couldn't load the Item Shop right now.
       <br><button class="reset-btn" style="margin-top:10px;" onclick="loadShop()">Try Again</button></div>`;
   }
+
+  shopCardData = [];
 
   const sections = {};
   shopData.entries.forEach(entry => {
@@ -795,24 +884,14 @@ function renderShop() {
 
   const sectionsHtml = Object.keys(sections).map(sectionName => {
     const items = sections[sectionName].map(entry => {
-      const isBundle = !!entry.bundle;
-      const displayName = isBundle
-        ? entry.bundle.name
-        : (entry.brItems && entry.brItems.length ? entry.brItems.map(i => i.name).join(" + ") : "Unknown Item");
+      const display = getEntryDisplay(entry);
+      shopCardData.push(display);
+      const idx = shopCardData.length - 1;
 
-      let imagePath = null;
-      if (entry.newDisplayAsset && entry.newDisplayAsset.renderImages && entry.newDisplayAsset.renderImages.length) {
-        imagePath = entry.newDisplayAsset.renderImages[0].image;
-      } else if (entry.brItems && entry.brItems.length && entry.brItems[0].images) {
-        imagePath = entry.brItems[0].images.icon || entry.brItems[0].images.smallIcon;
-      } else if (isBundle && entry.bundle.image) {
-        imagePath = entry.bundle.image;
-      }
-
-      return `<div class="shop-card">
-          <img class="shop-card-img" src="${imagePath || ''}" onerror="this.style.opacity='0.15';" alt="">
-          <div class="shop-card-name">${displayName}</div>
-          <div class="shop-card-price">🪙 ${entry.finalPrice}</div>
+      return `<div class="shop-card" onclick="openItemPreview(${idx})">
+          <img class="shop-card-img" src="${display.thumbImage || ''}" onerror="this.style.opacity='0.15';" alt="">
+          <div class="shop-card-name">${display.name}</div>
+          <div class="shop-card-price">🪙 ${display.price}</div>
         </div>`;
     }).join("");
 
@@ -826,6 +905,45 @@ function renderShop() {
       <a href="#" onclick="loadShop(); return false;" style="color:var(--gold);">Refresh</a>
     </div>
     ${sectionsHtml}`;
+}
+
+function openItemPreview(idx) {
+  const item = shopCardData[idx];
+  if (!item) return;
+  closeItemPreview();
+
+  const subItemsHtml = (item.items && item.items.length > 1)
+    ? `<div class="item-preview-sublist">
+        <div class="item-preview-subtitle">Includes ${item.items.length} items:</div>
+        ${item.items.map(sub => `
+          <div class="item-preview-subrow">
+            <img class="item-preview-subimg" src="${sub.image || ''}" onerror="this.style.opacity='0.15';" alt="">
+            <span>${sub.name}</span>
+          </div>
+        `).join("")}
+      </div>`
+    : "";
+
+  const overlay = document.createElement("div");
+  overlay.id = "item-preview-overlay";
+  overlay.className = "item-preview-overlay";
+  overlay.onclick = (e) => { if (e.target === overlay) closeItemPreview(); };
+  overlay.innerHTML = `
+    <div class="item-preview-card">
+      <button class="item-preview-close" onclick="closeItemPreview()">✕</button>
+      <img class="item-preview-img" src="${item.previewImage || item.thumbImage || ''}" onerror="this.style.opacity='0.15';" alt="">
+      <div class="item-preview-name">${item.name}</div>
+      ${item.description ? `<div class="item-preview-desc">${item.description}</div>` : ""}
+      <div class="item-preview-price">🪙 ${item.price}</div>
+      ${subItemsHtml}
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function closeItemPreview() {
+  const existing = document.getElementById("item-preview-overlay");
+  if (existing) existing.remove();
 }
 
 // MULTI-SHEET & CONTROLS
