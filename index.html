@@ -586,8 +586,7 @@ const SPRITES_FORTNITE = [
 
 // ============ SEASON 4 "OVERRIDE" SPRITE DEFINITIONS ============
 // 21 sprites total. Most have Base/Gold/Cheat Master/Loot Hacker/Bounty
-// Hunter; Crown has its own separate exclusive Bounty Hacker variant
-// instead; Mega Man is Base-only so far. Birthday (Fortnite's 9th
+// Hunter. Mega Man is Base-only so far. Birthday (Fortnite's 9th
 // anniversary sprite) is the newest addition, released Sept 26.
 const SEASON4_SPRITES = [
   { id: "jonesy4", name: "Jonesy", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
@@ -598,7 +597,7 @@ const SEASON4_SPRITES = [
   { id: "shadow4", name: "Shadow", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "8bit4", name: "8-Bit", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "jackrabbit4", name: "Jackrabbit", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
-  { id: "crown4", name: "Crown", variants: ["normal","gold","cheatmaster","loothacker","bountyhacker"] },
+  { id: "crown4", name: "Crown", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "killswitch4", name: "Kill Switch", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "klombo4", name: "Klombo", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "megaman4", name: "Mega Man", variants: ["normal"] },
@@ -746,6 +745,14 @@ function normalizeProfiles(app) {
       if (!prof.inventory[id]) prof.inventory[id] = {};
       ALL_VARIANTS_MAP[id].forEach(v => { if (prof.inventory[id][v] === undefined) prof.inventory[id][v] = 0; });
     });
+
+    // One-time migration: Crown's "Bounty Hacker" variant is renamed to "Bounty Hunter" to match every other sprite.
+    if (prof.inventoryS4.crown4 && prof.inventoryS4.crown4.bountyhacker !== undefined) {
+      if (!prof.inventoryS4.crown4.bountyhunter) {
+        prof.inventoryS4.crown4.bountyhunter = prof.inventoryS4.crown4.bountyhacker;
+      }
+      delete prof.inventoryS4.crown4.bountyhacker;
+    }
 
     SEASON4_SPRITES.forEach(s => {
       if (!prof.inventoryS4[s.id]) prof.inventoryS4[s.id] = {};
@@ -1326,7 +1333,7 @@ const SEASON4_SPRITES_ORIGINAL_ORDER = [
   { id: "shadow4", variants: ["normal","gold","cheatmaster","loothacker"] },
   { id: "8bit4", variants: ["normal","gold","cheatmaster","loothacker"] },
   { id: "jackrabbit4", variants: ["normal","gold","cheatmaster","loothacker"] },
-  { id: "crown4", variants: ["normal","gold","cheatmaster","loothacker","bountyhacker"] },
+  { id: "crown4", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "killswitch4", variants: ["normal","gold","cheatmaster","loothacker"] },
   { id: "klombo4", variants: ["normal","gold","cheatmaster","loothacker"] },
   { id: "megaman4", variants: ["normal"] },
