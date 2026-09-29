@@ -588,6 +588,7 @@ const SPRITES_FORTNITE = [
 // 21 sprites total. Most have Base/Gold/Cheat Master/Loot Hacker/Bounty
 // Hunter. Mega Man is Base-only so far. Birthday (Fortnite's 9th
 // anniversary sprite) is the newest addition, released Sept 26.
+// This is the "Organize Order" list for Season 4.
 const SEASON4_SPRITES = [
   { id: "jonesy4", name: "Jonesy", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "adventure4", name: "Adventure", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
@@ -610,6 +611,31 @@ const SEASON4_SPRITES = [
   { id: "pond4", name: "Pond", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "morgana4", name: "Morgana", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "birthday4", name: "Birthday", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] }
+];
+
+// Fortnite's own in-game ordering for Season 4 sprites — this is the DEFAULT view.
+const SEASON4_SPRITES_FORTNITE = [
+  { id: "jonesy4", name: "Jonesy", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "adventure4", name: "Adventure", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "bush4", name: "Bush", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "sonic4", name: "Sonic", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "tails4", name: "Tails", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "shadow4", name: "Shadow", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "8bit4", name: "8-Bit", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "jackrabbit4", name: "Jackrabbit", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "crown4", name: "Crown", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "killswitch4", name: "Kill Switch", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "klombo4", name: "Klombo", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "megaman4", name: "Mega Man", variants: ["normal"] },
+  { id: "overshield4", name: "Overshield", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "pond4", name: "Pond", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "xray4", name: "X-Ray", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "onigiri4", name: "Onigiri", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "stormscout4", name: "Storm Scout", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "blinky4", name: "Blinky", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "birthday4", name: "Birthday", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "crashbandicoot4", name: "Crash Bandicoot", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "morgana4", name: "Morgana", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] }
 ];
 
 // ============ LOBBY HACK / ADMIN PANEL CODES (Season 4 only) ============
@@ -668,6 +694,7 @@ const DEFAULT_STATE = {
   season: "s3",
   view: "sprites",
   sortMode: "organize",
+  sortModeS4: "fortnite",
   showUnreleased: true,
   inventory: {},
   inventoryS4: {},
@@ -734,6 +761,7 @@ function normalizeProfiles(app) {
   Object.keys(app.profiles).forEach(profId => {
     let prof = app.profiles[profId];
     if (!prof.sortMode) prof.sortMode = "organize";
+    if (!prof.sortModeS4) prof.sortModeS4 = "fortnite";
     if (prof.showUnreleased === undefined) prof.showUnreleased = true;
     if (!prof.season) prof.season = "s3";
     if (!prof.view) prof.view = "sprites";
@@ -1082,6 +1110,12 @@ function switchView(val) {
 
 function updateSortMode(mode) {
   state.sortMode = mode;
+  saveState();
+  render();
+}
+
+function updateSortModeS4(mode) {
+  state.sortModeS4 = mode;
   saveState();
   render();
 }
@@ -1436,7 +1470,7 @@ function renderChecklist() {
   } else {
     let rawList;
     if (isS4) {
-      rawList = SEASON4_SPRITES;
+      rawList = state.sortModeS4 === "organize" ? SEASON4_SPRITES : SEASON4_SPRITES_FORTNITE;
     } else {
       rawList = state.sortMode === "fortnite" ? SPRITES_FORTNITE : SPRITES_ORGANIZE;
     }
@@ -1553,6 +1587,13 @@ function renderChecklist() {
       <button class="tab-btn ${state.view === 'codes' ? 'active' : ''}" onclick="switchView('codes')">🔑 Lobby Hack Codes</button>
     </div>`;
 
+  const s4SortControl = `<div class="sheet-manager">
+      <select class="sort-selector" onchange="updateSortModeS4(this.value)">
+        <option value="fortnite" ${state.sortModeS4 === 'fortnite' ? 'selected' : ''}>🎮 Fortnite's Order (Default)</option>
+        <option value="organize" ${state.sortModeS4 === 'organize' ? 'selected' : ''}>📂 Organize Order</option>
+      </select>
+    </div>`;
+
   const eyebrowText = isS4 ? "Fortnite · Chapter 7 Season 4: Override" : "Fortnite · Chapter 7 Season 3";
   const hintText = showCodes ? "Tap a code to mark it claimed." : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5!";
 
@@ -1566,7 +1607,7 @@ function renderChecklist() {
     </div>
 
     ${seasonRow}
-    ${isS4 ? s4Tabs : s3Controls}
+    ${isS4 ? s4Tabs + (showCodes ? '' : s4SortControl) : s3Controls}
 
     <div class="hint">${hintText}</div>
 
