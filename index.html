@@ -116,7 +116,8 @@
   .item-preview-asset-btn:hover { color: var(--gold); border-color: var(--gold); }
   .item-preview-sublist { margin-top: 14px; padding-top: 12px; border-top: 1px solid #1d2331; text-align: left; max-height: 200px; overflow-y: auto; }
   .item-preview-subtitle { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .item-preview-subrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #1d2331; font-size: 12px; }
+  .item-preview-subrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #1d2331; font-size: 12px; cursor: pointer; }
+  .item-preview-subrow:hover { color: var(--gold); }
   .item-preview-subrow:last-child { border-bottom: none; }
   .item-preview-subimg { width: 32px; height: 32px; object-fit: contain; background: #161b27; border-radius: 6px; flex-shrink: 0; }
   
@@ -976,9 +977,9 @@ function openItemPreview(idx) {
 
   const subItemsHtml = (item.items && item.items.length > 1)
     ? `<div class="item-preview-sublist">
-        <div class="item-preview-subtitle">Includes ${item.items.length} items:</div>
+        <div class="item-preview-subtitle">Tap an item to view it:</div>
         ${item.items.map(sub => `
-          <div class="item-preview-subrow">
+          <div class="item-preview-subrow" onclick="swapPreviewImage('${(sub.image || '').replace(/'/g, "&apos;")}')">
             <img class="item-preview-subimg" src="${sub.image || ''}" onerror="this.style.opacity='0.15';" alt="">
             <span>${sub.name}</span>
           </div>
