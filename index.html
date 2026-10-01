@@ -493,6 +493,8 @@
   }
   .code-row:hover { border-color: #3a4154; }
   .code-row.claimed { border-color: rgba(46,230,166,0.6); background: rgba(46,230,166,0.06); }
+  .code-row.expired { opacity: 0.5; }
+  .code-expired-tag { color: var(--need); font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 6px; }
   .code-check {
     width: 22px; height: 22px; flex-shrink: 0; border-radius: 5px; border: 2px solid var(--ink-dim);
     display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: var(--have);
@@ -674,6 +676,8 @@ const LOBBY_CODES = [
   { code: "TAKEYOURHEART", category: "Gizmos", reward: "2 Extraction Accelerators" },
   { code: "ALMOSTSCARINGSEASON", category: "Gizmos", reward: "2 Cheat Code Locators" },
   { code: "BONERATTLER", category: "Gizmos", reward: "4 Spicy Tacos" },
+  { code: "NOPROLLAMA", category: "Gizmos", reward: "1 Llama Supply Drop", expired: true },
+  { code: "ITHINKTHEKEYFOUNDMECHAT", category: "Gizmos", reward: "1 Extraction Accelerator" },
 
   { code: "BEMOREALIEN", category: "Cosmetics", reward: "Override Ready Loading Screen" },
   { code: "BRB", category: "Cosmetics", reward: "Briefly turn into a toilet (repeatable)" },
@@ -684,8 +688,9 @@ const LOBBY_CODES = [
   { code: "REACHYOURIMPOSSIBLE", category: "Cosmetics", reward: "Block Party Loading Screen" },
   { code: "SAYH12WR1X3L", category: "Cosmetics", reward: "Wrixel's Hero Portrait Spray" },
   { code: "9YEARS", category: "Cosmetics", reward: "9th Birthday Sprite Spray" },
-  { code: "WEARETHEWORLDCHAMPIONSTODAY", category: "Cosmetics", reward: "Limited-Edition FNCS Back Bling" },
-  { code: "WHOCRACKEDTHECODE", category: "Cosmetics", reward: "40,000 XP" }
+  { code: "WEARETHEWORLDCHAMPIONSTODAY", category: "Cosmetics", reward: "FNCS Sentry Back Bling" },
+  { code: "WHOCRACKEDTHECODE", category: "Cosmetics", reward: "40,000 XP" },
+  { code: "POWEROUT", category: "Cosmetics", reward: "Five Nights at Freddy's Lobby Jumpscare" }
 ];
 const CODE_CATEGORIES = ["Sprites", "Sprite Dust", "Gizmos", "Cosmetics"];
 
@@ -1441,29 +1446,34 @@ function renderChecklist() {
   let missingLabel = "";
 
   if (showCodes) {
-    let claimedCount = 0;
-    cardsHtml = CODE_CATEGORIES.map(cat => {
-      const items = LOBBY_CODES.filter(c => c.category === cat);
+    const buildCodeCard = (title, items) => {
       const rows = items.map(c => {
         const claimed = !!state.codes[c.code];
-        if (claimed) claimedCount++;
-        return `<div class="code-row ${claimed ? "claimed" : ""}" onclick="toggleCode('${c.code}')">
+        return `<div class="code-row ${claimed ? "claimed" : ""} ${c.expired ? "expired" : ""}" onclick="toggleCode('${c.code}')">
             <div class="code-check">${claimed ? "✓" : ""}</div>
             <div class="code-info">
-              <div class="code-text">${c.code}</div>
+              <div class="code-text">${c.code}${c.expired ? '<span class="code-expired-tag">Expired</span>' : ''}</div>
               <div class="code-reward">${c.reward}</div>
             </div>
           </div>`;
       }).join("");
       return `<div class="sprite-card">
-          <div class="sprite-info"><div class="sprite-name">${cat}</div></div>
+          <div class="sprite-info"><div class="sprite-name">${title}</div></div>
           <div class="codes-list">${rows}</div>
         </div>`;
-    }).join("");
+    };
 
-    totalPointsPossible = LOBBY_CODES.length;
-    currentPointsEarned = claimedCount;
-    const missingCodes = LOBBY_CODES.filter(c => !state.codes[c.code]).map(c => c.code);
+    cardsHtml = CODE_CATEGORIES.map(cat => buildCodeCard(cat, LOBBY_CODES.filter(c => c.category === cat && !c.expired))).join("");
+
+    const expiredCodes = LOBBY_CODES.filter(c => c.expired);
+    if (expiredCodes.length) {
+      cardsHtml += buildCodeCard("Expired", expiredCodes);
+    }
+
+    const claimableCodes = LOBBY_CODES.filter(c => !c.expired);
+    totalPointsPossible = claimableCodes.length;
+    currentPointsEarned = claimableCodes.filter(c => state.codes[c.code]).length;
+    const missingCodes = claimableCodes.filter(c => !state.codes[c.code]).map(c => c.code);
     missingLabel = missingCodes.length
       ? `Still unclaimed: ${missingCodes.slice(0, 3).join(", ")}${missingCodes.length > 3 ? "..." : ""}`
       : "All Lobby Hack codes claimed! 🎉";
