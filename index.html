@@ -455,6 +455,7 @@
   .toggle.have.loothacker { border-color: rgba(255,159,67,0.3); background: rgba(255,159,67,0.04); }
   .toggle.have.bountyhacker { border-color: rgba(255,47,110,0.3); background: rgba(255,47,110,0.04); }
   .toggle.have.bountyhunter { border-color: rgba(255,47,110,0.3); background: rgba(255,47,110,0.04); }
+  .toggle.have.trickortreat { border-color: rgba(255,140,0,0.3); background: rgba(255,140,0,0.04); }
 
   .toggle.max-lvl { border-width: 2px; }
   .toggle.max-lvl.normal { border-color: rgba(184,191,209,0.9); background: rgba(184,191,209,0.12); }
@@ -474,6 +475,7 @@
   .toggle.max-lvl.loothacker { border-color: rgba(255,159,67,0.9); background: rgba(255,159,67,0.14); }
   .toggle.max-lvl.bountyhacker { border-color: rgba(255,47,110,0.9); background: rgba(255,47,110,0.14); }
   .toggle.max-lvl.bountyhunter { border-color: rgba(255,47,110,0.9); background: rgba(255,47,110,0.14); }
+  .toggle.max-lvl.trickortreat { border-color: rgba(255,140,0,0.9); background: rgba(255,140,0,0.14); }
 
   .variant-icon { width: 44px; height: 44px; object-fit: contain; opacity: 0.3; transition: opacity 0.15s ease; pointer-events: none; }
   .toggle.have .variant-icon { opacity: 0.75; }
@@ -588,7 +590,8 @@ const SPRITES_FORTNITE = [
 
 // ============ SEASON 4 "OVERRIDE" SPRITE DEFINITIONS ============
 // Most have Base/Gold/Cheat Master/Loot Hacker/Bounty Hunter. Mega Man is
-// Base-only so far. Birthday (Fortnite's 9th anniversary sprite) and the
+// Base-only so far. Crown has a 6th "Trick or Treat" variant on top of the
+// standard five. Birthday (Fortnite's 9th anniversary sprite) and the
 // Fortnitemares 2026 batch (Spooky Dash, Vampire, The Deer, Dumpster Dive)
 // are the newest additions. This is the "Organize Order" list for Season 4.
 const SEASON4_SPRITES = [
@@ -600,7 +603,7 @@ const SEASON4_SPRITES = [
   { id: "shadow4", name: "Shadow", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "8bit4", name: "8-Bit", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "jackrabbit4", name: "Jackrabbit", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
-  { id: "crown4", name: "Crown", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "crown4", name: "Crown", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter","trickortreat"] },
   { id: "killswitch4", name: "Kill Switch", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "klombo4", name: "Klombo", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "megaman4", name: "Mega Man", variants: ["normal"] },
@@ -629,7 +632,7 @@ const SEASON4_SPRITES_FORTNITE = [
   { id: "shadow4", name: "Shadow", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "8bit4", name: "8-Bit", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "jackrabbit4", name: "Jackrabbit", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
-  { id: "crown4", name: "Crown", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
+  { id: "crown4", name: "Crown", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter","trickortreat"] },
   { id: "killswitch4", name: "Kill Switch", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "klombo4", name: "Klombo", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter"] },
   { id: "megaman4", name: "Mega Man", variants: ["normal"] },
@@ -1470,6 +1473,9 @@ const S4_IMAGE_MAP = {};
     loothacker: "Images2/IMG_3027.webp",
     bountyhunter: "Images2/IMG_3028.webp"
   };
+
+  // "Trick or Treat" — a new 6th variant added to the existing Crown sprite.
+  S4_IMAGE_MAP["crown4"].trickortreat = "Images2/IMG_3031.webp";
 })();
 
 function getImagePathS4(sId, v) {
