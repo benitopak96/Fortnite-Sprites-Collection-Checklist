@@ -672,8 +672,8 @@ const LOBBY_CODES = [
   { code: "WHEREISTHEDUSTYTREE", category: "Sprite Dust", reward: "5,000 Sprite Dust" },
   { code: "YOURTHOUGHTSAREMINE", category: "Sprite Dust", reward: "5,000 Sprite Dust + Void Master Geno style (requires Geno Part 1 quests)" },
   { code: "DUSTYSPRITES", category: "Sprite Dust", reward: "5,000 Sprite Dust" },
-  { code: "RUNSYSTEMOVERRIDE", category: "Sprite Dust", reward: "5,000 Sprite Dust (requires Geno story quests)" },
-  { code: "IMTHEREALEDGELORD", category: "Sprite Dust", reward: "5,000 Sprite Dust (requires Wrixel story quests)" },
+  { code: "RUNSYSTEMOVERRIDE", category: "Sprite Dust", reward: "5,000 Sprite Dust (requires Geno Story Quest Part 2)" },
+  { code: "IMTHEREALEDGELORD", category: "Sprite Dust", reward: "5,000 Sprite Dust (requires Wrixel (Ziggy) Story Quest Part 2)" },
 
   { code: "BEAMMEUP", category: "Gizmos", reward: "2 Extraction Accelerators" },
   { code: "CHATFINDMEANOTHERCODE", category: "Gizmos", reward: "2 Cheat Code Locators" },
@@ -691,6 +691,7 @@ const LOBBY_CODES = [
   { code: "BONERATTLER", category: "Gizmos", reward: "4 Spicy Tacos" },
   { code: "NOPROLLAMA", category: "Gizmos", reward: "1 Llama Supply Drop", expired: true },
   { code: "ITHINKTHEKEYFOUNDMECHAT", category: "Gizmos", reward: "1 Extraction Accelerator" },
+  { code: "VERYSCARYPUMPKIN", category: "Gizmos", reward: "3 Snack-O'-Lanterns" },
 
   { code: "BEMOREALIEN", category: "Cosmetics", reward: "Override Ready Loading Screen" },
   { code: "BRB", category: "Cosmetics", reward: "Briefly turn into a toilet (repeatable)" },
@@ -704,9 +705,9 @@ const LOBBY_CODES = [
   { code: "WEARETHEWORLDCHAMPIONSTODAY", category: "Cosmetics", reward: "FNCS Sentry Back Bling" },
   { code: "WHOCRACKEDTHECODE", category: "Cosmetics", reward: "40,000 XP" },
   { code: "POWEROUT", category: "Cosmetics", reward: "Five Nights at Freddy's Lobby Jumpscare" },
-  { code: "S7H-50P-R03", category: "Cosmetics", reward: "Geno Glitches Your Lobby (requires Hope Quest Stage 4)" },
+  { code: "S7H-50P-R03", category: "Cosmetics", reward: "Geno attacks your lobby (requires the \"Record the 3 Lobby Hack pieces\" step in Geno Story Quest Part 2)" },
   { code: "CROWSAREAFRAID", category: "Cosmetics", reward: "Turns everyone in the lobby into a Scarecrow (repeatable)" },
-  { code: "PUMPKINSPICELIFE", category: "Cosmetics", reward: "Turns everyone in the lobby into a Pumpkin (repeatable)" }
+  { code: "PUMPKINSPICELIFE", category: "Cosmetics", reward: "Transforms you into a pumpkin temporarily (repeatable)" }
 ];
 const CODE_CATEGORIES = ["Sprites", "Sprite Dust", "Gizmos", "Cosmetics"];
 
@@ -835,10 +836,14 @@ function loadState() {
       .then(data => {
         if (data.collection_data && data.collection_data.length > 0) {
           appState = data.collection_data[0];
+          const beforeNormalize = JSON.stringify(appState);
           normalizeProfiles(appState);
           state = appState.profiles[appState.activeId];
           localStorage.setItem(MULTI_STORAGE_KEY, JSON.stringify(appState));
           render();
+          // If new sprites/variants were added by an update, push the filled-in
+          // inventory back so the Discord bot sees them right away (no tap needed).
+          if (JSON.stringify(appState) !== beforeNormalize) syncToVPS();
         }
       }).catch(e => console.error("VPS Load error:", e));
   }
