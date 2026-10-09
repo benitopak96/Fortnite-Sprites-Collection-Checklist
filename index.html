@@ -523,11 +523,21 @@
   .loading { text-align: center; color: var(--ink-dim); padding: 40px; font-size: 14px; }
   .reset-btn { background: none; border: 1px solid #3a4154; color: var(--ink-dim); font-size: 12px; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
   .reset-btn:hover { border-color: var(--need); color: var(--need); }
+  /* Floating section-jump buttons (tap-friendly alternative to scrolling) */
+  .scroll-nav { position: fixed; right: 14px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); display: none; flex-direction: column; gap: 10px; z-index: 50; }
+  .scroll-nav.show { display: flex; }
+  .scroll-nav button { width: 52px; height: 52px; border-radius: 50%; border: 1px solid #3a4154; background: rgba(20,24,34,0.92); color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.45); -webkit-tap-highlight-color: transparent; backdrop-filter: blur(6px); }
+  .scroll-nav button:active { transform: scale(0.94); border-color: var(--gold); color: var(--gold); }
 </style>
 </head>
 <body>
   <div class="wrap" id="app">
     <div class="loading">Loading your collection grid…</div>
+  </div>
+
+  <div class="scroll-nav" id="scrollNav">
+    <button type="button" onclick="jumpSection(-1)" aria-label="Previous section" title="Previous sprite">▲</button>
+    <button type="button" onclick="jumpSection(1)" aria-label="Next section" title="Next sprite">▼</button>
   </div>
 
 <script>
@@ -1197,26 +1207,74 @@ function toggleCode(code) {
   render();
 }
 
+// --- SCROLL SAFETY: ignore taps that are really part of a scroll ---
+let lastScrollAt = 0;
+window.addEventListener('scroll', () => { lastScrollAt = Date.now(); }, { passive: true });
+
 function setupTouchListeners(element, spriteId, variant) {
+  let startX = 0, startY = 0, moved = false, blocked = false;
+
   const startHandler = (e) => {
+    const pt = (e.touches && e.touches[0]) || e;
+    startX = pt.clientX; startY = pt.clientY;
+    moved = false;
+    // A touch that lands while the page is still scrolling (momentum) is just
+    // the user stopping the scroll — never a level change.
+    blocked = (Date.now() - lastScrollAt) < 300;
     isLongPress = false;
+    if (blocked) return;
     touchTimer = setTimeout(() => {
       isLongPress = true;
       handleLongPress(spriteId, variant);
     }, 400);
   };
+  const moveHandler = (e) => {
+    const pt = (e.touches && e.touches[0]) || e;
+    if (Math.abs(pt.clientX - startX) > 8 || Math.abs(pt.clientY - startY) > 8) {
+      moved = true;
+      if (touchTimer) clearTimeout(touchTimer);
+    }
+  };
   const endHandler = (e) => {
     if (touchTimer) clearTimeout(touchTimer);
+    if (blocked || moved) return;
+    if (Date.now() - lastScrollAt < 120) return;
     if (!isLongPress) handleTileTap(spriteId, variant);
   };
-  const cancelHandler = () => { if (touchTimer) clearTimeout(touchTimer); };
+  const cancelHandler = () => { if (touchTimer) clearTimeout(touchTimer); moved = true; };
 
   element.addEventListener('touchstart', startHandler, { passive: true });
   element.addEventListener('touchend', endHandler);
-  element.addEventListener('touchmove', cancelHandler, { passive: true });
+  element.addEventListener('touchmove', moveHandler, { passive: true });
+  element.addEventListener('touchcancel', cancelHandler, { passive: true });
   element.addEventListener('mousedown', startHandler);
   element.addEventListener('mouseup', endHandler);
   element.addEventListener('mouseleave', cancelHandler);
+}
+
+// --- SECTION JUMP BUTTONS (▲ / ▼) ---
+function jumpSection(dir) {
+  const cards = Array.from(document.querySelectorAll('#app .sprite-card'));
+  if (!cards.length) return;
+  const GAP = 12;
+  let target = null;
+  if (dir > 0) {
+    target = cards.find(c => c.getBoundingClientRect().top > GAP + 8);
+  } else {
+    for (let i = cards.length - 1; i >= 0; i--) {
+      if (cards[i].getBoundingClientRect().top < -(GAP) ) { target = cards[i]; break; }
+    }
+  }
+  if (target) {
+    window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - GAP, behavior: 'smooth' });
+  } else {
+    window.scrollTo({ top: dir > 0 ? document.documentElement.scrollHeight : 0, behavior: 'smooth' });
+  }
+}
+
+function updateScrollNav() {
+  const nav = document.getElementById('scrollNav');
+  if (nav) nav.classList.toggle('show', currentPage === 'checklist');
 }
 
 function updateUsername(newName) {
@@ -1675,7 +1733,7 @@ function renderChecklist() {
     </div>`;
 
   const eyebrowText = isS4 ? "Fortnite · Chapter 7 Season 4: Override" : "Fortnite · Chapter 7 Season 3";
-  const hintText = showCodes ? "Tap a code to mark it claimed." : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5!";
+  const hintText = showCodes ? "Tap a code to mark it claimed." : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5! Use the ▲ ▼ buttons to jump between sprites.";
 
   return `
     <div class="discord-panel">${discordUI}</div>
@@ -1734,6 +1792,7 @@ function render() {
   const contentHtml = currentPage === "shop" ? renderShop() : renderChecklist();
 
   app.innerHTML = navHtml + contentHtml;
+  updateScrollNav();
 
   if (currentPage === "checklist") {
     document.querySelectorAll('.toggle').forEach(element => {
