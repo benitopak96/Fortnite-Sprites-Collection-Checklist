@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e14">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sprites">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Fortnite Sprite Checklist</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -25,6 +33,7 @@
     --need: #ff5566;
     --ink: #eef0f6;
     --ink-dim: #8d93a8;
+    --line: #1d2331; --inset: #161b27; --line2: #3a4154; --nav-bg: rgba(20,24,34,0.92); --toast-bg: #1b2130;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,7 +46,7 @@
     font-family: 'Space Grotesk', sans-serif;
     color: var(--ink);
     min-height: 100vh;
-    padding: 14px 12px 16px;
+    padding: calc(14px + env(safe-area-inset-top, 0px)) 12px 16px;
   }
 
   .export-container {
@@ -52,12 +61,12 @@
   /* Page Nav (Checklist / Item Shop) */
   .page-nav { display: flex; gap: 8px; margin-bottom: 12px; }
   .page-nav-btn {
-    flex: 1; background: var(--panel); border: 1px solid #1d2331; color: var(--ink-dim);
+    flex: 1; background: var(--panel); border: 1px solid var(--line); color: var(--ink-dim);
     padding: 12px; border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 16px;
     letter-spacing: 0.5px; cursor: pointer; transition: all 0.15s ease;
   }
   .page-nav-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(232,179,57,0.08); }
-  .page-nav-btn:hover { border-color: #3a4154; }
+  .page-nav-btn:hover { border-color: var(--line2); }
 
   /* Item Shop */
   .shop-section { margin-bottom: 16px; }
@@ -67,11 +76,11 @@
   }
   .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
   .shop-card {
-    background: var(--panel); border: 1px solid #1d2331; border-radius: 10px; padding: 8px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px;
     display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
     cursor: pointer;
   }
-  .shop-card-img { width: 90px; height: 90px; object-fit: contain; border-radius: 6px; background: #161b27; }
+  .shop-card-img { width: 90px; height: 90px; object-fit: contain; border-radius: 6px; background: var(--inset); }
   .shop-card-name { font-size: 11px; font-weight: 700; line-height: 1.2; }
   .shop-card-price { font-size: 12px; color: var(--gold); font-weight: 700; }
   .shop-card-countdown { font-size: 10px; color: var(--ink-dim); }
@@ -82,23 +91,23 @@
     display: flex; align-items: center; justify-content: center; padding: 20px;
   }
   .item-preview-card {
-    background: var(--panel); border: 1px solid #1d2331; border-radius: 16px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
     padding: 20px; max-width: 360px; width: 100%; text-align: center; position: relative;
     max-height: 85vh; overflow-y: auto;
   }
   .item-preview-close {
-    position: absolute; top: 10px; right: 10px; background: #161b27; border: 1px solid #1d2331;
+    position: absolute; top: 10px; right: 10px; background: var(--inset); border: 1px solid var(--line);
     color: var(--ink-dim); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px;
   }
   .item-preview-close:hover { color: var(--need); border-color: var(--need); }
   .item-preview-nav-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .item-preview-nav {
-    background: #161b27; border: 1px solid #1d2331; color: var(--ink);
+    background: var(--inset); border: 1px solid var(--line); color: var(--ink);
     width: 32px; height: 32px; min-width: 32px; border-radius: 50%; cursor: pointer; font-size: 18px;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .item-preview-nav:hover { border-color: var(--gold); color: var(--gold); }
-  .item-preview-img { flex: 1; min-width: 0; max-height: 300px; object-fit: contain; border-radius: 10px; background: #161b27; }
+  .item-preview-img { flex: 1; min-width: 0; max-height: 300px; object-fit: contain; border-radius: 10px; background: var(--inset); }
   .item-preview-badges { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
   .item-preview-badge {
     font-size: 10px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase;
@@ -112,14 +121,14 @@
   .item-preview-expiry { font-size: 11px; color: var(--ink-dim); margin-top: 8px; }
   .item-preview-id { font-size: 10px; color: var(--ink-dim); margin-top: 4px; font-family: monospace; word-break: break-all; }
   .item-preview-assets { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
-  .item-preview-asset-btn { font-size: 10px; background: #161b27; border: 1px solid #1d2331; color: var(--ink-dim); padding: 4px 10px; border-radius: 20px; cursor: pointer; }
+  .item-preview-asset-btn { font-size: 10px; background: var(--inset); border: 1px solid var(--line); color: var(--ink-dim); padding: 4px 10px; border-radius: 20px; cursor: pointer; }
   .item-preview-asset-btn:hover { color: var(--gold); border-color: var(--gold); }
-  .item-preview-sublist { margin-top: 14px; padding-top: 12px; border-top: 1px solid #1d2331; text-align: left; max-height: 200px; overflow-y: auto; }
+  .item-preview-sublist { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); text-align: left; max-height: 200px; overflow-y: auto; }
   .item-preview-subtitle { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .item-preview-subrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #1d2331; font-size: 12px; cursor: pointer; }
+  .item-preview-subrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 12px; cursor: pointer; }
   .item-preview-subrow:hover { color: var(--gold); }
   .item-preview-subrow:last-child { border-bottom: none; }
-  .item-preview-subimg { width: 32px; height: 32px; object-fit: contain; background: #161b27; border-radius: 6px; flex-shrink: 0; }
+  .item-preview-subimg { width: 32px; height: 32px; object-fit: contain; background: var(--inset); border-radius: 6px; flex-shrink: 0; }
   
   /* Discord Integration UI */
   .discord-panel {
@@ -157,14 +166,14 @@
     background: var(--panel);
     padding: 8px 10px;
     border-radius: 8px;
-    border: 1px solid #1d2331;
+    border: 1px solid var(--line);
     align-items: center;
   }
   .sheet-selector, .sort-selector {
     flex-grow: 1;
-    background: #161b27;
+    background: var(--inset);
     color: var(--gold);
-    border: 1px solid #1d2331;
+    border: 1px solid var(--line);
     padding: 6px;
     border-radius: 4px;
     font-family: 'Space Grotesk', sans-serif;
@@ -174,9 +183,9 @@
   }
   .season-selector {
     flex-grow: 1;
-    background: #161b27;
+    background: var(--inset);
     color: var(--galaxy);
-    border: 1px solid #1d2331;
+    border: 1px solid var(--line);
     padding: 8px;
     border-radius: 4px;
     font-family: 'Bebas Neue', sans-serif;
@@ -186,9 +195,9 @@
     cursor: pointer;
   }
   .sheet-btn {
-    background: #161b27;
+    background: var(--inset);
     color: var(--ink);
-    border: 1px solid #1d2331;
+    border: 1px solid var(--line);
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
@@ -204,12 +213,12 @@
   /* Tab row (Sprites / Lobby Hack Codes) for Season 4 */
   .tab-row { display: flex; gap: 8px; margin-bottom: 12px; }
   .tab-btn {
-    flex: 1; background: var(--panel); border: 1px solid #1d2331; color: var(--ink-dim);
+    flex: 1; background: var(--panel); border: 1px solid var(--line); color: var(--ink-dim);
     padding: 10px; border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 15px;
     letter-spacing: 0.5px; cursor: pointer; transition: all 0.15s ease;
   }
   .tab-btn.active { border-color: var(--galaxy); color: var(--galaxy); background: rgba(124,108,240,0.08); }
-  .tab-btn:hover { border-color: #3a4154; }
+  .tab-btn:hover { border-color: var(--line2); }
 
   /* Unreleased Toggle Switch Bar */
   .toggle-bar {
@@ -219,7 +228,7 @@
     background: var(--panel);
     padding: 8px 14px;
     border-radius: 8px;
-    border: 1px solid #1d2331;
+    border: 1px solid var(--line);
     margin-bottom: 12px;
     font-size: 13px;
     font-weight: 600;
@@ -233,7 +242,7 @@
   .switch input { opacity: 0; width: 0; height: 0; }
   .slider {
     position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #161b27; border: 1px solid #1d2331; transition: .2s; border-radius: 22px;
+    background-color: var(--inset); border: 1px solid var(--line); transition: .2s; border-radius: 22px;
   }
   .slider:before {
     position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px;
@@ -246,7 +255,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid #1d2331;
+    border-bottom: 2px solid var(--line);
     padding-bottom: 10px;
     margin-bottom: 8px;
     gap: 10px;
@@ -283,8 +292,8 @@
     font-size: 20px;
     color: var(--gold);
     letter-spacing: 1px;
-    background: #161b27;
-    border: 1px solid #1d2331;
+    background: var(--inset);
+    border: 1px solid var(--line);
     border-radius: 4px;
     padding: 2px 6px;
     text-align: right;
@@ -402,7 +411,7 @@
     color: var(--ink-dim);
     margin-top: 14px;
     padding-top: 12px;
-    border-top: 2px dashed #1d2331;
+    border-top: 2px dashed var(--line);
     letter-spacing: 0.5px;
   }
   .social-export-mode .export-watermark span {
@@ -411,7 +420,7 @@
   }
 
   .sprites-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
-  .sprite-card { background: var(--panel); border: 1px solid #1d2331; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .sprite-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
   .sprite-info { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .sprite-name { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.5px; line-height: 1; text-transform: uppercase; }
   .sprite-name-wrap { display: flex; flex-direction: column; gap: 2px; }
@@ -422,8 +431,8 @@
   .rarity-rare { color: var(--gem); }
 
   .max-row-btn {
-    font-family: 'Bebas Neue', sans-serif; font-size: 12px; color: var(--ink-dim); background: #161b27;
-    border: 1px solid #1d2331; padding: 2px 6px; border-radius: 4px; cursor: pointer; letter-spacing: 0.5px; transition: all 0.1s ease;
+    font-family: 'Bebas Neue', sans-serif; font-size: 12px; color: var(--ink-dim); background: var(--inset);
+    border: 1px solid var(--line); padding: 2px 6px; border-radius: 4px; cursor: pointer; letter-spacing: 0.5px; transition: all 0.1s ease;
   }
   .max-row-btn:hover { color: var(--gold); border-color: var(--gold); }
 
@@ -433,10 +442,10 @@
 
   .toggle {
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-    padding: 8px 4px; border-radius: 8px; border: 2px solid #1d2331; background: #161b27;
+    padding: 8px 4px; border-radius: 8px; border: 2px solid var(--line); background: var(--inset);
     cursor: pointer; transition: all 0.15s ease; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   }
-  .toggle:hover { border-color: #3a4154; }
+  .toggle:hover { border-color: var(--line2); }
 
   .toggle.have.normal { border-color: rgba(184,191,209,0.3); background: rgba(184,191,209,0.04); }
   .toggle.have.gold { border-color: rgba(232,179,57,0.3); background: rgba(232,179,57,0.04); }
@@ -490,10 +499,10 @@
   .codes-list { display: flex; flex-direction: column; gap: 6px; }
   .code-row {
     display: flex; align-items: center; gap: 10px; padding: 8px 8px; border-radius: 8px;
-    border: 2px solid #1d2331; background: #161b27; cursor: pointer; transition: all 0.15s ease;
+    border: 2px solid var(--line); background: var(--inset); cursor: pointer; transition: all 0.15s ease;
     user-select: none; -webkit-user-select: none;
   }
-  .code-row:hover { border-color: #3a4154; }
+  .code-row:hover { border-color: var(--line2); }
   .code-row.claimed { border-color: rgba(46,230,166,0.6); background: rgba(46,230,166,0.06); }
   .code-row.expired { opacity: 0.5; }
   .code-expired-tag { color: var(--need); font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 6px; }
@@ -514,20 +523,116 @@
   .discord-link { color: var(--galaxy); border-color: rgba(124,108,240,0.4); background: rgba(124,108,240,0.03); }
   .discord-link:hover { background: rgba(124,108,240,0.08); border-color: var(--galaxy); }
 
-  .footer-bar { margin-top: 8px; display: flex; flex-direction: column; align-items: flex-start; background: var(--panel); border-radius: 12px; padding: 12px 14px; border: 1px solid #1d2331; gap: 8px; }
+  .footer-bar { margin-top: 8px; display: flex; flex-direction: column; align-items: flex-start; background: var(--panel); border-radius: 12px; padding: 12px 14px; border: 1px solid var(--line); gap: 8px; }
   .progress-label { font-size: 11px; color: var(--ink-dim); letter-spacing: 0.2px; line-height: 1.3; }
-  .progress-track { width: 100%; height: 8px; background: #1d2331; border-radius: 100px; overflow: hidden; margin-top: 6px; }
+  .progress-track { width: 100%; height: 8px; background: var(--line); border-radius: 100px; overflow: hidden; margin-top: 6px; }
   .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gummy), var(--galaxy)); transition: width 0.3s ease; }
   .cta { font-family: 'Bebas Neue', sans-serif; font-size: 15px; color: var(--ink); line-height: 1.2; }
   .cta span { color: var(--gold); }
   .loading { text-align: center; color: var(--ink-dim); padding: 40px; font-size: 14px; }
-  .reset-btn { background: none; border: 1px solid #3a4154; color: var(--ink-dim); font-size: 12px; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
+  .reset-btn { background: none; border: 1px solid var(--line2); color: var(--ink-dim); font-size: 12px; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
   .reset-btn:hover { border-color: var(--need); color: var(--need); }
   /* Floating section-jump buttons (tap-friendly alternative to scrolling) */
   .scroll-nav { position: fixed; right: 14px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); display: none; flex-direction: column; gap: 10px; z-index: 50; }
   .scroll-nav.show { display: flex; }
-  .scroll-nav button { width: 52px; height: 52px; border-radius: 50%; border: 1px solid #3a4154; background: rgba(20,24,34,0.92); color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.45); -webkit-tap-highlight-color: transparent; backdrop-filter: blur(6px); }
+  .scroll-nav button { width: 52px; height: 52px; border-radius: 50%; border: 1px solid var(--line2); background: var(--nav-bg); color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.45); -webkit-tap-highlight-color: transparent; backdrop-filter: blur(6px); }
   .scroll-nav button:active { transform: scale(0.94); border-color: var(--gold); color: var(--gold); }
+
+  /* ===== BATCH 1 ===== */
+  :root[data-theme="light"] {
+    --bg: #f2f4f9; --panel: #ffffff; --ink: #161a26; --ink-dim: #5d647a;
+    --line: #d9deea; --inset: #eef1f7; --line2: #b9c0d2; --nav-bg: rgba(255,255,255,0.95); --toast-bg: #ffffff;
+    --gold: #b07400; --have: #0c9468; --need: #d93a4d; --galaxy: #6254e0;
+  }
+  :root[data-theme="light"] body { background-image: radial-gradient(circle at 15% 10%, rgba(124,108,240,0.10), transparent 45%), radial-gradient(circle at 85% 90%, rgba(232,179,57,0.10), transparent 50%); }
+  :root[data-theme="light"] .variant-icon { opacity: 0.45; }
+  :root[data-theme="light"] .export-btn { color: #fff; }
+
+  /* layout options */
+  body[data-density="compact"] #capture-area:not(.social-export-mode) .variant-icon { width: 32px; height: 32px; }
+  body[data-density="compact"] #capture-area:not(.social-export-mode) .toggle { padding: 5px 2px; gap: 2px; }
+  body[data-density="compact"] #capture-area:not(.social-export-mode) .variants-row .toggle { min-width: 56px; }
+  body[data-density="compact"] #capture-area:not(.social-export-mode) .sprite-card { padding: 7px; gap: 5px; }
+  body[data-density="compact"] #capture-area:not(.social-export-mode) .sprites-grid { gap: 7px; }
+  body.hide-max-row .max-row-btn { display: none; }
+  .sprite-card[hidden], .toggle[hidden] { display: none !important; }
+
+  /* nav extras */
+  .page-nav-btn { position: relative; padding: 12px 4px; white-space: nowrap; font-size: 15px; }
+  .page-nav-btn.gear { flex: 0 0 46px; padding: 12px 0; font-size: 16px; }
+  .page-nav-btn .dot { position: absolute; top: 6px; right: 8px; width: 9px; height: 9px; border-radius: 50%; background: var(--need); }
+
+  /* dashboard */
+  .dash { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px; }
+  .dash > summary { list-style: none; cursor: pointer; padding: 12px 14px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
+  .dash > summary::-webkit-details-marker { display: none; }
+  .dash > summary .dash-pct { color: var(--gold); font-size: 22px; }
+  .dash-body { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 12px; }
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-box { background: var(--inset); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+  .stat-box .n { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--gold); line-height: 1; }
+  .stat-box .l { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 3px; }
+  .dash-sec { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 6px; }
+  .bar-row { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; }
+  .bar-row .bl { width: 84px; flex-shrink: 0; color: var(--ink-dim); }
+  .bar-row .bv { width: 38px; text-align: right; flex-shrink: 0; font-weight: 700; }
+  .bar { flex: 1; height: 8px; background: var(--line); border-radius: 100px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--galaxy), var(--gold)); border-radius: 100px; }
+  .close-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .close-row:first-of-type { border-top: none; }
+  .close-row img { width: 30px; height: 30px; object-fit: contain; }
+  .close-row .cn { flex: 1; font-weight: 600; }
+  .close-row .cl { color: var(--ink-dim); font-size: 12px; }
+
+  /* search / filter */
+  .filter-bar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .filter-bar input[type=search] { width: 100%; background: var(--panel); border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 11px 12px; font-family: inherit; font-size: 16px; }
+  .filter-bar input[type=search]:focus { outline: none; border-color: var(--galaxy); }
+  .chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { flex: 1; min-width: 70px; background: var(--panel); border: 1px solid var(--line); color: var(--ink-dim); border-radius: 100px; padding: 8px 6px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .chip.active { border-color: var(--gold); color: var(--gold); background: rgba(232,179,57,0.10); }
+  .filter-meta { display: flex; gap: 8px; align-items: center; }
+  .filter-meta select { flex: 1; background: var(--panel); border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 9px 10px; font-family: inherit; font-size: 14px; }
+  .filter-count { font-size: 12px; color: var(--ink-dim); white-space: nowrap; }
+  .filter-empty { text-align: center; color: var(--ink-dim); padding: 24px 10px; font-size: 14px; }
+
+  /* undo + toast */
+  .scroll-nav button.undo { display: none; font-size: 24px; }
+  .scroll-nav button.undo.show { display: block; }
+  .toast { position: fixed; left: 14px; right: 80px; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); z-index: 60; background: var(--toast-bg); border: 1px solid var(--line2); border-radius: 12px; padding: 10px 12px; display: none; align-items: center; gap: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.4); font-size: 13px; }
+  .toast.show { display: flex; }
+  .toast span { flex: 1; }
+  .toast button { background: var(--gold); color: #000; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; font-family: inherit; cursor: pointer; }
+
+  /* modal */
+  .modal-back { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
+  .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 16px 16px 0 0; width: 100%; max-width: 640px; max-height: 92vh; overflow: auto; padding: 16px 16px calc(18px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 12px; }
+  @media (min-width: 700px) { .modal-back { align-items: center; } .modal { border-radius: 16px; } }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; }
+  .modal-head h2 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.5px; font-weight: 400; }
+  .modal-x { background: var(--inset); border: 1px solid var(--line); color: var(--ink); width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; }
+  .seg { display: flex; gap: 6px; }
+  .seg button { flex: 1; background: var(--inset); border: 1px solid var(--line); color: var(--ink-dim); border-radius: 8px; padding: 10px 6px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .seg button.active { border-color: var(--galaxy); color: var(--galaxy); background: rgba(124,108,240,0.10); }
+  .set-label { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: -6px; }
+  .set-note { font-size: 12px; color: var(--ink-dim); line-height: 1.4; }
+  .big-btn { font-family: 'Bebas Neue', sans-serif; background: linear-gradient(135deg, var(--galaxy), #5b49db); color: #fff; border: none; font-size: 18px; padding: 13px; border-radius: 12px; cursor: pointer; letter-spacing: 0.5px; width: 100%; }
+  .big-btn:disabled { opacity: 0.5; }
+  .share-preview { background: var(--inset); border: 1px solid var(--line); border-radius: 12px; min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--ink-dim); font-size: 13px; padding: 8px; }
+  .share-preview img { max-width: 100%; max-height: 50vh; border-radius: 8px; }
+  .pick-box { max-height: 130px; overflow: auto; display: flex; flex-wrap: wrap; gap: 5px; background: var(--inset); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+  .pick { background: var(--panel); border: 1px solid var(--line); color: var(--ink-dim); border-radius: 100px; padding: 5px 10px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .pick.on { border-color: var(--gold); color: var(--gold); background: rgba(232,179,57,0.10); }
+
+  /* news */
+  .news-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
+  .news-card img { width: 100%; display: block; }
+  .news-card .nb { padding: 12px 14px; }
+  .news-card h3 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 20px; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .news-card .nd { font-size: 11px; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .news-card p, .news-card li { font-size: 13px; color: var(--ink-dim); line-height: 1.45; }
+  .news-card ul { padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+  .news-head { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.5px; margin: 14px 2px 8px; color: var(--ink); }
 </style>
 </head>
 <body>
@@ -536,9 +641,13 @@
   </div>
 
   <div class="scroll-nav" id="scrollNav">
+    <button type="button" class="undo" id="undoBtn" onclick="undoLast()" aria-label="Undo last change" title="Undo">↶</button>
     <button type="button" onclick="jumpSection(-1)" aria-label="Previous section" title="Previous sprite">▲</button>
     <button type="button" onclick="jumpSection(1)" aria-label="Next section" title="Next sprite">▼</button>
   </div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div id="modalRoot"></div>
 
 <script>
 // ============ SEASON 3 SPRITE DEFINITIONS (unchanged) ============
@@ -874,6 +983,10 @@ function switchPage(page) {
   if (page === "shop" && !shopData && !shopLoading) {
     loadShop();
   }
+  if (page === "news") {
+    markNewsSeen();
+    if (!newsData && !newsLoading) loadNews();
+  }
 }
 
 async function loadShop() {
@@ -1183,12 +1296,14 @@ function handleTileTap(spriteId, variant) {
   let currentLevel = inv[spriteId][variant] || 0;
   let nextLevel = currentLevel + 1;
   if (nextLevel > 5) nextLevel = 0;
+  pushUndo(`${spriteName(spriteId)} · ${variantLabel(variant)}: ${currentLevel} → ${nextLevel}`, nextLevel === 0);
   inv[spriteId][variant] = nextLevel;
   saveState();
   render();
 }
 
 function handleLongPress(spriteId, variant) {
+  pushUndo(`${spriteName(spriteId)} · ${variantLabel(variant)} set to MAX`, true);
   getActiveInventory()[spriteId][variant] = 5;
   saveState();
   render();
@@ -1196,12 +1311,14 @@ function handleLongPress(spriteId, variant) {
 
 function maxEntireRow(spriteId, activeVariants) {
   const inv = getActiveInventory();
+  pushUndo(`${spriteName(spriteId)} row set to MAX`, true);
   activeVariants.forEach(v => { inv[spriteId][v] = 5; });
   saveState();
   render();
 }
 
 function toggleCode(code) {
+  pushUndo(`Code ${code}`, false);
   state.codes[code] = !state.codes[code];
   saveState();
   render();
@@ -1254,7 +1371,7 @@ function setupTouchListeners(element, spriteId, variant) {
 
 // --- SECTION JUMP BUTTONS (▲ / ▼) ---
 function jumpSection(dir) {
-  const cards = Array.from(document.querySelectorAll('#app .sprite-card'));
+  const cards = Array.from(document.querySelectorAll('#app .sprite-card:not([hidden])'));
   if (!cards.length) return;
   const GAP = 12;
   let target = null;
@@ -1275,6 +1392,7 @@ function jumpSection(dir) {
 function updateScrollNav() {
   const nav = document.getElementById('scrollNav');
   if (nav) nav.classList.toggle('show', currentPage === 'checklist');
+  updateUndoBtn();
 }
 
 function updateUsername(newName) {
@@ -1289,6 +1407,7 @@ function updateUsername(newName) {
 function resetAll() {
   const label = state.season === "s4" ? (state.view === "codes" ? "Lobby Hack Codes" : "Season 4 checklist") : "Season 3 checklist";
   if (!confirm(`Clear this ${label} and reset it?`)) return;
+  pushUndo(`Reset ${label}`, true);
   if (state.season === "s4" && state.view === "codes") {
     LOBBY_CODES.forEach(c => { state.codes[c.code] = false; });
   } else if (state.season === "s4") {
@@ -1310,6 +1429,7 @@ function exportAsImage() {
   const exportBtn = document.querySelector(".export-btn");
   exportBtn.innerText = "Generating Share Screen...";
   targetElement.classList.add("social-export-mode");
+  document.documentElement.setAttribute("data-theme", "dark");
   
   setTimeout(() => {
     html2canvas(targetElement, {
@@ -1324,22 +1444,22 @@ function exportAsImage() {
           navigator.share({
             files: [imageFile], title: 'My Sprite Collection Checklist', text: 'Check out my current Fortnite Sprite level status!'
           }).then(() => {
-            targetElement.classList.remove("social-export-mode");
+            targetElement.classList.remove("social-export-mode"); applyTheme();
             exportBtn.innerText = "Export PNG Image";
           }).catch(err => {
             fallbackDownload(canvas, fileName);
-            targetElement.classList.remove("social-export-mode");
+            targetElement.classList.remove("social-export-mode"); applyTheme();
             exportBtn.innerText = "Export PNG Image";
           });
         } else {
           fallbackDownload(canvas, fileName);
-          targetElement.classList.remove("social-export-mode");
+          targetElement.classList.remove("social-export-mode"); applyTheme();
           exportBtn.innerText = "Export PNG Image";
         }
       }, "image/png");
     }).catch(err => {
       console.error("Image synthesis failed:", err);
-      targetElement.classList.remove("social-export-mode");
+      targetElement.classList.remove("social-export-mode"); applyTheme();
       exportBtn.innerText = "Error! Try Again";
     });
   }, 120);
@@ -1572,6 +1692,7 @@ function renderChecklist() {
   let totalPointsPossible = 0;
   let currentPointsEarned = 0;
   let missingLabel = "";
+  let filterVariantList = [];
 
   if (showCodes) {
     const buildCodeCard = (title, items) => {
@@ -1626,6 +1747,9 @@ function renderChecklist() {
     });
 
     let imageCounter = 383;
+    s3ImgCache = {};
+    filterVariantList = Array.from(new Set(activeList.reduce((acc, s) => acc.concat(s.variants), [])));
+    if (filters.variant && !filterVariantList.includes(filters.variant)) filters.variant = "";
 
     activeList.forEach(s => {
       s.variants.forEach(v => {
@@ -1664,7 +1788,8 @@ function renderChecklist() {
           imageCounter++;
         }
 
-        return `<div class="toggle ${btnClass}" data-sprite="${s.id}" data-variant="${v}">
+        if (!isS4) s3ImgCache[s.id + "|" + v] = imagePath;
+        return `<div class="toggle ${btnClass}" data-sprite="${s.id}" data-variant="${v}" data-lvl="${lvl}">
             <img class="variant-icon" src="${imagePath}" onerror="this.style.opacity='0.15';" alt="">
             <div class="toggle-label">${labelText}</div>
           </div>`;
@@ -1673,7 +1798,7 @@ function renderChecklist() {
       const variantsJsonStr = JSON.stringify(s.variants).replace(/"/g, '&quot;');
       const rarityHtml = s.rarity ? `<div class="sprite-rarity rarity-${s.rarity.toLowerCase()}">${s.rarity}</div>` : "";
 
-      return `<div class="sprite-card">
+      return `<div class="sprite-card" data-id="${s.id}" data-name="${s.name.toLowerCase().replace(/"/g, '')}">
           <div class="sprite-info">
             <div class="sprite-name-wrap">
               <div class="sprite-name">${s.name}</div>
@@ -1733,7 +1858,7 @@ function renderChecklist() {
     </div>`;
 
   const eyebrowText = isS4 ? "Fortnite · Chapter 7 Season 4: Override" : "Fortnite · Chapter 7 Season 3";
-  const hintText = showCodes ? "Tap a code to mark it claimed." : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5! Use the ▲ ▼ buttons to jump between sprites.";
+  const hintText = showCodes ? "Tap a code to mark it claimed." : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5! Mis-tap? Hit ↶ to undo. Use ▲ ▼ to jump between sprites.";
 
   return `
     <div class="discord-panel">${discordUI}</div>
@@ -1747,6 +1872,8 @@ function renderChecklist() {
     ${seasonRow}
     ${isS4 ? s4Tabs + (showCodes ? '' : s4SortControl) : s3Controls}
 
+    ${renderDashboard()}
+    ${showCodes ? '' : renderFilterBar(filterVariantList)}
     <div class="hint">${hintText}</div>
 
     <div class="export-container" id="capture-area">
@@ -1779,27 +1906,518 @@ function renderChecklist() {
       <div class="export-watermark">Track your collection at <span>sprites.tyrantnetworks.com</span></div>
     </div>
     <button class="export-btn" onclick="exportAsImage()">Export PNG Image</button>
+    <button class="export-btn" style="margin-top:8px;background:linear-gradient(135deg,#e8b339,#b07400);color:#1a1200;box-shadow:0 4px 12px rgba(232,179,57,0.25)" onclick="openShare()">🎴 Share Cards</button>
   `;
 }
 
 function render() {
   const app = document.getElementById("app");
   const navHtml = `<div class="page-nav">
-      <button class="page-nav-btn ${currentPage === 'checklist' ? 'active' : ''}" onclick="switchPage('checklist')">📋 Sprite Checklist</button>
-      <button class="page-nav-btn ${currentPage === 'shop' ? 'active' : ''}" onclick="switchPage('shop')">🛒 Item Shop</button>
+      <button class="page-nav-btn ${currentPage === 'checklist' ? 'active' : ''}" onclick="switchPage('checklist')">📋 Checklist</button>
+      <button class="page-nav-btn ${currentPage === 'shop' ? 'active' : ''}" onclick="switchPage('shop')">🛒 Shop</button>
+      <button class="page-nav-btn ${currentPage === 'news' ? 'active' : ''}" onclick="switchPage('news')">📰 News${newsUnread() && currentPage !== 'news' ? '<span class="dot"></span>' : ''}</button>
+      <button class="page-nav-btn gear" onclick="openSettings()" aria-label="Settings" title="Settings">⚙️</button>
     </div>`;
 
-  const contentHtml = currentPage === "shop" ? renderShop() : renderChecklist();
+  const contentHtml = currentPage === "shop" ? renderShop() : currentPage === "news" ? renderNews() : renderChecklist();
 
   app.innerHTML = navHtml + contentHtml;
   updateScrollNav();
 
   if (currentPage === "checklist") {
+    applyFilters();
     document.querySelectorAll('.toggle').forEach(element => {
       setupTouchListeners(element, element.getAttribute('data-sprite'), element.getAttribute('data-variant'));
     });
   }
 }
+
+// ================= BATCH 1 FEATURES =================
+const PREFS_KEY = "sprite-prefs-v1";
+const NEWS_SEEN_KEY = "sprite-news-seen-v1";
+let prefs = { theme: "dark", density: "comfortable", hideMaxRow: false };
+try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREFS_KEY) || "{}")); } catch (e) {}
+function savePrefs() { try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) {} }
+function resolvedTheme() {
+  if (prefs.theme === "auto") return (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+  return prefs.theme === "light" ? "light" : "dark";
+}
+function applyTheme() {
+  const t = resolvedTheme();
+  document.documentElement.setAttribute("data-theme", t);
+  document.body.setAttribute("data-density", prefs.density);
+  document.body.classList.toggle("hide-max-row", !!prefs.hideMaxRow);
+  const m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.setAttribute("content", t === "light" ? "#f2f4f9" : "#0b0e14");
+}
+if (window.matchMedia) {
+  try { matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => { if (prefs.theme === "auto") applyTheme(); }); } catch (e) {}
+}
+applyTheme();
+
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+const VARIANT_NAMES = { trickortreat: "Trick or Treat", bountyhunter: "Bounty Hunter", bountyhacker: "Bounty Hacker", loothacker: "Loot Hacker", cheatmaster: "Cheat Master", johnwick: "John Wick", vinijr: "Vini Jr", ironmouse: "Ironmouse" };
+function variantLabel(v) { return VARIANT_NAMES[v] || (v.charAt(0).toUpperCase() + v.slice(1)); }
+function spriteName(id) {
+  const all = SEASON4_SPRITES.concat(SPRITES_ORGANIZE);
+  const f = all.find(s => s.id === id);
+  return f ? f.name : id;
+}
+
+// ---------- icon paths (S3 comes from the last render, S4 is direct) ----------
+let s3ImgCache = {};
+function iconPath(id, v) {
+  if (state.season === "s4") { try { return getImagePathS4(id, v); } catch (e) { return ""; } }
+  return s3ImgCache[id + "|" + v] || "";
+}
+
+// ---------- stats ----------
+function seasonStats(season) {
+  const isS4 = season === "s4";
+  const list = isS4 ? SEASON4_SPRITES : SPRITES_ORGANIZE;
+  const inv = (isS4 ? state.inventoryS4 : state.inventory) || {};
+  const out = { pts: 0, max: 0, maxedVariants: 0, totalVariants: 0, spritesDone: 0, totalSprites: 0, rows: [], byRarity: {} };
+  list.forEach(s => {
+    let sp = 0, sm = 0, sMaxed = 0, n = 0;
+    s.variants.forEach(v => {
+      if (!isS4 && !state.showUnreleased && isUnreleased(s.id, v)) return;
+      const l = (inv[s.id] && inv[s.id][v]) || 0;
+      sp += l; sm += 5; n++; out.totalVariants++;
+      if (l >= 5) { out.maxedVariants++; sMaxed++; }
+    });
+    if (!n) return;
+    out.pts += sp; out.max += sm; out.totalSprites++;
+    if (sMaxed === n) out.spritesDone++;
+    out.rows.push({ id: s.id, name: s.name, rarity: s.rarity, variants: s.variants, pts: sp, max: sm, left: sm - sp });
+    if (s.rarity) {
+      const r = out.byRarity[s.rarity] || (out.byRarity[s.rarity] = { pts: 0, max: 0 });
+      r.pts += sp; r.max += sm;
+    }
+  });
+  out.pct = out.max ? Math.round(out.pts / out.max * 100) : 0;
+  return out;
+}
+function pctOf(a, b) { return b ? Math.round(a / b * 100) : 0; }
+function bar(p) { return `<div class="bar"><i style="width:${Math.max(0, Math.min(100, p))}%"></i></div>`; }
+
+let dashOpen = false;
+function renderDashboard() {
+  const cur = seasonStats(state.season);
+  const s4 = seasonStats("s4"), s3 = seasonStats("s3");
+  const claimable = LOBBY_CODES.filter(c => !c.expired);
+  const claimed = claimable.filter(c => state.codes && state.codes[c.code]).length;
+  const closest = cur.rows.filter(r => r.left > 0).sort((a, b) => a.left - b.left || a.name.localeCompare(b.name)).slice(0, 5);
+  const rarityOrder = ["Mythic", "Legendary", "Epic", "Rare"];
+  const rarityKeys = Object.keys(cur.byRarity).sort((a, b) => rarityOrder.indexOf(a) - rarityOrder.indexOf(b));
+  const rarityHtml = rarityKeys.length > 1 ? `<div><div class="dash-sec">By rarity</div>${rarityKeys.map(k => {
+    const r = cur.byRarity[k], p = pctOf(r.pts, r.max);
+    return `<div class="bar-row"><div class="bl">${esc(k)}</div>${bar(p)}<div class="bv">${p}%</div></div>`;
+  }).join("")}</div>` : "";
+  const closeHtml = closest.length ? `<div><div class="dash-sec">Closest to maxing</div>${closest.map(r => {
+    const icon = iconPath(r.id, r.variants[0]);
+    return `<div class="close-row">${icon ? `<img src="${icon}" alt="" onerror="this.style.opacity='0.15'">` : ""}<div class="cn">${esc(r.name)}</div><div class="cl">${r.left} pt${r.left === 1 ? "" : "s"} left</div></div>`;
+  }).join("")}</div>` : `<div class="set-note" style="text-align:center">Everything in this season is maxed. Legend. 🎉</div>`;
+  return `<details class="dash" ${dashOpen ? "open" : ""} ontoggle="dashOpen=this.open">
+    <summary><span>📊 Progress Dashboard</span><span class="dash-pct">${cur.pct}%</span></summary>
+    <div class="dash-body">
+      <div class="dash-grid">
+        <div class="stat-box"><div class="n">${cur.maxedVariants}/${cur.totalVariants}</div><div class="l">Styles maxed</div></div>
+        <div class="stat-box"><div class="n">${cur.spritesDone}/${cur.totalSprites}</div><div class="l">Sprites complete</div></div>
+        <div class="stat-box"><div class="n">${cur.pts}/${cur.max}</div><div class="l">Level points</div></div>
+        <div class="stat-box"><div class="n">${claimed}/${claimable.length}</div><div class="l">Lobby codes</div></div>
+      </div>
+      <div><div class="dash-sec">Seasons</div>
+        <div class="bar-row"><div class="bl">Season 4</div>${bar(s4.pct)}<div class="bv">${s4.pct}%</div></div>
+        <div class="bar-row"><div class="bl">Season 3</div>${bar(s3.pct)}<div class="bv">${s3.pct}%</div></div>
+      </div>
+      ${rarityHtml}
+      ${closeHtml}
+    </div>
+  </details>`;
+}
+
+// ---------- search & filter ----------
+let filters = { q: "", status: "all", variant: "" };
+let filterSnap = { sig: "", ids: null };
+function renderFilterBar(variantList) {
+  const opts = variantList.map(v => `<option value="${esc(v)}" ${filters.variant === v ? "selected" : ""}>${esc(variantLabel(v))}</option>`).join("");
+  const chip = (k, label) => `<button type="button" class="chip ${filters.status === k ? "active" : ""}" data-status="${k}" onclick="setFilter('status','${k}')">${label}</button>`;
+  return `<div class="filter-bar" id="filterBar">
+    <input type="search" id="searchBox" placeholder="🔍 Search sprites or styles…" value="${esc(filters.q)}" oninput="setFilter('q',this.value)" autocomplete="off" autocapitalize="off">
+    <div class="chip-row">${chip("all", "All")}${chip("need", "Need")}${chip("progress", "In progress")}${chip("maxed", "Maxed")}</div>
+    <div class="filter-meta">
+      <select id="variantFilter" onchange="setFilter('variant',this.value)"><option value="">Any style</option>${opts}</select>
+      <div class="filter-count" id="filterCount"></div>
+    </div>
+  </div>
+  <div class="filter-empty" id="filterEmpty" hidden>No sprites match that filter.</div>`;
+}
+function setFilter(key, val) {
+  filters[key] = val;
+  filterSnap = { sig: "", ids: null }; // force a fresh pass
+  applyFilters();
+}
+function applyFilters() {
+  const bar_ = document.getElementById("filterBar");
+  if (!bar_) return;
+  const cards = Array.from(document.querySelectorAll("#app .sprite-card[data-name]"));
+  const q = filters.q.trim().toLowerCase();
+  const qv = q.replace(/\s+/g, "");
+  const sig = [state.season, appState.activeId, state.sortMode, state.sortModeS4, filters.q, filters.status, filters.variant].join("|");
+  // Taps re-render the page; keep the same cards visible so rows never jump under your finger.
+  const reuse = filterSnap.ids && filterSnap.sig === sig;
+  const ids = new Set();
+  let shown = 0;
+  cards.forEach(card => {
+    const tiles = Array.from(card.querySelectorAll(".toggle"));
+    tiles.forEach(t => { t.hidden = !!filters.variant && t.dataset.variant !== filters.variant; });
+    let ok;
+    if (reuse) {
+      ok = filterSnap.ids.has(card.dataset.id);
+    } else {
+      const tl = tiles.filter(t => !t.hidden);
+      const lv = tl.map(t => +t.dataset.lvl);
+      ok = tl.length > 0;
+      if (ok && q) ok = card.dataset.name.includes(q) || tl.some(t => t.dataset.variant.includes(qv) || variantLabel(t.dataset.variant).toLowerCase().includes(q));
+      if (ok && filters.status === "need") ok = lv.some(l => l === 0);
+      if (ok && filters.status === "progress") ok = lv.some(l => l > 0 && l < 5);
+      if (ok && filters.status === "maxed") ok = lv.every(l => l === 5);
+    }
+    card.hidden = !ok;
+    if (ok) { ids.add(card.dataset.id); shown++; }
+  });
+  filterSnap = { sig, ids: reuse ? filterSnap.ids : ids };
+  const cnt = document.getElementById("filterCount");
+  if (cnt) cnt.textContent = `${shown} of ${cards.length}`;
+  const empty = document.getElementById("filterEmpty");
+  if (empty) empty.hidden = shown !== 0;
+  document.querySelectorAll("#filterBar .chip").forEach(c => c.classList.toggle("active", c.dataset.status === filters.status));
+}
+
+// ---------- undo ----------
+let undoStack = [];
+let toastTimer = null;
+function snapshotInv() { return JSON.stringify({ a: state.inventory, b: state.inventoryS4, c: state.codes }); }
+function pushUndo(label, showToast) {
+  undoStack.push({ label, profId: appState.activeId, snap: snapshotInv() });
+  if (undoStack.length > 30) undoStack.shift();
+  updateUndoBtn();
+  if (showToast) toast(label);
+}
+function undoLast() {
+  const u = undoStack.pop();
+  if (!u) return;
+  if (u.profId !== appState.activeId) { undoStack = []; updateUndoBtn(); return; }
+  const s = JSON.parse(u.snap);
+  state.inventory = s.a; state.inventoryS4 = s.b; state.codes = s.c;
+  saveState();
+  hideToast();
+  render();
+  toast("Undid: " + u.label, false);
+}
+function updateUndoBtn() {
+  const b = document.getElementById("undoBtn");
+  if (!b) return;
+  const top = undoStack[undoStack.length - 1];
+  b.classList.toggle("show", !!top && top.profId === appState.activeId && currentPage === "checklist");
+}
+function toast(msg, withUndo = true) {
+  const t = document.getElementById("toast");
+  if (!t) return;
+  t.innerHTML = `<span>${esc(msg)}</span>${withUndo ? '<button type="button" onclick="undoLast()">Undo</button>' : ""}`;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, withUndo ? 6000 : 2200);
+}
+function hideToast() { const t = document.getElementById("toast"); if (t) t.classList.remove("show"); }
+
+// ---------- modal ----------
+function openModal(html) {
+  const root = document.getElementById("modalRoot");
+  root.innerHTML = `<div class="modal-back" onclick="if(event.target===this)closeModal()"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;
+  document.body.style.overflow = "hidden";
+}
+function closeModal() {
+  const root = document.getElementById("modalRoot");
+  if (root) root.innerHTML = "";
+  document.body.style.overflow = "";
+  if (shareState.url) { URL.revokeObjectURL(shareState.url); shareState.url = null; }
+  shareState.seq++;
+}
+
+// ---------- settings ----------
+let deferredInstall = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; });
+window.addEventListener("appinstalled", () => { deferredInstall = null; });
+function isStandalone() { return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true; }
+function setPref(k, v) { prefs[k] = v; savePrefs(); applyTheme(); openSettings(); }
+function installApp() {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  deferredInstall.userChoice.finally(() => { deferredInstall = null; openSettings(); });
+}
+function openSettings() {
+  const seg = (key, opts) => `<div class="seg">${opts.map(o => `<button type="button" class="${prefs[key] === o[0] ? "active" : ""}" onclick="setPref('${key}', ${JSON.stringify(o[0]).replace(/"/g, "&quot;")})">${o[1]}</button>`).join("")}</div>`;
+  let install;
+  if (isStandalone()) install = `<div class="set-note">✅ You're running the installed app.</div>`;
+  else if (deferredInstall) install = `<button type="button" class="big-btn" onclick="installApp()">📲 Install on this device</button>`;
+  else install = `<div class="set-note"><b>iPhone / iPad:</b> open this page in Safari, tap the Share button, then <b>Add to Home Screen</b>.<br><b>Android / Chrome:</b> open the browser menu and tap <b>Install app</b> / <b>Add to Home screen</b>.</div>`;
+  openModal(`
+    <div class="modal-head"><h2>⚙️ Settings</h2><button type="button" class="modal-x" onclick="closeModal()" aria-label="Close">✕</button></div>
+    <div class="set-label">Theme</div>
+    ${seg("theme", [["dark", "🌙 Dark"], ["light", "☀️ Light"], ["auto", "📱 Auto"]])}
+    <div class="set-label">Layout</div>
+    ${seg("density", [["comfortable", "Comfortable"], ["compact", "Compact"]])}
+    <div class="set-label">MAX ROW buttons</div>
+    ${seg("hideMaxRow", [[false, "Show"], [true, "Hide (fewer mis-taps)"]])}
+    <div class="set-label">Home screen app</div>
+    ${install}
+    <div class="set-note">Settings are saved on this device only. Exported images always use the dark theme.</div>
+  `);
+}
+
+// ---------- share cards ----------
+const SHARE_FMT = { story: { w: 1080, h: 1920 }, wide: { w: 1920, h: 1080 } };
+let shareState = { kind: "progress", fmt: "story", need: new Set(), offer: new Set(), blob: null, url: null, seq: 0, season: null };
+function shareRows() {
+  const isS4 = state.season === "s4";
+  const list = isS4 ? SEASON4_SPRITES : SPRITES_ORGANIZE;
+  const inv = getActiveInventory();
+  const rows = [];
+  list.forEach(s => s.variants.forEach(v => {
+    if (!isS4 && !state.showUnreleased && isUnreleased(s.id, v)) return;
+    rows.push({ key: s.id + "|" + v, id: s.id, name: s.name, v, lvl: (inv[s.id] && inv[s.id][v]) || 0 });
+  }));
+  return rows;
+}
+function openShare() {
+  if (shareState.season !== state.season + "|" + appState.activeId) {
+    const rows = shareRows();
+    shareState.need = new Set(rows.filter(r => r.lvl === 0).slice(0, 8).map(r => r.key));
+    shareState.offer = new Set(rows.filter(r => r.lvl === 5).slice(0, 8).map(r => r.key));
+    shareState.season = state.season + "|" + appState.activeId;
+  }
+  renderShareModal();
+  regenShare();
+}
+function renderShareModal() {
+  const k = shareState.kind, f = shareState.fmt;
+  const segK = [["progress", "📊 Progress"], ["maxed", "🏆 Maxed"], ["trade", "🔁 Trade"]]
+    .map(o => `<button type="button" class="${k === o[0] ? "active" : ""}" onclick="setShareKind('${o[0]}')">${o[1]}</button>`).join("");
+  const segF = [["story", "Story 9:16"], ["wide", "Wide 16:9"]]
+    .map(o => `<button type="button" class="${f === o[0] ? "active" : ""}" onclick="setShareFmt('${o[0]}')">${o[1]}</button>`).join("");
+  let pick = "";
+  if (k === "trade") {
+    const rows = shareRows();
+    const chips = (list, set, name) => rows.filter(list).slice(0, 80).map(r =>
+      `<button type="button" class="pick ${set.has(r.key) ? "on" : ""}" onclick="toggleSharePick('${name}','${r.key}')">${esc(r.name)} · ${esc(variantLabel(r.v))}</button>`).join("") || `<span class="set-note">Nothing available.</span>`;
+    pick = `<div class="set-label">Looking for (your level 0 styles)</div><div class="pick-box">${chips(r => r.lvl === 0, shareState.need, "need")}</div>
+            <div class="set-label">Can offer (your maxed styles)</div><div class="pick-box">${chips(r => r.lvl === 5, shareState.offer, "offer")}</div>`;
+  }
+  openModal(`
+    <div class="modal-head"><h2>🎴 Share Cards</h2><button type="button" class="modal-x" onclick="closeModal()" aria-label="Close">✕</button></div>
+    <div class="seg">${segK}</div>
+    <div class="seg">${segF}</div>
+    ${pick}
+    <div class="share-preview" id="sharePreview">Generating…</div>
+    <button type="button" class="big-btn" id="shareGo" onclick="doShare()" disabled>Share / Save Image</button>
+  `);
+}
+function setShareKind(k) { shareState.kind = k; renderShareModal(); regenShare(); }
+function setShareFmt(f) { shareState.fmt = f; renderShareModal(); regenShare(); }
+let regenTimer = null;
+function toggleSharePick(name, key) {
+  const set = shareState[name];
+  if (set.has(key)) set.delete(key); else set.add(key);
+  const scroll = Array.from(document.querySelectorAll(".pick-box")).map(b => b.scrollTop);
+  renderShareModal();
+  document.querySelectorAll(".pick-box").forEach((b, i) => { b.scrollTop = scroll[i] || 0; });
+  clearTimeout(regenTimer);
+  regenTimer = setTimeout(regenShare, 350);
+}
+function shareIconTile(id, v, size) {
+  const p = iconPath(id, v);
+  return p ? `<img src="${p}" style="width:${size}px;height:${size}px;object-fit:contain;flex-shrink:0" alt="">` : `<div style="width:${size}px;height:${size}px;flex-shrink:0"></div>`;
+}
+function buildShareCard(kind, fmt) {
+  const { w, h } = SHARE_FMT[fmt];
+  const story = fmt === "story";
+  const isS4 = state.season === "s4";
+  const st = seasonStats(state.season);
+  const seasonLabel = isS4 ? "Chapter 7 · Season 4: Override" : "Chapter 7 · Season 3";
+  const titles = { progress: "SPRITE PROGRESS", maxed: "MAXED OUT", trade: "TRADE BOARD" };
+  const pad = story ? 72 : 56;
+  const BEB = "font-family:'Bebas Neue',sans-serif;";
+  const root = document.createElement("div");
+  root.style.cssText = `width:${w}px;height:${h}px;position:relative;overflow:hidden;color:#eef0f6;font-family:'Space Grotesk',sans-serif;box-sizing:border-box;padding:${pad}px;display:flex;flex-direction:column;gap:${story ? 36 : 24}px;background:radial-gradient(circle at 12% 6%,rgba(124,108,240,.50),transparent 50%),radial-gradient(circle at 92% 96%,rgba(232,179,57,.30),transparent 55%),#0b0e14;`;
+
+  const head = `<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px">
+      <div><div style="font-size:${story ? 26 : 22}px;color:#8d93a8;letter-spacing:2px;text-transform:uppercase;font-weight:700">Fortnite · ${esc(seasonLabel)}</div>
+      <div style="${BEB}font-size:${story ? 120 : 96}px;line-height:1;letter-spacing:1px">${titles[kind]}</div></div>
+      <div style="text-align:right"><div style="font-size:20px;color:#8d93a8;letter-spacing:1.5px;text-transform:uppercase;font-weight:700">Epic Username</div>
+      <div style="${BEB}font-size:${story ? 56 : 48}px;color:#e8b339;line-height:1.05;max-width:${story ? 420 : 640}px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${esc(state.username || "PLAYER")}</div></div>
+    </div>`;
+  const foot = `<div style="margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:${story ? 28 : 24}px;color:#8d93a8;font-weight:600">
+      <span>Track yours at <b style="color:#e8b339">sprites.tyrantnetworks.com</b></span><span>discord.gg/UktuwnruJg</span></div>`;
+
+  let body = "";
+  if (kind === "progress") {
+    const closest = st.rows.filter(r => r.left > 0).sort((a, b) => a.left - b.left || a.name.localeCompare(b.name)).slice(0, story ? 5 : 4);
+    const box = (n, l) => `<div style="flex:1;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.10);border-radius:24px;padding:${story ? 28 : 22}px"><div style="${BEB}font-size:${story ? 76 : 60}px;color:#e8b339;line-height:1">${n}</div><div style="font-size:${story ? 24 : 20}px;color:#8d93a8;text-transform:uppercase;letter-spacing:1px;margin-top:6px;font-weight:700">${l}</div></div>`;
+    const big = `<div style="${BEB}font-size:${story ? 360 : 280}px;line-height:.9;color:#e8b339;text-shadow:0 8px 40px rgba(232,179,57,.35)">${st.pct}<span style="font-size:.45em">%</span></div>
+      <div style="height:${story ? 36 : 28}px;background:rgba(255,255,255,.10);border-radius:100px;overflow:hidden"><div style="height:100%;width:${st.pct}%;background:linear-gradient(90deg,#7c6cf0,#e8b339);border-radius:100px"></div></div>
+      <div style="display:flex;gap:20px">${box(st.maxedVariants + "/" + st.totalVariants, "Styles maxed")}${box(st.spritesDone + "/" + st.totalSprites, "Sprites complete")}</div>`;
+    const list = `<div style="font-size:${story ? 30 : 24}px;color:#8d93a8;text-transform:uppercase;letter-spacing:2px;font-weight:700;margin-bottom:6px">${closest.length ? "Closest to maxing" : "Everything maxed 🎉"}</div>` +
+      closest.map(r => {
+        const p = pctOf(r.pts, r.max);
+        return `<div style="display:flex;align-items:center;gap:22px;background:rgba(255,255,255,.05);border-radius:22px;padding:${story ? 18 : 14}px 24px">
+          ${shareIconTile(r.id, r.variants[0], story ? 96 : 76)}
+          <div style="flex:1;min-width:0"><div style="${BEB}font-size:${story ? 48 : 40}px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.name)}</div>
+          <div style="height:14px;background:rgba(255,255,255,.10);border-radius:100px;overflow:hidden;margin-top:10px"><div style="height:100%;width:${p}%;background:linear-gradient(90deg,#7c6cf0,#e8b339)"></div></div></div>
+          <div style="font-size:${story ? 28 : 24}px;color:#8d93a8;font-weight:700;white-space:nowrap">${r.left} left</div></div>`;
+      }).join("");
+    body = story
+      ? `<div style="display:flex;flex-direction:column;gap:30px">${big}</div><div style="display:flex;flex-direction:column;gap:16px">${list}</div>`
+      : `<div style="display:flex;gap:56px;flex:1;min-height:0"><div style="flex:1;display:flex;flex-direction:column;gap:24px;justify-content:center">${big}</div><div style="flex:1;display:flex;flex-direction:column;gap:14px;justify-content:center">${list}</div></div>`;
+  } else if (kind === "maxed") {
+    const rows = shareRows().filter(r => r.lvl === 5);
+    const cap = story ? 30 : 18, cols = story ? 5 : 9;
+    const shown = rows.slice(0, cap);
+    const tile = r => `<div style="width:calc(${100 / cols}% - 14px);display:flex;flex-direction:column;align-items:center;gap:4px;background:rgba(232,179,57,.08);border:2px solid rgba(232,179,57,.45);border-radius:20px;padding:${story ? 14 : 10}px 4px">
+        ${shareIconTile(r.id, r.v, story ? 124 : 96)}
+        <div style="${BEB}font-size:${story ? 26 : 22}px;line-height:1.05;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px">${esc(r.name)}</div>
+        <div style="font-size:${story ? 20 : 17}px;color:#e8b339;font-weight:700;text-transform:uppercase;letter-spacing:.5px">${esc(variantLabel(r.v))}</div></div>`;
+    body = rows.length
+      ? `<div style="font-size:${story ? 34 : 28}px;color:#8d93a8;font-weight:700"><b style="color:#e8b339;${BEB}font-size:${story ? 72 : 56}px">${rows.length}</b> style${rows.length === 1 ? "" : "s"} at Level 5</div>
+         <div style="display:flex;flex-wrap:wrap;gap:14px">${shown.map(tile).join("")}</div>
+         ${rows.length > cap ? `<div style="font-size:${story ? 32 : 26}px;color:#8d93a8;font-weight:700">+ ${rows.length - cap} more maxed</div>` : ""}`
+      : `<div style="margin:auto;text-align:center;font-size:${story ? 44 : 36}px;color:#8d93a8">Nothing maxed yet — the grind starts here. 💪</div>`;
+  } else {
+    const rows = shareRows();
+    const need = rows.filter(r => shareState.need.has(r.key)), offer = rows.filter(r => shareState.offer.has(r.key));
+    const cap = story ? 10 : 6;
+    const item = r => `<div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.05);border-radius:18px;padding:10px 14px;min-width:0">
+        ${shareIconTile(r.id, r.v, story ? 78 : 66)}
+        <div style="min-width:0"><div style="${BEB}font-size:${story ? 34 : 30}px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.name)}</div>
+        <div style="font-size:${story ? 22 : 20}px;color:#e8b339;font-weight:700;text-transform:uppercase;letter-spacing:.5px">${esc(variantLabel(r.v))}</div></div></div>`;
+    const panel = (title, color, list) => `<div style="${story ? "" : "flex:1;"}display:flex;flex-direction:column;gap:14px;background:rgba(255,255,255,.04);border:2px solid ${color}55;border-radius:28px;padding:${story ? 30 : 24}px">
+        <div style="${BEB}font-size:${story ? 58 : 48}px;color:${color};letter-spacing:1px">${title}</div>
+        ${list.length ? `<div style="display:grid;grid-template-columns:${story ? "1fr 1fr" : "1fr"};gap:12px">${list.slice(0, cap).map(item).join("")}</div>` : `<div style="font-size:24px;color:#8d93a8">Nothing selected</div>`}
+        ${list.length > cap ? `<div style="font-size:24px;color:#8d93a8;font-weight:700">+ ${list.length - cap} more</div>` : ""}</div>`;
+    body = `<div style="display:flex;flex-direction:${story ? "column" : "row"};gap:${story ? 28 : 36}px;${story ? "" : "flex:1;min-height:0;"}">${panel("LOOKING FOR", "#ff5566", need)}${panel("CAN OFFER", "#2ee6a6", offer)}</div>`;
+  }
+  root.innerHTML = head + body + foot;
+  return root;
+}
+async function regenShare() {
+  const seq = ++shareState.seq;
+  const prev = document.getElementById("sharePreview");
+  const go = document.getElementById("shareGo");
+  if (!prev) return;
+  prev.textContent = "Generating…";
+  if (go) go.disabled = true;
+  shareState.blob = null;
+  if (typeof html2canvas === "undefined") { prev.textContent = "The image tool didn't load — check your connection and reopen."; return; }
+  const host = document.createElement("div");
+  host.style.cssText = "position:fixed;left:-20000px;top:0;pointer-events:none;";
+  const { w, h } = SHARE_FMT[shareState.fmt];
+  const card = buildShareCard(shareState.kind, shareState.fmt);
+  host.appendChild(card);
+  document.body.appendChild(host);
+  try {
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
+    const canvas = await html2canvas(card, { useCORS: true, allowTaint: true, scale: 1, backgroundColor: "#0b0e14", logging: false, width: w, height: h });
+    if (seq !== shareState.seq) return;
+    const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
+    if (seq !== shareState.seq) return;
+    if (shareState.url) URL.revokeObjectURL(shareState.url);
+    shareState.blob = blob;
+    shareState.url = URL.createObjectURL(blob);
+    const p2 = document.getElementById("sharePreview");
+    if (p2) p2.innerHTML = `<img src="${shareState.url}" alt="Share card preview">`;
+    const g2 = document.getElementById("shareGo");
+    if (g2) g2.disabled = false;
+  } catch (e) {
+    console.error("Share card failed:", e);
+    const p2 = document.getElementById("sharePreview");
+    if (p2 && seq === shareState.seq) p2.textContent = "Couldn't build the card. Try again.";
+  } finally {
+    host.remove();
+  }
+}
+function doShare() {
+  if (!shareState.blob) return;
+  const nm = (state.username || "My").replace(/\s+/g, "_");
+  const fileName = `${nm}_${shareState.kind}_${shareState.fmt}.png`;
+  const file = new File([shareState.blob], fileName, { type: "image/png" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({ files: [file], title: "My Sprite Checklist", text: "Track yours at sprites.tyrantnetworks.com" }).catch(() => {});
+  } else {
+    const a = document.createElement("a");
+    a.download = fileName; a.href = shareState.url; a.click();
+  }
+}
+
+// ---------- news & updates ----------
+const SITE_UPDATES = [
+  { id: "2026-10-09", date: "Oct 9, 2026", title: "Big site upgrade", items: [
+    "📊 Progress Dashboard — see your % by season, rarity, and which sprites are closest to maxed.",
+    "🔍 Search & Filter — find any sprite or style, or show only what you still need.",
+    "↶ Undo button — fixes a mis-tap instantly (it appears bottom-right after any change).",
+    "☀️ Light mode + layout options in ⚙️ Settings, including hiding the MAX ROW buttons.",
+    "🎴 Share Cards — auto-made images for your progress, maxed styles, or trades (Story or Wide).",
+    "📲 Install it on your Home Screen like an app.",
+    "📰 This News tab — site updates plus live Fortnite news."
+  ]},
+  { id: "2026-10-08", date: "Oct 8, 2026", title: "Trick or Treat variants", items: [
+    "🎃 Trick or Treat styles added for 23 Season 4 sprites.",
+    "🔑 New Lobby Hack code VERYSCARYPUMPKIN plus updated reward text.",
+    "▲▼ Jump buttons and tap protection so scrolling never changes a level by accident.",
+    "🤖 New styles now sync to the Discord bot automatically."
+  ]}
+];
+let newsData = null, newsLoading = false, newsError = false;
+async function loadNews() {
+  newsLoading = true; newsError = false;
+  if (currentPage === "news") render();
+  try {
+    const res = await fetch("https://fortnite-api.com/v2/news/br");
+    if (!res.ok) throw new Error("News request failed: " + res.status);
+    const json = await res.json();
+    const d = json.data || {};
+    newsData = (d.motds || d.messages || []).filter(m => m && (m.title || m.body));
+  } catch (e) {
+    console.error("News load error:", e);
+    newsError = true;
+  }
+  newsLoading = false;
+  if (currentPage === "news") render();
+}
+function newsUnread() {
+  try { return localStorage.getItem(NEWS_SEEN_KEY) !== SITE_UPDATES[0].id; } catch (e) { return false; }
+}
+function markNewsSeen() { try { localStorage.setItem(NEWS_SEEN_KEY, SITE_UPDATES[0].id); } catch (e) {} }
+function renderNews() {
+  const updates = SITE_UPDATES.map(u => `<div class="news-card"><div class="nb">
+      <div class="nd">${esc(u.date)}</div><h3>${esc(u.title)}</h3>
+      <ul>${u.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div></div>`).join("");
+  let fn;
+  if (newsLoading) fn = `<div class="loading">Loading Fortnite news…</div>`;
+  else if (newsError) fn = `<div class="filter-empty">Couldn't load Fortnite news right now.<br><br><button type="button" class="sheet-btn" onclick="loadNews()">Try again</button></div>`;
+  else if (newsData && newsData.length) {
+    fn = newsData.map(m => {
+      const img = m.image || m.tileImage || "";
+      return `<div class="news-card">${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : ""}<div class="nb"><h3>${esc(m.title || m.tabTitle || "")}</h3><p>${esc(m.body || "")}</p></div></div>`;
+    }).join("");
+  } else fn = `<div class="filter-empty">No Fortnite news posted right now.</div>`;
+  return `<div class="news-head">Sprite Checklist updates</div>${updates}<div class="news-head">Fortnite news</div>${fn}`;
+}
+
+// ---------- PWA ----------
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(e => console.warn("SW registration failed:", e)); });
+}
+
 
 // --- INITIALIZATION & OAUTH ENGINE ---
 const urlParams = new URLSearchParams(window.location.search);
