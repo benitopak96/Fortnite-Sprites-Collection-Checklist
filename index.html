@@ -633,6 +633,50 @@
   .news-card p, .news-card li { font-size: 13px; color: var(--ink-dim); line-height: 1.45; }
   .news-card ul { padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
   .news-head { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.5px; margin: 14px 2px 8px; color: var(--ink); }
+
+  /* ===== BATCH 2: community ===== */
+  .page-nav { gap: 6px; }
+  .page-nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 7px 2px; font-size: 14px; line-height: 1.1; }
+  .page-nav-btn .ni { font-size: 18px; line-height: 1.1; }
+  .page-nav-btn.gear { flex: 0 0 44px; }
+  .page-nav-btn.gear .ni { font-size: 19px; }
+  .discord-panel.warn { background: rgba(255,183,3,0.12); border-color: rgba(255,183,3,0.5); gap: 10px; flex-wrap: wrap; }
+  .discord-panel.warn .discord-status { font-size: 18px; text-align: left; }
+  .lb-row { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
+  .lb-row.clickable { cursor: pointer; }
+  .lb-row.clickable:active { border-color: var(--gold); }
+  .lb-row.me { border-color: var(--gold); background: rgba(232,179,57,0.07); }
+  .lb-rank { font-family: 'Bebas Neue', sans-serif; font-size: 24px; width: 34px; text-align: center; color: var(--ink-dim); flex-shrink: 0; }
+  .lb-av { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--inset); flex-shrink: 0; }
+  .lb-main { flex: 1; min-width: 0; }
+  .lb-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-sub { font-size: 11px; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+  .lb-pct { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--gold); flex-shrink: 0; text-align: right; line-height: 1; }
+  .lb-pct small { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 10px; color: var(--ink-dim); margin-top: 2px; }
+  .panel-box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
+  .panel-box h3 { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 20px; letter-spacing: 0.5px; }
+  .panel-box p { font-size: 13px; color: var(--ink-dim); line-height: 1.45; }
+  .opt-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .opt-row:first-of-type { border-top: none; }
+  .opt-row .ot { font-weight: 700; font-size: 14px; }
+  .opt-row .od { font-size: 12px; color: var(--ink-dim); line-height: 1.35; margin-top: 2px; }
+  .link-row { display: flex; gap: 8px; }
+  .link-row input { flex: 1; min-width: 0; background: var(--inset); border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 10px; font-size: 13px; font-family: inherit; }
+  .mini-btn { background: var(--inset); border: 1px solid var(--line2); color: var(--ink); border-radius: 8px; padding: 9px 14px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; }
+  .mini-btn.gold { background: var(--gold); color: #1a1200; border-color: var(--gold); }
+  .trade-card .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .trade-card .chips span { background: var(--inset); border: 1px solid var(--line); border-radius: 100px; padding: 4px 9px; font-size: 11px; font-weight: 600; }
+  .trade-card .tl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 5px; }
+  .trade-card .tl.in { color: var(--have); } .trade-card .tl.out { color: var(--gold); }
+  .tc-head { display: flex; align-items: center; gap: 10px; }
+  .prof-head { display: flex; align-items: center; gap: 14px; }
+  .prof-head img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--inset); }
+  .prof-head .pn { font-family: 'Bebas Neue', sans-serif; font-size: 28px; line-height: 1; letter-spacing: 0.5px; }
+  .prof-head .ps { font-size: 12px; color: var(--ink-dim); margin-top: 3px; }
+  .prof-head .pp { margin-left: auto; font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--gold); line-height: 1; }
+  .opt-row .switch { flex: 0 0 42px; min-width: 42px; }
+  .ro .toggle { cursor: default; }
+  .ro .toggle:hover { border-color: inherit; }
 </style>
 </head>
 <body>
@@ -886,17 +930,57 @@ function getActiveInventory() {
   return state.season === "s4" ? state.inventoryS4 : state.inventory;
 }
 
-// --- API SYNC ENGINE ---
-function syncToVPS() {
-  const user = JSON.parse(localStorage.getItem("discord_user"));
-  if (!user) return; 
+// --- API SYNC ENGINE (login token required; the server only lets you change YOUR checklist) ---
+const API_BASE = "https://sapi.tyrantnetworks.com";
+const DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize?client_id=1533044841611792464&response_type=code&redirect_uri=https%3A%2F%2Fsprites.tyrantnetworks.com%2F&scope=identify";
+const DIRTY_KEY = "sprite-sync-dirty-v1";
+let syncTimer = null;
+let authProblem = false;
 
-  fetch("https://sapi.tyrantnetworks.com/api/sprites/save", {
+function getDiscordUser() { try { return JSON.parse(localStorage.getItem("discord_user")); } catch (e) { return null; } }
+function authHeaders() { const u = getDiscordUser(); return (u && u.token) ? { "Authorization": "Bearer " + u.token } : {}; }
+function setDirty(on) { try { if (on) localStorage.setItem(DIRTY_KEY, "1"); else localStorage.removeItem(DIRTY_KEY); } catch (e) {} }
+function isDirty() { try { return localStorage.getItem(DIRTY_KEY) === "1"; } catch (e) { return false; } }
+
+function discordPanelInner() {
+  const u = getDiscordUser();
+  if (!u) return `<a href="${DISCORD_OAUTH_URL}" class="discord-login-btn">Link Discord Account</a>`;
+  if (!u.token || authProblem) return `<div class="discord-status">🔐 Re-link Discord to keep syncing</div><a href="${DISCORD_OAUTH_URL}" class="discord-login-btn">Re-link</a>`;
+  return `<div class="discord-status">Linked to Discord: <strong>${esc(u.username)}</strong></div>`;
+}
+function markAuthProblem(on) {
+  if (authProblem === on) return;
+  authProblem = on;
+  const el = document.getElementById("discordPanel");
+  if (el) { el.innerHTML = discordPanelInner(); el.classList.toggle("warn", on || !(getDiscordUser() || {}).token); }
+}
+
+function syncToVPS() {
+  const user = getDiscordUser();
+  if (!user) return;
+  setDirty(true); // stays set until the server confirms, so unsynced edits are never overwritten by an older server copy
+  if (!user.token) { markAuthProblem(true); return; }
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushToServer, 700);
+}
+function pushToServer() {
+  syncTimer = null;
+  const user = getDiscordUser();
+  if (!user || !user.token) return;
+  fetch(API_BASE + "/api/sprites/save", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: user.user_id, collection_data: [appState] })
+    headers: Object.assign({ "Content-Type": "application/json" }, authHeaders()),
+    body: JSON.stringify({ collection_data: [appState] }),
+    keepalive: true
+  }).then(res => {
+    if (res.ok) { setDirty(false); markAuthProblem(false); }
+    else if (res.status === 401) markAuthProblem(true);
+    else console.error("Database sync rejected:", res.status);
   }).catch(e => console.error("Database sync failed:", e));
 }
+function flushSync() { if (syncTimer) { clearTimeout(syncTimer); pushToServer(); } }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushSync(); });
+window.addEventListener("pagehide", flushSync);
 
 function normalizeProfiles(app) {
   Object.keys(app.profiles).forEach(profId => {
@@ -948,11 +1032,18 @@ function loadState() {
   state = appState.profiles[appState.activeId];
   render();
 
-  const user = JSON.parse(localStorage.getItem("discord_user"));
-  if (user) {
-    fetch(`https://sapi.tyrantnetworks.com/api/sprites/${user.user_id}`)
-      .then(res => res.json())
+  const user = getDiscordUser();
+  if (user && !user.token) { markAuthProblem(true); }
+  else if (user) {
+    fetch(`${API_BASE}/api/sprites/${user.user_id}`, { headers: authHeaders() })
+      .then(res => {
+        if (res.status === 401 || res.status === 403) { markAuthProblem(true); throw new Error("auth"); }
+        return res.json();
+      })
       .then(data => {
+        markAuthProblem(false);
+        // Edits made while sync was unavailable win over the older server copy, and get pushed up.
+        if (isDirty()) { syncToVPS(); return; }
         if (data.collection_data && data.collection_data.length > 0) {
           appState = data.collection_data[0];
           const beforeNormalize = JSON.stringify(appState);
@@ -964,7 +1055,7 @@ function loadState() {
           // inventory back so the Discord bot sees them right away (no tap needed).
           if (JSON.stringify(appState) !== beforeNormalize) syncToVPS();
         }
-      }).catch(e => console.error("VPS Load error:", e));
+      }).catch(e => { if (e.message !== "auth") console.error("VPS Load error:", e); });
   }
 }
 
@@ -978,11 +1069,13 @@ function saveState() {
 
 // --- ITEM SHOP ENGINE ---
 function switchPage(page) {
+  if (currentPage === "profile" && page !== "profile") { try { history.replaceState(null, "", location.pathname); } catch (e) {} }
   currentPage = page;
   render();
   if (page === "shop" && !shopData && !shopLoading) {
     loadShop();
   }
+  if (page === "social") loadSocialTab();
   if (page === "news") {
     markNewsSeen();
     if (!newsData && !newsLoading) loadNews();
@@ -1818,10 +1911,7 @@ function renderChecklist() {
     return `<option value="${id}" ${id === appState.activeId ? "selected" : ""}>📋 ${prof.username || "Unnamed Sheet"}</option>`;
   }).join("");
 
-  const discordUser = JSON.parse(localStorage.getItem("discord_user"));
-  let discordUI = discordUser 
-    ? `<div class="discord-status">Linked to Discord: <strong>${discordUser.username}</strong></div>`
-    : `<a href="https://discord.com/oauth2/authorize?client_id=1533044841611792464&response_type=code&redirect_uri=https%3A%2F%2Fsprites.tyrantnetworks.com%2F&scope=identify" class="discord-login-btn">Link Discord Account</a>`;
+  const discordUI = discordPanelInner();
 
   const seasonRow = `<div class="sheet-manager">
       <select class="season-selector" onchange="switchSeason(this.value)">
@@ -1861,7 +1951,7 @@ function renderChecklist() {
   const hintText = showCodes ? "Tap a code to mark it claimed." : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5! Mis-tap? Hit ↶ to undo. Use ▲ ▼ to jump between sprites.";
 
   return `
-    <div class="discord-panel">${discordUI}</div>
+    <div class="discord-panel ${(getDiscordUser() && (!getDiscordUser().token || authProblem)) ? 'warn' : ''}" id="discordPanel">${discordUI}</div>
 
     <div class="sheet-manager">
       <select class="sheet-selector" onchange="switchSheet(this.value)">${sheetOptions}</select>
@@ -1912,14 +2002,15 @@ function renderChecklist() {
 
 function render() {
   const app = document.getElementById("app");
+  const tab = (id, ico, label, extra) => `<button class="page-nav-btn ${(currentPage === id || (id === 'social' && currentPage === 'profile')) ? 'active' : ''}" onclick="switchPage('${id}')"><span class="ni">${ico}</span><span>${label}</span>${extra || ''}</button>`;
   const navHtml = `<div class="page-nav">
-      <button class="page-nav-btn ${currentPage === 'checklist' ? 'active' : ''}" onclick="switchPage('checklist')">📋 Checklist</button>
-      <button class="page-nav-btn ${currentPage === 'shop' ? 'active' : ''}" onclick="switchPage('shop')">🛒 Shop</button>
-      <button class="page-nav-btn ${currentPage === 'news' ? 'active' : ''}" onclick="switchPage('news')">📰 News${newsUnread() && currentPage !== 'news' ? '<span class="dot"></span>' : ''}</button>
-      <button class="page-nav-btn gear" onclick="openSettings()" aria-label="Settings" title="Settings">⚙️</button>
+      ${tab('checklist', '📋', 'Checklist')}
+      ${tab('shop', '🛒', 'Shop')}
+      ${tab('social', '🏆', 'Community')}
+      ${tab('news', '📰', 'News', (newsUnread() && currentPage !== 'news') ? '<span class="dot"></span>' : '')}
+      <button class="page-nav-btn gear" onclick="openSettings()" aria-label="Settings" title="Settings"><span class="ni">⚙️</span></button>
     </div>`;
-
-  const contentHtml = currentPage === "shop" ? renderShop() : currentPage === "news" ? renderNews() : renderChecklist();
+  const contentHtml = currentPage === "shop" ? renderShop() : currentPage === "news" ? renderNews() : currentPage === "social" ? renderSocial() : currentPage === "profile" ? renderProfile() : renderChecklist();
 
   app.innerHTML = navHtml + contentHtml;
   updateScrollNav();
@@ -1966,8 +2057,8 @@ function spriteName(id) {
 
 // ---------- icon paths (S3 comes from the last render, S4 is direct) ----------
 let s3ImgCache = {};
-function iconPath(id, v) {
-  if (state.season === "s4") { try { return getImagePathS4(id, v); } catch (e) { return ""; } }
+function iconPath(id, v, season) {
+  if ((season || state.season) === "s4") { try { return getImagePathS4(id, v); } catch (e) { return ""; } }
   return s3ImgCache[id + "|" + v] || "";
 }
 
@@ -2360,6 +2451,13 @@ function doShare() {
 
 // ---------- news & updates ----------
 const SITE_UPDATES = [
+  { id: "2026-10-09b", date: "Oct 9, 2026", title: "Community features", items: [
+    "🏆 Leaderboard — see how your collection stacks up (only players who opt in appear).",
+    "🔁 Trade Finder — matches you with players who have Season 4 sprites you need.",
+    "👤 Public Profile — share a read-only link to your collection if you want to.",
+    "🔒 Everything is OFF by default, with switches under Community → My Privacy.",
+    "🔐 Safer sync — only you can change your checklist now. Tap Re-link Discord once to turn it back on."
+  ]},
   { id: "2026-10-09", date: "Oct 9, 2026", title: "Big site upgrade", items: [
     "📊 Progress Dashboard — see your % by season, rarity, and which sprites are closest to maxed.",
     "🔍 Search & Filter — find any sprite or style, or show only what you still need.",
@@ -2419,6 +2517,256 @@ if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
 }
 
 
+// ================= BATCH 2: COMMUNITY (profiles, leaderboard, trade finder) =================
+let socialTab = "leaderboard";
+let lbSeason = "s4", lbData = null, lbLoading = false, lbError = "";
+let tradeData = null, tradeLoading = false, tradeError = "";
+let meData = null, meLoading = false, meError = "", meSaving = false;
+let profileView = { id: null, data: null, loading: false, error: "" };
+
+async function api(path, opts = {}) {
+  const res = await fetch(API_BASE + path, Object.assign({}, opts, {
+    headers: Object.assign({ "Content-Type": "application/json" }, authHeaders(), opts.headers || {})
+  }));
+  let body = null;
+  try { body = await res.json(); } catch (e) {}
+  if (!res.ok) {
+    const d = body && body.detail;
+    const err = new Error(typeof d === "string" ? d : "Request failed (" + res.status + ")");
+    err.status = res.status;
+    throw err;
+  }
+  return body;
+}
+function loggedIn() { const u = getDiscordUser(); return !!(u && u.token) && !authProblem; }
+function avatarImg(url, cls) { return `<img class="${cls}" src="${esc(url || "")}" alt="" onerror="this.style.visibility='hidden'">`; }
+function itemLabel(sid, v) {
+  const n = spriteName(sid);
+  return v === sid ? n : `${n} · ${variantLabel(v)}`;
+}
+function relinkBox(msg) {
+  return `<div class="panel-box"><h3>🔐 Link your Discord</h3><p>${msg}</p><a class="mini-btn gold" href="${DISCORD_OAUTH_URL}">Link Discord Account</a></div>`;
+}
+
+// ---------- social page ----------
+function setSocialTab(t) {
+  socialTab = t;
+  render();
+  loadSocialTab();
+}
+function loadSocialTab() {
+  if (socialTab === "leaderboard") loadLeaderboard();
+  if (socialTab === "trades" && loggedIn()) { if (!meData) loadMe(); else if (meData.settings.show_trades) loadTrades(); }
+  if (socialTab === "privacy" && loggedIn()) loadMe();
+}
+function renderSocial() {
+  const tabs = [["leaderboard", "🏆 Leaderboard"], ["trades", "🔁 Trade Finder"], ["privacy", "🔒 My Privacy"]];
+  const seg = `<div class="seg" style="margin-bottom:12px">${tabs.map(t => `<button type="button" class="${socialTab === t[0] ? "active" : ""}" onclick="setSocialTab('${t[0]}')">${t[1]}</button>`).join("")}</div>`;
+  let body = "";
+  if (socialTab === "leaderboard") body = renderLeaderboard();
+  else if (socialTab === "trades") body = renderTrades();
+  else body = renderPrivacy();
+  return seg + body;
+}
+
+// ---------- leaderboard ----------
+async function loadLeaderboard(force) {
+  if (lbLoading) return;
+  if (lbData && lbData.season === lbSeason && !force) return;
+  lbLoading = true; lbError = "";
+  if (currentPage === "social") render();
+  try { lbData = await api("/api/leaderboard?season=" + lbSeason + "&limit=50"); }
+  catch (e) { lbError = e.message || "Couldn't load the leaderboard."; }
+  lbLoading = false;
+  if (currentPage === "social") render();
+}
+function setLbSeason(s) { lbSeason = s; lbData = null; render(); loadLeaderboard(true); }
+function lbRow(e) {
+  const medal = e.rank === 1 ? "🥇" : e.rank === 2 ? "🥈" : e.rank === 3 ? "🥉" : e.rank;
+  const name = e.username || e.epic_username || "Player";
+  const sub = e.username && e.epic_username ? "Epic: " + e.epic_username : "";
+  const click = e.user_id ? `onclick="openProfile('${esc(e.user_id)}')"` : "";
+  return `<div class="lb-row ${e.is_me ? "me" : ""} ${e.user_id ? "clickable" : ""}" ${click}>
+    <div class="lb-rank">${medal}</div>${avatarImg(e.avatar_url, "lb-av")}
+    <div class="lb-main"><div class="lb-name">${esc(name)}${e.is_me ? " (you)" : ""}</div><div class="lb-sub">${esc(sub) || "&nbsp;"}</div>${bar(e.pct)}</div>
+    <div class="lb-pct">${Math.round(e.pct)}%<small>${e.maxed}/${e.styles} maxed</small></div></div>`;
+}
+function renderLeaderboard() {
+  const seg = `<div class="seg" style="margin-bottom:12px">
+    <button type="button" class="${lbSeason === "s4" ? "active" : ""}" onclick="setLbSeason('s4')">Season 4</button>
+    <button type="button" class="${lbSeason === "s3" ? "active" : ""}" onclick="setLbSeason('s3')">Season 3</button></div>`;
+  let body;
+  if (lbLoading && !lbData) body = `<div class="loading">Loading rankings…</div>`;
+  else if (lbError) body = `<div class="filter-empty">${esc(lbError)}<br><br><button type="button" class="mini-btn" onclick="loadLeaderboard(true)">Try again</button></div>`;
+  else if (!lbData || !lbData.entries.length) body = `<div class="filter-empty">Nobody is on the leaderboard yet.<br>Be the first — turn it on under <b>My Privacy</b>.</div>`;
+  else {
+    body = lbData.entries.map(lbRow).join("");
+    if (lbData.me && !lbData.entries.some(e => e.is_me)) body += `<div class="set-note" style="text-align:center;margin:6px 0">· · ·</div>` + lbRow(lbData.me);
+    body += `<div class="set-note" style="text-align:center;margin-top:6px">${lbData.total} player${lbData.total === 1 ? "" : "s"} ranked · by % of all level points · players choose to appear here</div>`;
+  }
+  return seg + body;
+}
+
+// ---------- trade finder ----------
+async function loadTrades() {
+  if (tradeLoading) return;
+  tradeLoading = true; tradeError = "";
+  if (currentPage === "social") render();
+  try { tradeData = await api("/api/trades/matches"); }
+  catch (e) { tradeError = e.message || "Couldn't load matches."; tradeData = null; }
+  tradeLoading = false;
+  if (currentPage === "social") render();
+}
+function chipList(items, max) {
+  const shown = items.slice(0, max).map(i => `<span>${esc(itemLabel(i[0], i[1]))}</span>`).join("");
+  return shown + (items.length > max ? `<span>+${items.length - max} more</span>` : "");
+}
+function renderTrades() {
+  if (!loggedIn()) return relinkBox("Trade Finder compares your Season 4 sprites with other players who opted in. Link your Discord account to use it.");
+  if (meLoading && !meData) return `<div class="loading">Loading…</div>`;
+  if (!meData) return `<div class="filter-empty">${esc(meError || "Couldn't load your settings.")}<br><br><button type="button" class="mini-btn" onclick="loadMe(true)">Try again</button></div>`;
+  if (!meData.settings.show_trades) {
+    return `<div class="panel-box"><h3>🔁 Trade Finder</h3>
+      <p>See which players have Season 4 sprites you still need — and who needs sprites you've started. Turning it on also lets other opted-in players see your matches and message you on Discord.</p>
+      <p>Matches use the same rules as the bot's <b>Find trades with…</b>: you need what you're at level 0 on and they've started; they need what they're at level 0 on and you've started.</p>
+      <button type="button" class="big-btn" onclick="setPrivacy('show_trades', true, true)">Turn on Trade Finder</button></div>`;
+  }
+  if (tradeLoading) return `<div class="loading">Finding matches…</div>`;
+  if (tradeError) return `<div class="filter-empty">${esc(tradeError)}<br><br><button type="button" class="mini-btn" onclick="loadTrades()">Try again</button></div>`;
+  if (!tradeData || !tradeData.matches.length) return `<div class="filter-empty">No matches yet. ${tradeData ? tradeData.players : 0} other player(s) have Trade Finder on.<br>Check back as more people join.</div>`;
+  const head = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="set-note">Season 4 · your selected sheet</div><button type="button" class="mini-btn" onclick="loadTrades()">↻ Refresh</button></div>`;
+  return head + tradeData.matches.map(m => `<div class="panel-box trade-card">
+      <div class="tc-head">${avatarImg(m.avatar_url, "lb-av")}<div class="lb-main"><div class="lb-name">${esc(m.username || m.epic_username || "Player")}</div><div class="lb-sub">${m.epic_username && m.username ? "Epic: " + esc(m.epic_username) : "&nbsp;"}</div></div>
+        <a class="mini-btn gold" href="https://discord.com/users/${esc(m.user_id)}" target="_blank" rel="noopener">Message</a></div>
+      ${m.you_need_count ? `<div><div class="tl in">📥 They have, you need (${m.you_need_count})</div><div class="chips">${chipList(m.you_need, 12)}</div></div>` : ""}
+      ${m.they_need_count ? `<div><div class="tl out">📤 You have, they need (${m.they_need_count})</div><div class="chips">${chipList(m.they_need, 12)}</div></div>` : ""}
+    </div>`).join("") + `<div class="set-note" style="text-align:center">The tracker records levels, not spare duplicates — confirm before you trade!</div>`;
+}
+
+// ---------- privacy ----------
+async function loadMe(force) {
+  if (meLoading) return;
+  if (meData && !force) { if (socialTab === "trades" && meData.settings.show_trades && !tradeData && !tradeLoading) loadTrades(); return; }
+  meLoading = true; meError = "";
+  if (currentPage === "social") render();
+  try { meData = await api("/api/me"); }
+  catch (e) { meError = e.message; if (e.status === 401) markAuthProblem(true); }
+  meLoading = false;
+  if (currentPage === "social") render();
+  if (meData && socialTab === "trades" && meData.settings.show_trades) loadTrades();
+}
+async function setPrivacy(key, value, thenTrades) {
+  if (!meData || meSaving) return;
+  const prev = Object.assign({}, meData.settings);
+  meData.settings[key] = value;
+  if (!meData.settings.sheet_id || !appState.profiles[meData.settings.sheet_id]) meData.settings.sheet_id = appState.activeId;
+  if (key === "sheet_id" && !value) meData.settings.sheet_id = null;
+  meSaving = true; render();
+  try {
+    // make sure the server has your latest checklist before it starts using it
+    clearTimeout(syncTimer); syncTimer = null; pushToServer();
+    await api("/api/profile/settings", { method: "PUT", body: JSON.stringify(meData.settings) });
+    lbData = null; tradeData = null;
+    meSaving = false; render();
+    if (thenTrades) loadTrades();
+    if (socialTab === "leaderboard") loadLeaderboard(true);
+  } catch (e) {
+    meData.settings = prev; meSaving = false; render();
+    toast(e.message || "Couldn't save that setting", false);
+  }
+}
+function copyProfileLink() {
+  const input = document.getElementById("profLink");
+  const url = input ? input.value : "";
+  const done = () => toast("Profile link copied", false);
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(() => { input.select(); document.execCommand("copy"); done(); });
+  else if (input) { input.select(); document.execCommand("copy"); done(); }
+}
+function renderPrivacy() {
+  if (!loggedIn()) return relinkBox("Privacy settings are tied to your Discord account. Link it to choose what (if anything) you share. <b>Nothing is public by default.</b>");
+  if (meLoading && !meData) return `<div class="loading">Loading…</div>`;
+  if (!meData) return `<div class="filter-empty">${esc(meError || "Couldn't load your settings.")}<br><br><button type="button" class="mini-btn" onclick="loadMe(true)">Try again</button></div>`;
+  const s = meData.settings;
+  const sw = (key) => `<label class="switch"><input type="checkbox" ${s[key] ? "checked" : ""} ${meSaving ? "disabled" : ""} onchange="setPrivacy('${key}', this.checked)"><span class="slider"></span></label>`;
+  const sheets = Object.keys(appState.profiles).map(id => {
+    const sel = (s.sheet_id && appState.profiles[s.sheet_id] ? s.sheet_id : appState.activeId) === id;
+    return `<option value="${esc(id)}" ${sel ? "selected" : ""}>📋 ${esc(appState.profiles[id].username || "Unnamed Sheet")}</option>`;
+  }).join("");
+  const link = `${location.origin}${location.pathname}?u=${meData.user_id}`;
+  return `<div class="panel-box"><h3>🔒 What you share</h3>
+      <p>Everything is <b>off</b> until you turn it on, and only you can change your checklist. Turn a switch off any time and it disappears right away.</p>
+      <div class="opt-row"><div><div class="ot">Public profile</div><div class="od">Anyone with your link can see your Discord name, avatar, Epic username and sprite levels. Lobby codes stay private.</div></div>${sw("is_public")}</div>
+      <div class="opt-row"><div><div class="ot">Leaderboard</div><div class="od">Shows your name, avatar and progress % in the rankings. Your name only links to a profile if the public profile is on.</div></div>${sw("show_leaderboard")}</div>
+      <div class="opt-row"><div><div class="ot">Trade Finder</div><div class="od">Lets other opted-in players see your Season 4 trade matches and message you on Discord.</div></div>${sw("show_trades")}</div>
+    </div>
+    <div class="panel-box"><h3>📋 Which sheet?</h3>
+      <p>If you keep more than one sheet, pick the one used for your profile, ranking and trades.</p>
+      <select class="sheet-selector" onchange="setPrivacy('sheet_id', this.value)" ${meSaving ? "disabled" : ""}>${sheets}</select></div>
+    ${s.is_public ? `<div class="panel-box"><h3>🔗 Your profile link</h3><div class="link-row"><input id="profLink" readonly value="${esc(link)}" onfocus="this.select()"><button type="button" class="mini-btn" onclick="copyProfileLink()">Copy</button></div>
+      <button type="button" class="mini-btn" onclick="openProfile('${esc(meData.user_id)}')">👁 Preview my profile</button></div>` : ""}
+    <div class="set-note" style="text-align:center">Signed in as <b>${esc(meData.username || "your Discord account")}</b>${meSaving ? " · saving…" : ""}</div>`;
+}
+
+// ---------- public profile ----------
+function openProfile(id) {
+  profileView = { id: String(id), data: null, loading: false, error: "", from: currentPage === "profile" ? "checklist" : currentPage };
+  currentPage = "profile";
+  try { history.replaceState(null, "", "?u=" + encodeURIComponent(id)); } catch (e) {}
+  render();
+  window.scrollTo(0, 0);
+  loadProfile(id);
+}
+async function loadProfile(id) {
+  profileView.id = String(id); profileView.loading = true; profileView.error = "";
+  if (currentPage === "profile") render();
+  try { profileView.data = await api("/api/profile/" + encodeURIComponent(id), { headers: {} }); }
+  catch (e) { profileView.error = e.status === 404 ? "This profile is private or doesn't exist." : (e.message || "Couldn't load this profile."); profileView.data = null; }
+  profileView.loading = false;
+  if (currentPage === "profile") render();
+}
+function leaveProfile() {
+  try { history.replaceState(null, "", location.pathname); } catch (e) {}
+  switchPage(currentPage === "profile" && profileView.from === "social" ? "social" : "checklist");
+}
+function renderProfile() {
+  const back = `<button type="button" class="mini-btn" style="margin-bottom:12px" onclick="leaveProfile()">← Back</button>`;
+  if (profileView.loading || (!profileView.data && !profileView.error)) return back + `<div class="loading">Loading profile…</div>`;
+  if (profileView.error) return back + `<div class="filter-empty">🔒 ${esc(profileView.error)}</div>`;
+  const p = profileView.data, s4 = p.stats.s4, s3 = p.stats.s3;
+  const inv = p.inventoryS4 || {};
+  const list = SEASON4_SPRITES_FORTNITE.filter(sp => inv[sp.id]);
+  const cards = list.map(sp => {
+    const isSingle = sp.variants.length === 1;
+    const cells = sp.variants.map(v => {
+      const lvl = (inv[sp.id] && inv[sp.id][v]) || 0;
+      let cls = "", label = isSingle ? "✕ NEED" : v;
+      if (lvl > 0) { cls = "have " + v; label = isSingle ? "LVL " + lvl : v.toUpperCase() + " L" + lvl; }
+      if (lvl === 5) { cls = "max-lvl " + v; label = isSingle ? "MAX" : v.toUpperCase() + " MAX"; }
+      const img = iconPath(sp.id, v, "s4");
+      return `<div class="toggle ${cls}"><img class="variant-icon" src="${img}" onerror="this.style.opacity='0.15';" alt=""><div class="toggle-label">${esc(label)}</div></div>`;
+    }).join("");
+    const rarity = sp.rarity ? `<div class="sprite-rarity rarity-${sp.rarity.toLowerCase()}">${esc(sp.rarity)}</div>` : "";
+    return `<div class="sprite-card"><div class="sprite-info"><div class="sprite-name-wrap"><div class="sprite-name">${esc(sp.name)}</div>${rarity}</div></div><div class="variants-row">${cells}</div></div>`;
+  }).join("");
+  const box = (n, l) => `<div class="stat-box"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+  return back + `<div class="panel-box">
+      <div class="prof-head">${avatarImg(p.avatar_url, "")}<div style="min-width:0"><div class="pn">${esc(p.username || p.epic_username || "Player")}</div>
+        <div class="ps">${p.epic_username ? "Epic: " + esc(p.epic_username) : "Fortnite sprite collector"}</div></div><div class="pp">${Math.round(s4.pct)}%</div></div>
+      ${bar(s4.pct)}
+      <div class="dash-grid">${box(s4.maxed + "/" + s4.styles, "Season 4 styles maxed")}${box(s4.sprites_done + "/" + s4.sprites, "Sprites complete")}${box(Math.round(s3.pct) + "%", "Season 3 progress")}${box(p.codes_claimed, "Lobby codes claimed")}</div>
+      <div class="link-row"><button type="button" class="mini-btn" style="flex:1" onclick="shareProfileLink()">🔗 Share this profile</button>${p.show_trades ? `<a class="mini-btn gold" style="flex:1" href="https://discord.com/users/${esc(p.user_id)}" target="_blank" rel="noopener">💬 Message on Discord</a>` : ""}</div>
+    </div>
+    <div class="news-head">Season 4 collection</div>
+    <div class="sprites-grid ro">${cards || '<div class="filter-empty">No Season 4 data synced yet.</div>'}</div>
+    <div class="set-note" style="text-align:center;margin:10px 0">Read-only · updates whenever this player syncs</div>`;
+}
+async function shareProfileLink() {
+  const url = `${location.origin}${location.pathname}?u=${profileView.id}`;
+  if (navigator.share) { try { await navigator.share({ title: "Fortnite Sprite Checklist", url }); return; } catch (e) { return; } }
+  try { await navigator.clipboard.writeText(url); toast("Link copied", false); } catch (e) { toast(url, false); }
+}
+
+
 // --- INITIALIZATION & OAUTH ENGINE ---
 const urlParams = new URLSearchParams(window.location.search);
 const authCode = urlParams.get('code');
@@ -2432,11 +2780,13 @@ if (authCode) {
   })
   .then(response => response.json())
   .then(data => {
-    if (data.user_id) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+    if (data.user_id && data.token) {
       localStorage.setItem("discord_user", JSON.stringify(data));
-      window.history.replaceState({}, document.title, window.location.pathname);
-      loadState();
+    } else {
+      console.error("Discord login failed:", data);
     }
+    loadState();
   })
   .catch(error => {
     console.error("Discord Auth Failed:", error);
@@ -2444,6 +2794,12 @@ if (authCode) {
     loadState();
   });
 } else {
+  const deepId = urlParams.get('u');
+  if (deepId && /^\d{5,25}$/.test(deepId)) {
+    currentPage = "profile";
+    profileView = { id: deepId, data: null, loading: true, error: "", from: "checklist" };
+    loadProfile(deepId);
+  }
   loadState();
 }
 </script>
