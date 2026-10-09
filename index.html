@@ -705,7 +705,7 @@ const SPRITES_ORGANIZE = [
   { id: "ghost", name: "Ghost", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "dream", name: "Dream", variants: ["normal","gold","gummy","galaxy","cube"] },
   { id: "demon", name: "Demon", variants: ["normal","gold","gummy","galaxy","gem"] },
-  { id: "punk", name: "Punk", variants: ["normal","gold","gummy","galaxy","cube", "gem"] },
+  { id: "punk", name: "Punk", variants: ["normal","gold","gummy","galaxy","cube"] },
   { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
   { id: "vinijr", name: "Vini Jr", variants: ["vinijr"] },
@@ -733,7 +733,7 @@ const SPRITES_FORTNITE = [
   { id: "ghost", name: "Ghost", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "dream", name: "Dream", variants: ["cube","normal","gold","gummy","galaxy"] },
   { id: "demon", name: "Demon", variants: ["normal","gold","gummy","galaxy","gem"] },
-  { id: "punk", name: "Punk", variants: ["cube","normal","gold","gummy","galaxy","gem"] },
+  { id: "punk", name: "Punk", variants: ["cube","normal","gold","gummy","galaxy"] },
   { id: "king", name: "King", variants: ["normal","gold","gummy","galaxy","holofoil"] },
   { id: "burntpeanut", name: "Burnt Peanut", variants: ["peanut"] },
   { id: "vinijr", name: "Vini Jr", variants: ["vinijr"] },
@@ -852,7 +852,7 @@ const LOBBY_CODES = [
   { code: "TAKEYOURHEART", category: "Gizmos", reward: "2 Extraction Accelerators" },
   { code: "ALMOSTSCARINGSEASON", category: "Gizmos", reward: "2 Cheat Code Locators" },
   { code: "BONERATTLER", category: "Gizmos", reward: "4 Spicy Tacos" },
-  { code: "NOPROLLAMA", category: "Gizmos", reward: "1 Llama Supply Drop", expired: true },
+  { code: "NOPROLLAMA", category: "Gizmos", reward: "1 Llama Supply Drop" },
   { code: "ITHINKTHEKEYFOUNDMECHAT", category: "Gizmos", reward: "1 Extraction Accelerator" },
   { code: "VERYSCARYPUMPKIN", category: "Gizmos", reward: "3 Snack-O'-Lanterns" },
 
@@ -993,6 +993,14 @@ function normalizeProfiles(app) {
     if (!prof.inventory) prof.inventory = {};
     if (!prof.inventoryS4) prof.inventoryS4 = {};
     if (!prof.codes) prof.codes = {};
+
+    // Archived: Punk's Gem was planned for Season 3 but never released. Your level is kept here
+    // (not counted) so Season 3 can reach 100% without it.
+    if (prof.inventory.punk && prof.inventory.punk.gem !== undefined) {
+      prof.archived = prof.archived || {};
+      prof.archived["s3:punk:gem"] = prof.inventory.punk.gem;
+      delete prof.inventory.punk.gem;
+    }
 
     Object.keys(ALL_VARIANTS_MAP).forEach(id => {
       if (!prof.inventory[id]) prof.inventory[id] = {};
@@ -1421,10 +1429,17 @@ function toggleCode(code) {
 let lastScrollAt = 0;
 window.addEventListener('scroll', () => { lastScrollAt = Date.now(); }, { passive: true });
 
+// Android (and some iOS) browsers fire emulated mouse events right after a touch. Since the
+// page re-renders on every tap, those emulated events landed on the NEW tile and levelled it twice.
+let lastTouchAt = 0;
+function isEmulatedMouse(e) { return e.type.indexOf('mouse') === 0 && (Date.now() - lastTouchAt) < 900; }
+
 function setupTouchListeners(element, spriteId, variant) {
   let startX = 0, startY = 0, moved = false, blocked = false;
 
   const startHandler = (e) => {
+    if (e.type === 'touchstart') lastTouchAt = Date.now();
+    if (isEmulatedMouse(e)) { blocked = true; return; }
     const pt = (e.touches && e.touches[0]) || e;
     startX = pt.clientX; startY = pt.clientY;
     moved = false;
@@ -1446,6 +1461,8 @@ function setupTouchListeners(element, spriteId, variant) {
     }
   };
   const endHandler = (e) => {
+    if (e.type === 'touchend') { lastTouchAt = Date.now(); if (e.cancelable) e.preventDefault(); }
+    if (isEmulatedMouse(e)) return;
     if (touchTimer) clearTimeout(touchTimer);
     if (blocked || moved) return;
     if (Date.now() - lastScrollAt < 120) return;
@@ -2263,8 +2280,11 @@ function openSettings() {
     ${seg("hideMaxRow", [[false, "Show"], [true, "Hide (fewer mis-taps)"]])}
     <div class="set-label">Home screen app</div>
     ${install}
+    <div class="set-label">News alerts</div>
+    <div id="pushBox"><div class="set-note">Checking…</div></div>
     <div class="set-note">Settings are saved on this device only. Exported images always use the dark theme.</div>
   `);
+  refreshPushSection();
 }
 
 // ---------- share cards ----------
@@ -2451,6 +2471,12 @@ function doShare() {
 
 // ---------- news & updates ----------
 const SITE_UPDATES = [
+  { id: "2026-10-09c", date: "Oct 9, 2026", title: "Alerts & fixes", items: [
+    "🔔 News alerts — get a notification on your Home Screen app when new Fortnite news drops (⚙️ Settings → News alerts).",
+    "🐛 Fixed Android tiles levelling up twice per tap.",
+    "🧹 Punk's Gem (announced for Season 3, never released) is archived, so Season 3 can now reach 100%.",
+    "🔑 NOPROLLAMA is active again."
+  ]},
   { id: "2026-10-09b", date: "Oct 9, 2026", title: "Community features", items: [
     "🏆 Leaderboard — see how your collection stacks up (only players who opt in appear).",
     "🔁 Trade Finder — matches you with players who have Season 4 sprites you need.",
@@ -2767,6 +2793,62 @@ async function shareProfileLink() {
 }
 
 
+// ================= BATCH 3: NEWS NOTIFICATIONS (Web Push) =================
+function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+function pushSupported() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+function urlB64ToUint8Array(b64) {
+  const pad = "=".repeat((4 - b64.length % 4) % 4);
+  const raw = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/"));
+  return Uint8Array.from(raw, c => c.charCodeAt(0));
+}
+async function refreshPushSection() {
+  const box = document.getElementById("pushBox");
+  if (!box) return;
+  const note = t => { box.innerHTML = `<div class="set-note">${t}</div>`; };
+  if (!pushSupported()) {
+    note(isIOS() && !isStandalone()
+      ? "To get alerts on iPhone/iPad, first add this site to your Home Screen (Share → Add to Home Screen), open it from there, then come back to this switch."
+      : "This browser doesn't support notifications.");
+    return;
+  }
+  if (Notification.permission === "denied") { note("Notifications are blocked for this site. Re-enable them in your device or browser settings, then reopen this menu."); return; }
+  let sub = null;
+  try { const reg = await navigator.serviceWorker.getRegistration(); sub = reg ? await reg.pushManager.getSubscription() : null; } catch (e) {}
+  box.innerHTML = sub
+    ? `<div class="set-note">✅ Alerts are on for this device.</div><button type="button" class="mini-btn" onclick="disablePush()">Turn off</button>`
+    : `<button type="button" class="big-btn" onclick="enablePush()">🔔 Turn on news alerts</button>`;
+}
+async function enablePush() {
+  const box = document.getElementById("pushBox");
+  if (box) box.innerHTML = `<div class="set-note">Setting up…</div>`;
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") { await refreshPushSection(); return; }
+    const reg = await navigator.serviceWorker.ready;
+    const { key } = await api("/api/push/key");
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToUint8Array(key) });
+    await api("/api/push/subscribe", { method: "POST", body: JSON.stringify(sub.toJSON()) });
+    toast("News alerts are on 🔔", false);
+  } catch (e) {
+    console.error("Push setup failed:", e);
+    toast(e.status === 503 ? "Alerts aren't available on the server yet." : "Couldn't turn on alerts. Try again.", false);
+  }
+  await refreshPushSection();
+}
+async function disablePush() {
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = reg ? await reg.pushManager.getSubscription() : null;
+    if (sub) {
+      const endpoint = sub.endpoint;
+      await sub.unsubscribe();
+      api("/api/push/unsubscribe", { method: "POST", body: JSON.stringify({ endpoint }) }).catch(() => {});
+    }
+  } catch (e) { console.error(e); }
+  await refreshPushSection();
+}
+
+
 // --- INITIALIZATION & OAUTH ENGINE ---
 const urlParams = new URLSearchParams(window.location.search);
 const authCode = urlParams.get('code');
@@ -2794,6 +2876,7 @@ if (authCode) {
     loadState();
   });
 } else {
+  if (urlParams.get('page') === 'news') { currentPage = 'news'; markNewsSeen(); loadNews(); }
   const deepId = urlParams.get('u');
   if (deepId && /^\d{5,25}$/.test(deepId)) {
     currentPage = "profile";
