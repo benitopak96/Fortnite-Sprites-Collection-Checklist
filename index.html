@@ -612,6 +612,7 @@
   .modal-head h2 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.5px; font-weight: 400; }
   .modal-x { background: var(--inset); border: 1px solid var(--line); color: var(--ink); width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; }
   .seg { display: flex; gap: 6px; }
+  .seg button:disabled { opacity: 0.4; cursor: default; }
   .seg button { flex: 1; background: var(--inset); border: 1px solid var(--line); color: var(--ink-dim); border-radius: 8px; padding: 10px 6px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
   .seg button.active { border-color: var(--galaxy); color: var(--galaxy); background: rgba(124,108,240,0.10); }
   .set-label { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: -6px; }
@@ -2289,10 +2290,11 @@ function openSettings() {
 
 // ---------- share cards ----------
 const SHARE_FMT = { story: { w: 1080, h: 1920 }, wide: { w: 1920, h: 1080 } };
-let shareState = { kind: "progress", fmt: "story", need: new Set(), offer: new Set(), blob: null, url: null, seq: 0, season: null };
+let shareState = { kind: "progress", fmt: "story", need: new Set(), offer: new Set(), mode: "zero", page: 0, cache: {}, url: null, seq: 0, season: null };
 function shareRows() {
   const isS4 = state.season === "s4";
-  const list = isS4 ? SEASON4_SPRITES : SPRITES_ORGANIZE;
+  const list = isS4 ? (state.sortModeS4 === "organize" ? SEASON4_SPRITES : SEASON4_SPRITES_FORTNITE)
+                    : (state.sortMode === "fortnite" ? SPRITES_FORTNITE : SPRITES_ORGANIZE);
   const inv = getActiveInventory();
   const rows = [];
   list.forEach(s => s.variants.forEach(v => {
@@ -2311,19 +2313,36 @@ function openShare() {
   renderShareModal();
   regenShare();
 }
+function missingRows() {
+  return shareRows().filter(r => shareState.mode === "notmax" ? r.lvl < 5 : r.lvl === 0);
+}
+function missingPerPage(fmt) { return fmt === "story" ? 35 : 40; }
+function missingPageCount() { return Math.max(1, Math.ceil(missingRows().length / missingPerPage(shareState.fmt))); }
 function renderShareModal() {
   const k = shareState.kind, f = shareState.fmt;
-  const segK = [["progress", "📊 Progress"], ["maxed", "🏆 Maxed"], ["trade", "🔁 Trade"]]
+  const segK = [["progress", "📊 Progress"], ["maxed", "🏆 Maxed"], ["missing", "🔎 Missing"], ["trade", "🔁 Trade"]]
     .map(o => `<button type="button" class="${k === o[0] ? "active" : ""}" onclick="setShareKind('${o[0]}')">${o[1]}</button>`).join("");
   const segF = [["story", "Story 9:16"], ["wide", "Wide 16:9"]]
     .map(o => `<button type="button" class="${f === o[0] ? "active" : ""}" onclick="setShareFmt('${o[0]}')">${o[1]}</button>`).join("");
-  let pick = "";
+  let pick = "", extra = "";
   if (k === "trade") {
     const rows = shareRows();
     const chips = (list, set, name) => rows.filter(list).slice(0, 80).map(r =>
       `<button type="button" class="pick ${set.has(r.key) ? "on" : ""}" onclick="toggleSharePick('${name}','${r.key}')">${esc(r.name)} · ${esc(variantLabel(r.v))}</button>`).join("") || `<span class="set-note">Nothing available.</span>`;
     pick = `<div class="set-label">Looking for (your level 0 styles)</div><div class="pick-box">${chips(r => r.lvl === 0, shareState.need, "need")}</div>
             <div class="set-label">Can offer (your maxed styles)</div><div class="pick-box">${chips(r => r.lvl === 5, shareState.offer, "offer")}</div>`;
+  }
+  if (k === "missing") {
+    const n = missingRows().length, pages = missingPageCount();
+    const m = (id, label) => `<button type="button" class="${shareState.mode === id ? "active" : ""}" onclick="setMissMode('${id}')">${label}</button>`;
+    pick = `<div class="seg">${m("zero", "Not started (Lvl 0)")}${m("notmax", "Not maxed yet")}</div>
+            <div class="set-note">${n} style${n === 1 ? "" : "s"} listed${pages > 1 ? ` · splits into ${pages} images` : ""}</div>`;
+    if (pages > 1) {
+      pick += `<div class="seg"><button type="button" onclick="setSharePage(-1)" ${shareState.page === 0 ? "disabled" : ""}>‹ Prev</button>
+        <button type="button" disabled style="flex:1.4">Image ${shareState.page + 1} of ${pages}</button>
+        <button type="button" onclick="setSharePage(1)" ${shareState.page >= pages - 1 ? "disabled" : ""}>Next ›</button></div>`;
+      extra = `<button type="button" class="mini-btn" id="shareAll" onclick="doShareAll()" disabled style="width:100%">Share all ${pages} images</button>`;
+    }
   }
   openModal(`
     <div class="modal-head"><h2>🎴 Share Cards</h2><button type="button" class="modal-x" onclick="closeModal()" aria-label="Close">✕</button></div>
@@ -2332,10 +2351,17 @@ function renderShareModal() {
     ${pick}
     <div class="share-preview" id="sharePreview">Generating…</div>
     <button type="button" class="big-btn" id="shareGo" onclick="doShare()" disabled>Share / Save Image</button>
+    ${extra}
   `);
 }
-function setShareKind(k) { shareState.kind = k; renderShareModal(); regenShare(); }
-function setShareFmt(f) { shareState.fmt = f; renderShareModal(); regenShare(); }
+function setShareKind(k) { shareState.kind = k; shareState.page = 0; renderShareModal(); regenShare(); }
+function setShareFmt(f) { shareState.fmt = f; shareState.page = 0; renderShareModal(); regenShare(); }
+function setMissMode(m) { shareState.mode = m; shareState.page = 0; renderShareModal(); regenShare(); }
+function setSharePage(d) {
+  const pages = missingPageCount();
+  shareState.page = Math.max(0, Math.min(pages - 1, shareState.page + d));
+  renderShareModal(); regenShare(true);
+}
 let regenTimer = null;
 function toggleSharePick(name, key) {
   const set = shareState[name];
@@ -2350,13 +2376,13 @@ function shareIconTile(id, v, size) {
   const p = iconPath(id, v);
   return p ? `<img src="${p}" style="width:${size}px;height:${size}px;object-fit:contain;flex-shrink:0" alt="">` : `<div style="width:${size}px;height:${size}px;flex-shrink:0"></div>`;
 }
-function buildShareCard(kind, fmt) {
+function buildShareCard(kind, fmt, page) {
   const { w, h } = SHARE_FMT[fmt];
   const story = fmt === "story";
   const isS4 = state.season === "s4";
   const st = seasonStats(state.season);
   const seasonLabel = isS4 ? "Chapter 7 · Season 4: Override" : "Chapter 7 · Season 3";
-  const titles = { progress: "SPRITE PROGRESS", maxed: "MAXED OUT", trade: "TRADE BOARD" };
+  const titles = { progress: "SPRITE PROGRESS", maxed: "MAXED OUT", trade: "TRADE BOARD", missing: "STILL NEED" };
   const pad = story ? 72 : 56;
   const BEB = "font-family:'Bebas Neue',sans-serif;";
   const root = document.createElement("div");
@@ -2403,6 +2429,20 @@ function buildShareCard(kind, fmt) {
          <div style="display:flex;flex-wrap:wrap;gap:14px">${shown.map(tile).join("")}</div>
          ${rows.length > cap ? `<div style="font-size:${story ? 32 : 26}px;color:#8d93a8;font-weight:700">+ ${rows.length - cap} more maxed</div>` : ""}`
       : `<div style="margin:auto;text-align:center;font-size:${story ? 44 : 36}px;color:#8d93a8">Nothing maxed yet — the grind starts here. 💪</div>`;
+  } else if (kind === "missing") {
+    const all = missingRows(), per = missingPerPage(fmt);
+    const pages = Math.max(1, Math.ceil(all.length / per)), pg = Math.min(page || 0, pages - 1);
+    const list = all.slice(pg * per, (pg + 1) * per);
+    const cols = story ? 5 : 10, gap = 12;
+    const notmax = shareState.mode === "notmax";
+    const tile = r => `<div style="width:calc(${100 / cols}% - ${gap * (cols - 1) / cols}px);box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(255,85,102,.07);border:2px solid rgba(255,85,102,.40);border-radius:18px;padding:${story ? 12 : 8}px 4px">
+        ${shareIconTile(r.id, r.v, story ? 104 : 76)}
+        <div style="${BEB}font-size:${story ? 28 : 21}px;line-height:1.05;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px">${esc(r.name)}</div>
+        <div style="font-size:${story ? 17 : 16}px;color:#e8b339;font-weight:700;text-transform:uppercase;letter-spacing:.4px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(variantLabel(r.v))}${notmax ? " · L" + r.lvl : ""}</div></div>`;
+    body = all.length
+      ? `<div style="font-size:${story ? 32 : 26}px;color:#8d93a8;font-weight:700"><b style="color:#ff5566;${BEB}font-size:${story ? 64 : 50}px">${all.length}</b> style${all.length === 1 ? "" : "s"} ${notmax ? "not maxed yet" : "still needed"}${pages > 1 ? ` · ${pg + 1}/${pages}` : ""}</div>
+         <div style="display:flex;flex-wrap:wrap;gap:${gap}px">${list.map(tile).join("")}</div>`
+      : `<div style="margin:auto;text-align:center;font-size:${story ? 44 : 36}px;color:#8d93a8">You have everything! 🎉</div>`;
   } else {
     const rows = shareRows();
     const need = rows.filter(r => shareState.need.has(r.key)), offer = rows.filter(r => shareState.offer.has(r.key));
@@ -2420,53 +2460,91 @@ function buildShareCard(kind, fmt) {
   root.innerHTML = head + body + foot;
   return root;
 }
-async function regenShare() {
-  const seq = ++shareState.seq;
-  const prev = document.getElementById("sharePreview");
-  const go = document.getElementById("shareGo");
-  if (!prev) return;
-  prev.textContent = "Generating…";
-  if (go) go.disabled = true;
-  shareState.blob = null;
-  if (typeof html2canvas === "undefined") { prev.textContent = "The image tool didn't load — check your connection and reopen."; return; }
+async function renderShareBlob(kind, fmt, page) {
+  const { w, h } = SHARE_FMT[fmt];
   const host = document.createElement("div");
   host.style.cssText = "position:fixed;left:-20000px;top:0;pointer-events:none;";
-  const { w, h } = SHARE_FMT[shareState.fmt];
-  const card = buildShareCard(shareState.kind, shareState.fmt);
+  const card = buildShareCard(kind, fmt, page);
   host.appendChild(card);
   document.body.appendChild(host);
   try {
     if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (e) {} }
     const canvas = await html2canvas(card, { useCORS: true, allowTaint: true, scale: 1, backgroundColor: "#0b0e14", logging: false, width: w, height: h });
-    if (seq !== shareState.seq) return;
-    const blob = await new Promise(r => canvas.toBlob(r, "image/png"));
-    if (seq !== shareState.seq) return;
-    if (shareState.url) URL.revokeObjectURL(shareState.url);
-    shareState.blob = blob;
-    shareState.url = URL.createObjectURL(blob);
-    const p2 = document.getElementById("sharePreview");
-    if (p2) p2.innerHTML = `<img src="${shareState.url}" alt="Share card preview">`;
-    const g2 = document.getElementById("shareGo");
-    if (g2) g2.disabled = false;
+    return await new Promise(r => canvas.toBlob(r, "image/png"));
+  } finally { host.remove(); }
+}
+function showShareBlob(blob) {
+  if (shareState.url) URL.revokeObjectURL(shareState.url);
+  shareState.url = URL.createObjectURL(blob);
+  const p = document.getElementById("sharePreview");
+  if (p) p.innerHTML = `<img src="${shareState.url}" alt="Share card preview">`;
+  const g = document.getElementById("shareGo");
+  if (g) g.disabled = false;
+}
+function updateShareAll() {
+  const btn = document.getElementById("shareAll");
+  if (!btn) return;
+  const pages = missingPageCount();
+  const ready = Object.keys(shareState.cache).length >= pages;
+  btn.disabled = !ready;
+  btn.textContent = ready ? `Share all ${pages} images` : `Preparing all ${pages} images… (${Object.keys(shareState.cache).length}/${pages})`;
+}
+async function regenShare(keepCache) {
+  const seq = ++shareState.seq;
+  if (!keepCache) shareState.cache = {};
+  const prev = document.getElementById("sharePreview");
+  const go = document.getElementById("shareGo");
+  if (!prev) return;
+  if (go) go.disabled = true;
+  if (typeof html2canvas === "undefined") { prev.textContent = "The image tool didn't load — check your connection and reopen."; return; }
+  const kind = shareState.kind, fmt = shareState.fmt, page = kind === "missing" ? shareState.page : 0;
+  try {
+    if (!shareState.cache[page]) {
+      prev.textContent = "Generating…";
+      const blob = await renderShareBlob(kind, fmt, page);
+      if (seq !== shareState.seq) return;
+      shareState.cache[page] = blob;
+    }
+    showShareBlob(shareState.cache[page]);
+    updateShareAll();
+    if (kind === "missing") {   // prepare the other pages in the background so "Share all" works instantly
+      const pages = missingPageCount();
+      for (let p = 0; p < pages; p++) {
+        if (seq !== shareState.seq) return;
+        if (!shareState.cache[p]) { shareState.cache[p] = await renderShareBlob(kind, fmt, p); updateShareAll(); }
+      }
+    }
   } catch (e) {
     console.error("Share card failed:", e);
     const p2 = document.getElementById("sharePreview");
     if (p2 && seq === shareState.seq) p2.textContent = "Couldn't build the card. Try again.";
-  } finally {
-    host.remove();
   }
 }
-function doShare() {
-  if (!shareState.blob) return;
+function shareFileName(page) {
   const nm = (state.username || "My").replace(/\s+/g, "_");
-  const fileName = `${nm}_${shareState.kind}_${shareState.fmt}.png`;
-  const file = new File([shareState.blob], fileName, { type: "image/png" });
+  return `${nm}_${shareState.kind}${shareState.kind === "missing" ? "_" + (page + 1) : ""}_${shareState.fmt}.png`;
+}
+function saveBlob(blob, name) {
+  const a = document.createElement("a");
+  a.download = name; a.href = URL.createObjectURL(blob); a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function doShare() {
+  const page = shareState.kind === "missing" ? shareState.page : 0;
+  const blob = shareState.cache[page];
+  if (!blob) return;
+  const file = new File([blob], shareFileName(page), { type: "image/png" });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     navigator.share({ files: [file], title: "My Sprite Checklist", text: "Track yours at sprites.tyrantnetworks.com" }).catch(() => {});
-  } else {
-    const a = document.createElement("a");
-    a.download = fileName; a.href = shareState.url; a.click();
-  }
+  } else saveBlob(blob, file.name);
+}
+function doShareAll() {
+  const pages = missingPageCount();
+  const files = [];
+  for (let p = 0; p < pages; p++) { if (!shareState.cache[p]) return; files.push(new File([shareState.cache[p]], shareFileName(p), { type: "image/png" })); }
+  if (navigator.canShare && navigator.canShare({ files })) {
+    navigator.share({ files, title: "Sprites I still need", text: "Track yours at sprites.tyrantnetworks.com" }).catch(() => {});
+  } else files.forEach((f, i) => setTimeout(() => saveBlob(f, f.name), i * 400));
 }
 
 // ---------- news & updates ----------
@@ -2489,7 +2567,7 @@ const SITE_UPDATES = [
     "🔍 Search & Filter — find any sprite or style, or show only what you still need.",
     "↶ Undo button — fixes a mis-tap instantly (it appears bottom-right after any change).",
     "☀️ Light mode + layout options in ⚙️ Settings, including hiding the MAX ROW buttons.",
-    "🎴 Share Cards — auto-made images for your progress, maxed styles, or trades (Story or Wide).",
+    "🎴 Share Cards — auto-made images for your progress, maxed styles, sprites you still need, or trades (Story or Wide).",
     "📲 Install it on your Home Screen like an app.",
     "📰 This News tab — site updates plus live Fortnite news."
   ]},
