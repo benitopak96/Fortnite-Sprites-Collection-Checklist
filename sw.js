@@ -1,6 +1,6 @@
 // Fortnite Sprite Checklist service worker
 // Pages are fetched fresh when online (so updates show up right away); sprite images are cached for speed/offline.
-const CACHE = "sprites-v2";
+const CACHE = "sprites-v3";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", e => {
