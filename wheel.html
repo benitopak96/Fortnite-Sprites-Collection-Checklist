@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0b1a">
+<title>The Reboot Van · Giveaway Wheel</title>
+<link rel="icon" href="icons/icon-192.png">
+<style>
+  :root { --bg:#0b0b1a; --panel:#15152b; --line:#2a2a4a; --ink:#f2f2fb; --dim:#9a9ac0; --gold:#f5c542; --pink:#f47fff; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin:0; background:var(--bg); color:var(--ink); font-family: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  body { min-height:100vh; padding: max(14px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); display:flex; flex-direction:column; align-items:center; gap:14px; }
+  h1 { margin:6px 0 0; font-size: clamp(22px, 5vw, 32px); letter-spacing:.5px; text-align:center; }
+  h1 span { color:var(--pink); }
+  .sub { color:var(--dim); font-size:13px; text-align:center; margin-top:-8px; }
+  .stage { position:relative; width:min(92vw, 560px); aspect-ratio:1; }
+  canvas { width:100%; height:100%; display:block; }
+  .pointer { position:absolute; left:50%; top:-6px; transform:translateX(-50%); width:0; height:0; border-left:16px solid transparent; border-right:16px solid transparent; border-top:30px solid var(--gold); filter: drop-shadow(0 3px 4px rgba(0,0,0,.6)); z-index:3; }
+  .hub { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:22%; aspect-ratio:1; border-radius:50%; border:4px solid var(--gold); background:radial-gradient(circle at 35% 30%, #2b2b55, #0b0b1a); color:var(--gold); font-weight:700; font-size:clamp(12px, 3.4vw, 17px); letter-spacing:1px; cursor:pointer; z-index:2; }
+  .hub:disabled { opacity:.6; cursor:default; }
+  .spin { background: linear-gradient(135deg, var(--pink), #8a5cff); color:#fff; border:0; border-radius:12px; padding:14px 40px; font-size:18px; font-weight:700; letter-spacing:1px; cursor:pointer; width:min(92vw, 560px); }
+  .spin:disabled { opacity:.5; cursor:default; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px; width:min(92vw, 560px); }
+  .card h2 { margin:0 0 8px; font-size:14px; text-transform:uppercase; letter-spacing:.6px; color:var(--dim); display:flex; justify-content:space-between; align-items:center; }
+  textarea { width:100%; min-height:140px; resize:vertical; background:#0d0d20; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:10px; font:inherit; font-size:15px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:8px; }
+  .btn { background:#22224a; color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font:inherit; font-size:13px; font-weight:600; cursor:pointer; }
+  .btn.pri { background:var(--gold); color:#1a1400; border-color:var(--gold); }
+  label.chk { display:flex; gap:8px; align-items:center; font-size:14px; }
+  .count { color:var(--gold); font-size:13px; font-weight:600; text-transform:none; letter-spacing:0; }
+  #winner { position:fixed; inset:0; background:rgba(5,5,15,.88); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  #winner.show { display:flex; }
+  .wbox { background:var(--panel); border:2px solid var(--gold); border-radius:18px; padding:28px 22px; text-align:center; max-width:460px; width:100%; animation: pop .35s ease-out; }
+  @keyframes pop { from { transform:scale(.7); opacity:0 } to { transform:scale(1); opacity:1 } }
+  .wbox .t { color:var(--gold); font-size:14px; letter-spacing:2px; text-transform:uppercase; }
+  .wbox .n { font-size:clamp(30px, 9vw, 52px); font-weight:800; margin:10px 0 6px; word-break:break-word; color:var(--pink); }
+  .wbox .h { color:var(--dim); font-size:13px; margin-bottom:16px; }
+  .wbox .row { justify-content:center; }
+  .confetti { position:fixed; top:-12px; width:9px; height:14px; z-index:60; pointer-events:none; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+  @media (prefers-reduced-motion: reduce) { .confetti { display:none; } .wbox { animation:none; } }
+</style>
+</head>
+<body>
+  <h1>🎡 The Reboot Van <span>Giveaway Wheel</span></h1>
+  <div class="sub">Everyone who boosts gets a spot. Voucher holders appear twice.</div>
+
+  <div class="stage">
+    <div class="pointer"></div>
+    <canvas id="wheel" width="1120" height="1120" aria-label="Giveaway wheel"></canvas>
+    <button class="hub" id="hub" aria-label="Spin">SPIN</button>
+  </div>
+  <button class="spin" id="spin">🎲 SPIN THE WHEEL</button>
+
+  <div class="card">
+    <h2><span>Names on the wheel</span><span class="count" id="count"></span></h2>
+    <textarea id="names" spellcheck="false" placeholder="One name per line. Add a name twice to give it two chances."></textarea>
+    <div class="row">
+      <button class="btn pri" id="apply">Update wheel</button>
+      <button class="btn" id="shuffle">Shuffle</button>
+      <button class="btn" id="clear">Clear</button>
+    </div>
+    <div class="row">
+      <label class="chk"><input type="checkbox" id="removeWin"> Remove winner after each spin</label>
+    </div>
+  </div>
+
+  <div id="winner" role="dialog" aria-modal="true">
+    <div class="wbox">
+      <div class="t">🎉 Winner 🎉</div>
+      <div class="n" id="wname"></div>
+      <div class="h">In Discord, tap <b>Record Winner</b> on the giveaway panel to announce them and start their 1-month cooldown.</div>
+      <div class="row">
+        <button class="btn pri" id="again">Spin again</button>
+        <button class="btn" id="close">Close</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  const COLORS = ['#f47fff','#8a5cff','#3fb8ff','#2ee6a6','#f5c542','#ff7a59','#ff5c8a','#6ee0ff'];
+  const cv = document.getElementById('wheel'), ctx = cv.getContext('2d');
+  const ta = document.getElementById('names');
+  let names = [], theta = 0, spinning = false, lastWinner = null;
+
+  // ----- names in -----
+  function fromHash() {
+    const m = /[#&]n=([^&]+)/.exec(location.hash);
+    if (!m) return null;
+    try {
+      let b = m[1].replace(/-/g, '+').replace(/_/g, '/'); while (b.length % 4) b += '=';
+      const bin = atob(b), bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+      const arr = JSON.parse(new TextDecoder().decode(bytes));
+      return Array.isArray(arr) ? arr.map(String) : null;
+    } catch (e) { return null; }
+  }
+  function fromText() { return ta.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean); }
+
+  // ----- fair random int (no modulo bias) -----
+  function randInt(n) {
+    const lim = Math.floor(0x100000000 / n) * n, buf = new Uint32Array(1);
+    do { crypto.getRandomValues(buf); } while (buf[0] >= lim);
+    return buf[0] % n;
+  }
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = randInt(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  // ----- drawing -----
+  function fit(text, maxW) {
+    let t = text; if (ctx.measureText(t).width <= maxW) return t;
+    while (t.length > 1 && ctx.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+    return t + '…';
+  }
+  function draw() {
+    const W = cv.width, R = W / 2 - 14, n = names.length;
+    ctx.clearRect(0, 0, W, W);
+    ctx.save(); ctx.translate(W / 2, W / 2);
+    ctx.beginPath(); ctx.arc(0, 0, R + 10, 0, Math.PI * 2); ctx.fillStyle = '#f5c542'; ctx.fill();
+    ctx.rotate(theta);
+    if (!n) {
+      ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fillStyle = '#1b1b38'; ctx.fill();
+      ctx.rotate(-theta); ctx.fillStyle = '#9a9ac0'; ctx.font = '600 38px system-ui'; ctx.textAlign = 'center';
+      ctx.fillText('Add names below', 0, 12); ctx.restore(); return;
+    }
+    const s = Math.PI * 2 / n;
+    for (let i = 0; i < n; i++) {
+      const a0 = -Math.PI / 2 + i * s;
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, R, a0, a0 + s); ctx.closePath();
+      // avoid same colour touching (esp. wrap-around)
+      let ci = i % COLORS.length; if (n > 1 && i === n - 1 && ci === 0) ci = 4 % COLORS.length;
+      ctx.fillStyle = COLORS[ci]; ctx.fill();
+      ctx.strokeStyle = 'rgba(11,11,26,.55)'; ctx.lineWidth = n > 60 ? 1 : 3; ctx.stroke();
+      if (n <= 80) {
+        ctx.save(); ctx.rotate(a0 + s / 2); ctx.textAlign = 'right'; ctx.fillStyle = '#10102a';
+        const fs = Math.max(14, Math.min(46, R * s * 0.55)); ctx.font = `700 ${fs}px system-ui, sans-serif`;
+        ctx.fillText(fit(names[i], R * 0.62), R - 26, fs * 0.34); ctx.restore();
+      }
+    }
+    ctx.restore();
+  }
+
+  function refreshCount() {
+    const u = new Set(names).size;
+    document.getElementById('count').textContent = names.length ? `${names.length} entries · ${u} people` : '';
+    document.getElementById('spin').disabled = document.getElementById('hub').disabled = spinning || names.length < 2;
+  }
+  function setNames(arr, keepText) {
+    names = arr; if (!keepText) ta.value = arr.join('\n');
+    refreshCount(); draw();
+  }
+
+  // ----- spin -----
+  const ease = t => 1 - Math.pow(1 - t, 4);
+  function spin() {
+    if (spinning || names.length < 2) return;
+    closeWinner(); spinning = true; refreshCount();
+    const n = names.length, s = Math.PI * 2 / n, w = randInt(n);
+    const jitter = (randInt(1000) / 1000 - 0.5) * 0.8;                // land anywhere inside the slice, not dead centre
+    let target = -((w + 0.5 + jitter) * s);                            // wheel angle that puts slice w under the pointer
+    const turns = 6 + randInt(3);
+    const base = theta - (theta % (Math.PI * 2));
+    target = base + turns * Math.PI * 2 + ((target % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    if (target <= theta + Math.PI * 2 * 5) target += Math.PI * 2;
+    const from = theta, dur = 6200, t0 = performance.now();
+    (function frame(now) {
+      const p = Math.min(1, (now - t0) / dur);
+      theta = from + (target - from) * ease(p); draw();
+      if (p < 1) return requestAnimationFrame(frame);
+      theta = target % (Math.PI * 2); spinning = false; finish(w);
+    })(t0);
+  }
+  function finish(idx) {
+    lastWinner = names[idx];
+    window.__lastIndex = idx;
+    document.getElementById('wname').textContent = lastWinner;
+    document.getElementById('winner').classList.add('show');
+    confetti();
+    if (document.getElementById('removeWin').checked) {
+      names.splice(idx, 1); ta.value = names.join('\n');
+      theta = 0; draw();
+    }
+    refreshCount();
+  }
+  function closeWinner() { document.getElementById('winner').classList.remove('show'); }
+  function confetti() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    for (let i = 0; i < 70; i++) {
+      const c = document.createElement('div'); c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw'; c.style.background = COLORS[i % COLORS.length];
+      c.style.animationDuration = (2.2 + Math.random() * 2.2) + 's'; c.style.animationDelay = (Math.random() * .6) + 's';
+      document.body.appendChild(c); setTimeout(() => c.remove(), 5500);
+    }
+  }
+
+  // ----- wiring -----
+  document.getElementById('spin').onclick = document.getElementById('hub').onclick = spin;
+  document.getElementById('apply').onclick = () => setNames(fromText(), true);
+  document.getElementById('shuffle').onclick = () => setNames(shuffle(fromText()));
+  document.getElementById('clear').onclick = () => setNames([]);
+  document.getElementById('close').onclick = closeWinner;
+  document.getElementById('again').onclick = () => { closeWinner(); spin(); };
+  ta.addEventListener('input', () => { if (!spinning) { names = fromText(); refreshCount(); draw(); } });
+
+  // test hooks
+  window.__wheel = { get names() { return names; }, get theta() { return theta; }, get winner() { return lastWinner; } };
+
+  setNames(fromHash() || []);
+})();
+</script>
+</body>
+</html>
