@@ -630,9 +630,9 @@
   .modal-head { display: flex; justify-content: space-between; align-items: center; }
   .modal-head h2 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.5px; font-weight: 400; }
   .modal-x { background: var(--inset); border: 1px solid var(--line); color: var(--ink); width: 36px; height: 36px; border-radius: 50%; font-size: 16px; cursor: pointer; }
-  .seg { display: flex; gap: 6px; }
+  .seg { display: flex; gap: 6px; flex-wrap: wrap; }
   .seg button:disabled { opacity: 0.4; cursor: default; }
-  .seg button { flex: 1; background: var(--inset); border: 1px solid var(--line); color: var(--ink-dim); border-radius: 8px; padding: 10px 6px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .seg button { flex: 1 1 auto; background: var(--inset); border: 1px solid var(--line); color: var(--ink-dim); border-radius: 8px; padding: 10px 6px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
   .seg button.active { border-color: var(--galaxy); color: var(--galaxy); background: rgba(124,108,240,0.10); }
   .set-label { font-size: 11px; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: -6px; }
   .set-note { font-size: 12px; color: var(--ink-dim); line-height: 1.4; }
@@ -684,6 +684,13 @@
   .link-row input { flex: 1; min-width: 0; background: var(--inset); border: 1px solid var(--line); color: var(--ink); border-radius: 8px; padding: 10px; font-size: 13px; font-family: inherit; }
   .mini-btn { background: var(--inset); border: 1px solid var(--line2); color: var(--ink); border-radius: 8px; padding: 9px 14px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; }
   .mini-btn.gold { background: var(--gold); color: #1a1200; border-color: var(--gold); }
+  .tp-row { display: flex; gap: 6px; }
+  .tp-row select { flex: 1; min-width: 0; background: var(--inset); color: var(--ink); border: 1px solid var(--line2); border-radius: 8px; padding: 10px 8px; font-family: inherit; font-size: 13px; }
+  .tp-chips { display: flex; flex-wrap: wrap; gap: 5px; min-height: 8px; }
+  .tp-chips span { background: var(--inset); border: 1px solid var(--line); border-radius: 100px; padding: 5px 6px 5px 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .tp-chips button { background: none; border: none; color: var(--ink-dim); font-size: 14px; cursor: pointer; padding: 0 4px; line-height: 1; }
+  .tp-input { width: 100%; background: var(--inset); color: var(--ink); border: 1px solid var(--line2); border-radius: 8px; padding: 10px; font-family: inherit; font-size: 13px; }
+  .tp-ok { border-color: var(--have); }
   .trade-card .chips { display: flex; flex-wrap: wrap; gap: 5px; }
   .trade-card .chips span { background: var(--inset); border: 1px solid var(--line); border-radius: 100px; padding: 4px 9px; font-size: 11px; font-weight: 600; }
   .trade-card .tl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 5px; }
@@ -2671,7 +2678,8 @@ function doShareAll() {
 const SITE_UPDATES = [
   { id: "2026-10-17", date: "Oct 17, 2026", title: "New codes", items: [
     "🔑 3 new Lobby Hack Codes: B1GBODYSW3RVE, PR1VAT3J3T and LUHLEAKYZ. Each plays a Yeat song in the lobby (Cosmetics).",
-    "🔍 Lobby Hack Codes now show zeros with a slash (0) so they can't be mistaken for the letter O, with a small legend at the top. Every code also has a Copy button so you can paste it exactly."
+    "🔍 Lobby Hack Codes now show zeros with a slash (0) so they can't be mistaken for the letter O, with a small legend at the top. Every code also has a Copy button so you can paste it exactly.",
+    "📋 You can now post a trade straight from the website: Community → Post a Trade. Pick what you want and what you're offering and it goes to the Discord Trade Board with a Make an Offer button."
   ]},
   { id: "2026-10-15", date: "Oct 15, 2026", title: "New sprites + Quack", items: [
     "🍯 New Season 4 sprites: Honey and One Wish Willow, with all 6 variants each.",
@@ -2800,11 +2808,12 @@ function loadSocialTab() {
   if (socialTab === "privacy" && loggedIn()) loadMe();
 }
 function renderSocial() {
-  const tabs = [["leaderboard", "🏆 Leaderboard"], ["trades", "🔁 Trade Finder"], ["privacy", "🔒 My Privacy"]];
-  const seg = `<div class="seg" style="margin-bottom:12px">${tabs.map(t => `<button type="button" class="${socialTab === t[0] ? "active" : ""}" onclick="setSocialTab('${t[0]}')">${t[1]}</button>`).join("")}</div>`;
+  const tabs = [["leaderboard", "🏆 Leaderboard"], ["trades", "🔁 Trade Finder"], ["post", "📋 Post a Trade"], ["privacy", "🔒 My Privacy"]];
+  const seg = `<div class="seg" style="margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr">${tabs.map(t => `<button type="button" class="${socialTab === t[0] ? "active" : ""}" onclick="setSocialTab('${t[0]}')">${t[1]}</button>`).join("")}</div>`;
   let body = "";
   if (socialTab === "leaderboard") body = renderLeaderboard();
   else if (socialTab === "trades") body = renderTrades();
+  else if (socialTab === "post") body = renderPostTrade();
   else body = renderPrivacy();
   return seg + body;
 }
@@ -2862,6 +2871,10 @@ function chipList(items, max) {
   return shown + (items.length > max ? `<span>+${items.length - max} more</span>` : "");
 }
 function renderTrades() {
+  const body = renderTradesInner();
+  return `<button type="button" class="mini-btn gold" style="width:100%;margin-bottom:10px" onclick="setSocialTab('post')">📋 Post a Trade to the Discord Trade Board</button>` + body;
+}
+function renderTradesInner() {
   if (!loggedIn()) return relinkBox("Trade Finder compares your Season 4 sprites with other players who opted in. Link your Discord account to use it.");
   if (meLoading && !meData) return `<div class="loading">Loading…</div>`;
   if (!meData) return `<div class="filter-empty">${esc(meError || "Couldn't load your settings.")}<br><br><button type="button" class="mini-btn" onclick="loadMe(true)">Try again</button></div>`;
@@ -2881,6 +2894,82 @@ function renderTrades() {
       ${m.you_need_count ? `<div><div class="tl in">📥 They have, you need (${m.you_need_count})</div><div class="chips">${chipList(m.you_need, 12)}</div></div>` : ""}
       ${m.they_need_count ? `<div><div class="tl out">📤 You have, they need (${m.they_need_count})</div><div class="chips">${chipList(m.they_need, 12)}</div></div>` : ""}
     </div>`).join("") + `<div class="set-note" style="text-align:center">The tracker records levels, not spare duplicates — confirm before you trade!</div>`;
+}
+
+// ---------- post a trade (goes to the Discord Trade Board) ----------
+let tpForm = { wantSid: "", wantVar: "", offSid: "", offVar: "", want: [], off: [], notes: "" };
+let tpState = { posting: false, id: null, status: "", url: "", error: "" };
+function tpVariants(sid) {
+  const sp = SEASON4_SPRITES_FORTNITE.find(x => x.id === sid);
+  return sp ? sp.variants : [];
+}
+function tpPick(side, field, val) {
+  tpForm[side + (field === "sid" ? "Sid" : "Var")] = val;
+  if (field === "sid") tpForm[side + "Var"] = "";
+  render();
+}
+function tpAdd(side) {
+  const sid = tpForm[side + "Sid"], v = tpForm[side + "Var"];
+  const list = tpForm[side === "want" ? "want" : "off"];
+  if (!sid || !v) { toast("Pick a sprite and a style first", false); return; }
+  if (list.some(i => i[0] === sid && i[1] === v)) { toast("Already added", false); return; }
+  if (list.length >= 12) { toast("Max 12 per side - post a second trade for more", false); return; }
+  list.push([sid, v]);
+  tpForm[side + "Var"] = "";
+  render();
+}
+function tpRemove(side, idx) { tpForm[side === "want" ? "want" : "off"].splice(idx, 1); render(); }
+function tpText(list) { return list.map(i => "• " + itemLabel(i[0], i[1])).join("\n"); }
+async function tpSubmit() {
+  if (tpState.posting) return;
+  if (!tpForm.want.length || !tpForm.off.length) { toast("Add at least one sprite to Looking For and to Offering", false); return; }
+  tpState = { posting: true, id: null, status: "pending", url: "", error: "" };
+  render();
+  try {
+    const r = await api("/api/trades/post", { method: "POST", body: JSON.stringify({ looking_for: tpText(tpForm.want), offering: tpText(tpForm.off), notes: tpForm.notes }) });
+    tpState.id = r.id;
+    for (let i = 0; i < 20; i++) {
+      await new Promise(res => setTimeout(res, 1500));
+      const st = await api("/api/trades/post/" + r.id);
+      if (st.status !== "pending") { tpState = { posting: false, id: r.id, status: st.status, url: st.url || "", error: st.error || "" }; break; }
+    }
+    if (tpState.posting) tpState = { posting: false, id: r.id, status: "failed", url: "", error: "Still waiting on the Discord bot. Check the Trade Board in a minute." };
+    if (tpState.status === "posted") tpForm = { wantSid: "", wantVar: "", offSid: "", offVar: "", want: [], off: [], notes: "" };
+  } catch (e) {
+    tpState = { posting: false, id: null, status: "failed", url: "", error: e.message || "Couldn't post your trade." };
+  }
+  if (currentPage === "social" && socialTab === "post") render();
+}
+function tpDismiss() { tpState = { posting: false, id: null, status: "", url: "", error: "" }; render(); }
+function tpSide(side, title, emoji) {
+  const sid = tpForm[side + "Sid"], v = tpForm[side + "Var"];
+  const list = tpForm[side === "want" ? "want" : "off"];
+  const spOpts = `<option value="">Sprite…</option>` + SEASON4_SPRITES_FORTNITE.map(x => `<option value="${x.id}" ${x.id === sid ? "selected" : ""}>${esc(x.name)}</option>`).join("");
+  const vOpts = `<option value="">Style…</option>` + tpVariants(sid).map(x => `<option value="${x}" ${x === v ? "selected" : ""}>${esc(variantLabel(x))}</option>`).join("");
+  const chips = list.map((i, idx) => `<span>${esc(itemLabel(i[0], i[1]))}<button type="button" aria-label="Remove" onclick="tpRemove('${side}', ${idx})">✕</button></span>`).join("");
+  return `<div class="set-label">${emoji} ${title}</div>
+    <div class="tp-row"><select onchange="tpPick('${side}','sid',this.value)">${spOpts}</select>
+      <select onchange="tpPick('${side}','var',this.value)" ${sid ? "" : "disabled"}>${vOpts}</select>
+      <button type="button" class="mini-btn" onclick="tpAdd('${side}')">Add</button></div>
+    <div class="tp-chips">${chips || '<span class="set-note" style="border:none;background:none;padding:0">Nothing added yet</span>'}</div>`;
+}
+function renderPostTrade() {
+  if (!loggedIn()) return relinkBox("Post your trade straight to the Discord Trade Board from here. Link your Discord account so people know who to message.");
+  let status = "";
+  if (tpState.status === "posted") status = `<div class="panel-box tp-ok"><h3>✅ Your trade is live!</h3><p>It's on the Discord Trade Board now. People can tap <b>Make an Offer</b> and you'll get pinged in a thread.</p>
+      ${tpState.url ? `<a class="mini-btn gold" href="${esc(tpState.url)}" target="_blank" rel="noopener">View it in Discord</a>` : ""}
+      <button type="button" class="mini-btn" onclick="tpDismiss()">Post another</button></div>`;
+  else if (tpState.status === "failed") status = `<div class="panel-box"><h3>⚠️ Couldn't post it</h3><p>${esc(tpState.error)}</p><button type="button" class="mini-btn" onclick="tpDismiss()">Back to my trade</button></div>`;
+  if (tpState.status === "posted") return status;
+  if (tpState.status === "failed") return status;
+  return `<div class="panel-box"><h3>📋 Post a Trade</h3>
+      <p>Pick what you want and what you're offering. It posts to the Trade Board in The Reboot Van Discord with a <b>Make an Offer</b> button. Season 4 sprites only.</p>
+      ${tpSide("want", "I'm looking for", "🔎")}
+      ${tpSide("off", "I'm offering", "🎁")}
+      <div class="set-label">📝 Note (optional)</div>
+      <input class="tp-input" maxlength="200" placeholder="Platform, when you're online, etc." value="${esc(tpForm.notes)}" oninput="tpForm.notes=this.value">
+      <button type="button" class="big-btn" ${tpState.posting ? "disabled" : ""} onclick="tpSubmit()">${tpState.posting ? "Posting…" : "Post Trade"}</button>
+      <div class="set-note">You must be in the Discord server. The tracker records levels, not spare duplicates, so double check what you actually have before posting.</div></div>`;
 }
 
 // ---------- privacy ----------
