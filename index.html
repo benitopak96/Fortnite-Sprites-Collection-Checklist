@@ -526,11 +526,12 @@
   }
   .code-row.claimed .code-check { border-color: var(--have); }
   .code-info { display: flex; flex-direction: column; gap: 1px; }
-  .code-text { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; font-variant-numeric: slashed-zero; font-size: 14px; font-weight: 700; letter-spacing: 0.6px; color: var(--ink); word-break: break-all; }
-  .code-text .cz, .code-text .c1 { color: var(--gold); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
-  .code-text .co, .code-text .ci { color: var(--galaxy); }
-  .code-hint { font-size: 10px; color: var(--gold); letter-spacing: 0.2px; margin-top: 1px; }
-  .code-hint b { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-variant-numeric: slashed-zero; }
+  .code-text { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; font-size: 14px; font-weight: 700; letter-spacing: 0.6px; color: var(--ink); word-break: break-all; }
+  .cz { position: relative; display: inline-block; }
+  .cz::after { content: ""; position: absolute; left: 12%; right: 12%; top: 50%; border-top: 2px solid currentColor; transform: rotate(-60deg); }
+  .code-legend { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; padding: 4px 10px; border: 1px dashed var(--line); border-radius: 8px; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; color: var(--ink); }
+  .code-copy { margin-left: auto; flex-shrink: 0; font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 5px 9px; cursor: pointer; }
+  .code-copy.done { color: var(--have); border-color: var(--have); }
   .code-row.claimed .code-text { color: var(--have); }
   .code-reward { font-size: 11px; color: var(--ink-dim); }
 
@@ -1445,6 +1446,21 @@ function maxEntireRow(spriteId, activeVariants) {
   render();
 }
 
+function copyCode(ev, code, btn) {
+  ev.stopPropagation();
+  code = code.toUpperCase();
+  const done = () => { btn.textContent = "Copied!"; btn.classList.add("done"); setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1500); };
+  const fallback = () => {
+    const t = document.createElement("textarea");
+    t.value = code; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select(); t.setSelectionRange(0, code.length);
+    try { document.execCommand("copy"); done(); } catch (e) {}
+    document.body.removeChild(t);
+  };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(code).then(done, fallback);
+  else fallback();
+}
+
 function toggleCode(code) {
   pushUndo(`Code ${code}`, false);
   state.codes[code] = !state.codes[code];
@@ -1844,20 +1860,8 @@ function renderChecklist() {
   let filterVariantList = [];
 
   if (showCodes) {
-    // Make look-alike characters obvious: 0 (zero) vs O (letter), 1 (one) vs I (capital i).
-    const codeHtml = (code) => code.replace(/[01OI]/g, ch => {
-      const cls = { "0": "cz", "1": "c1", "O": "co", "I": "ci" }[ch];
-      return `<span class="${cls}">${ch}</span>`;
-    });
-    const codeHint = (code) => {
-      if (!(/[01]/.test(code) || (/\d/.test(code) && /[OI]/.test(code)))) return "";
-      const parts = [];
-      if (code.includes("0")) parts.push("<b>0</b> = zero");
-      if (code.includes("O")) parts.push("<b>O</b> = letter O");
-      if (code.includes("1")) parts.push("<b>1</b> = number one");
-      if (code.includes("I")) parts.push("<b>I</b> = capital i");
-      return `<div class="code-hint">${parts.join(" · ")}</div>`;
-    };
+    // Zero gets a slash so it can't be mistaken for the letter O. Codes are shown in capitals.
+    const codeHtml = (code) => code.toUpperCase().replace(/0/g, '<span class="cz">0</span>');
     const buildCodeCard = (title, items) => {
       const rows = items.map(c => {
         const claimed = !!state.codes[c.code];
@@ -1865,9 +1869,9 @@ function renderChecklist() {
             <div class="code-check">${claimed ? "✓" : ""}</div>
             <div class="code-info">
               <div class="code-text">${codeHtml(c.code)}${c.expired ? '<span class="code-expired-tag">Expired</span>' : ''}</div>
-              ${codeHint(c.code)}
               <div class="code-reward">${c.reward}</div>
             </div>
+            <button class="code-copy" onclick="copyCode(event,'${c.code}',this)">Copy</button>
           </div>`;
       }).join("");
       return `<div class="sprite-card">
@@ -2022,7 +2026,7 @@ function renderChecklist() {
     </div>`;
 
   const eyebrowText = isS4 ? "Fortnite · Chapter 7 Season 4: Override" : "Fortnite · Chapter 7 Season 3";
-  const hintText = showCodes ? "Tap a code to mark it claimed." : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5! Mis-tap? Hit ↶ to undo. Use ▲ ▼ to jump between sprites.";
+  const hintText = showCodes ? 'Tap a code to mark it claimed.<br><span class="code-legend"><span class="cz">0</span> = zero (slashed) &nbsp;·&nbsp; O = letter O</span>' : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5! Mis-tap? Hit ↶ to undo. Use ▲ ▼ to jump between sprites.";
 
   return `
     <div class="discord-panel ${(getDiscordUser() && (!getDiscordUser().token || authProblem)) ? 'warn' : ''}" id="discordPanel">${discordUI}</div>
@@ -2667,7 +2671,7 @@ function doShareAll() {
 const SITE_UPDATES = [
   { id: "2026-10-17", date: "Oct 17, 2026", title: "New codes", items: [
     "🔑 3 new Lobby Hack Codes: B1GBODYSW3RVE, PR1VAT3J3T and LUHLEAKYZ. Each plays a Yeat song in the lobby (Cosmetics).",
-    "🔍 Codes with look-alike characters now show a clear note: 0 (zero) vs O (letter), 1 (one) vs I (capital i). Zeros have a slash and are highlighted."
+    "🔍 Lobby Hack Codes now show zeros with a slash (0) so they can't be mistaken for the letter O, with a small legend at the top. Every code also has a Copy button so you can paste it exactly."
   ]},
   { id: "2026-10-15", date: "Oct 15, 2026", title: "New sprites + Quack", items: [
     "🍯 New Season 4 sprites: Honey and One Wish Willow, with all 6 variants each.",
