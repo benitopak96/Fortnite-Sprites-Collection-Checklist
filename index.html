@@ -526,7 +526,11 @@
   }
   .code-row.claimed .code-check { border-color: var(--have); }
   .code-info { display: flex; flex-direction: column; gap: 1px; }
-  .code-text { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 0.5px; color: var(--ink); }
+  .code-text { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; font-variant-numeric: slashed-zero; font-size: 14px; font-weight: 700; letter-spacing: 0.6px; color: var(--ink); word-break: break-all; }
+  .code-text .cz, .code-text .c1 { color: var(--gold); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  .code-text .co, .code-text .ci { color: var(--galaxy); }
+  .code-hint { font-size: 10px; color: var(--gold); letter-spacing: 0.2px; margin-top: 1px; }
+  .code-hint b { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-variant-numeric: slashed-zero; }
   .code-row.claimed .code-text { color: var(--have); }
   .code-reward { font-size: 11px; color: var(--ink-dim); }
 
@@ -1840,13 +1844,28 @@ function renderChecklist() {
   let filterVariantList = [];
 
   if (showCodes) {
+    // Make look-alike characters obvious: 0 (zero) vs O (letter), 1 (one) vs I (capital i).
+    const codeHtml = (code) => code.replace(/[01OI]/g, ch => {
+      const cls = { "0": "cz", "1": "c1", "O": "co", "I": "ci" }[ch];
+      return `<span class="${cls}">${ch}</span>`;
+    });
+    const codeHint = (code) => {
+      if (!(/[01]/.test(code) || (/\d/.test(code) && /[OI]/.test(code)))) return "";
+      const parts = [];
+      if (code.includes("0")) parts.push("<b>0</b> = zero");
+      if (code.includes("O")) parts.push("<b>O</b> = letter O");
+      if (code.includes("1")) parts.push("<b>1</b> = number one");
+      if (code.includes("I")) parts.push("<b>I</b> = capital i");
+      return `<div class="code-hint">${parts.join(" · ")}</div>`;
+    };
     const buildCodeCard = (title, items) => {
       const rows = items.map(c => {
         const claimed = !!state.codes[c.code];
         return `<div class="code-row ${claimed ? "claimed" : ""} ${c.expired ? "expired" : ""}" onclick="toggleCode('${c.code}')">
             <div class="code-check">${claimed ? "✓" : ""}</div>
             <div class="code-info">
-              <div class="code-text">${c.code}${c.expired ? '<span class="code-expired-tag">Expired</span>' : ''}</div>
+              <div class="code-text">${codeHtml(c.code)}${c.expired ? '<span class="code-expired-tag">Expired</span>' : ''}</div>
+              ${codeHint(c.code)}
               <div class="code-reward">${c.reward}</div>
             </div>
           </div>`;
@@ -2647,7 +2666,8 @@ function doShareAll() {
 
 const SITE_UPDATES = [
   { id: "2026-10-17", date: "Oct 17, 2026", title: "New codes", items: [
-    "🔑 3 new Lobby Hack Codes: B1GBODYSW3RVE, PR1VAT3J3T and LUHLEAKYZ. Each plays a Yeat song in the lobby (Cosmetics)."
+    "🔑 3 new Lobby Hack Codes: B1GBODYSW3RVE, PR1VAT3J3T and LUHLEAKYZ. Each plays a Yeat song in the lobby (Cosmetics).",
+    "🔍 Codes with look-alike characters now show a clear note: 0 (zero) vs O (letter), 1 (one) vs I (capital i). Zeros have a slash and are highlighted."
   ]},
   { id: "2026-10-15", date: "Oct 15, 2026", title: "New sprites + Quack", items: [
     "🍯 New Season 4 sprites: Honey and One Wish Willow, with all 6 variants each.",
