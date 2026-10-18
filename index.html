@@ -691,6 +691,7 @@
   .tp-chips button { background: none; border: none; color: var(--ink-dim); font-size: 14px; cursor: pointer; padding: 0 4px; line-height: 1; }
   .tp-input { width: 100%; background: var(--inset); color: var(--ink); border: 1px solid var(--line2); border-radius: 8px; padding: 10px; font-family: inherit; font-size: 13px; }
   .tp-ok { border-color: var(--have); }
+  .tp-text { font-size: 13px; line-height: 1.5; white-space: pre-line; word-break: break-word; }
   .trade-card .chips { display: flex; flex-wrap: wrap; gap: 5px; }
   .trade-card .chips span { background: var(--inset); border: 1px solid var(--line); border-radius: 100px; padding: 4px 9px; font-size: 11px; font-weight: 600; }
   .trade-card .tl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 5px; }
@@ -2679,7 +2680,7 @@ const SITE_UPDATES = [
   { id: "2026-10-17", date: "Oct 17, 2026", title: "New codes", items: [
     "🔑 3 new Lobby Hack Codes: B1GBODYSW3RVE, PR1VAT3J3T and LUHLEAKYZ. Each plays a Yeat song in the lobby (Cosmetics).",
     "🔍 Lobby Hack Codes now show zeros with a slash (0) so they can't be mistaken for the letter O, with a small legend at the top. Every code also has a Copy button so you can paste it exactly.",
-    "📋 You can now post a trade straight from the website: Community → Post a Trade. Pick what you want and what you're offering and it goes to the Discord Trade Board with a Make an Offer button."
+    "📋 You can now post a trade straight from the website: Community → Post a Trade. Pick what you want and what you're offering and it goes to the Discord Trade Board with a Make an Offer button. The same tab now lists everyone's open trades so you can browse them without opening Discord."
   ]},
   { id: "2026-10-15", date: "Oct 15, 2026", title: "New sprites + Quack", items: [
     "🍯 New Season 4 sprites: Honey and One Wish Willow, with all 6 variants each.",
@@ -2806,9 +2807,10 @@ function loadSocialTab() {
   if (socialTab === "leaderboard") loadLeaderboard();
   if (socialTab === "trades" && loggedIn()) { if (!meData) loadMe(); else if (meData.settings.show_trades) loadTrades(); }
   if (socialTab === "privacy" && loggedIn()) loadMe();
+  if (socialTab === "post" && loggedIn() && tpView === "board") loadBoard();
 }
 function renderSocial() {
-  const tabs = [["leaderboard", "🏆 Leaderboard"], ["trades", "🔁 Trade Finder"], ["post", "📋 Post a Trade"], ["privacy", "🔒 My Privacy"]];
+  const tabs = [["leaderboard", "🏆 Leaderboard"], ["trades", "🔁 Trade Finder"], ["post", "📋 Trade Board"], ["privacy", "🔒 My Privacy"]];
   const seg = `<div class="seg" style="margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr">${tabs.map(t => `<button type="button" class="${socialTab === t[0] ? "active" : ""}" onclick="setSocialTab('${t[0]}')">${t[1]}</button>`).join("")}</div>`;
   let body = "";
   if (socialTab === "leaderboard") body = renderLeaderboard();
@@ -2872,7 +2874,7 @@ function chipList(items, max) {
 }
 function renderTrades() {
   const body = renderTradesInner();
-  return `<button type="button" class="mini-btn gold" style="width:100%;margin-bottom:10px" onclick="setSocialTab('post')">📋 Post a Trade to the Discord Trade Board</button>` + body;
+  return `<button type="button" class="mini-btn gold" style="width:100%;margin-bottom:10px" onclick="setSocialTab('post')">📋 Trade Board: browse &amp; post trades</button>` + body;
 }
 function renderTradesInner() {
   if (!loggedIn()) return relinkBox("Trade Finder compares your Season 4 sprites with other players who opted in. Link your Discord account to use it.");
@@ -2898,6 +2900,7 @@ function renderTradesInner() {
 
 // ---------- post a trade (goes to the Discord Trade Board) ----------
 let tpForm = { wantSid: "", wantVar: "", offSid: "", offVar: "", want: [], off: [], notes: "" };
+let tpView = "board", boardData = null, boardLoading = false, boardError = "";
 let tpState = { posting: false, id: null, status: "", url: "", error: "" };
 function tpVariants(sid) {
   const sp = SEASON4_SPRITES_FORTNITE.find(x => x.id === sid);
@@ -2940,7 +2943,7 @@ async function tpSubmit() {
   }
   if (currentPage === "social" && socialTab === "post") render();
 }
-function tpDismiss() { tpState = { posting: false, id: null, status: "", url: "", error: "" }; render(); }
+function tpDismiss(silent) { tpState = { posting: false, id: null, status: "", url: "", error: "" }; if (!silent) render(); }
 function tpSide(side, title, emoji) {
   const sid = tpForm[side + "Sid"], v = tpForm[side + "Var"];
   const list = tpForm[side === "want" ? "want" : "off"];
@@ -2953,11 +2956,50 @@ function tpSide(side, title, emoji) {
       <button type="button" class="mini-btn" onclick="tpAdd('${side}')">Add</button></div>
     <div class="tp-chips">${chips || '<span class="set-note" style="border:none;background:none;padding:0">Nothing added yet</span>'}</div>`;
 }
+async function loadBoard() {
+  if (boardLoading) return;
+  boardLoading = true; boardError = "";
+  if (currentPage === "social" && socialTab === "post") render();
+  try { boardData = await api("/api/trades/board"); }
+  catch (e) { boardError = e.message || "Couldn't load the Trade Board."; if (e.status === 401) markAuthProblem(true); }
+  boardLoading = false;
+  if (currentPage === "social" && socialTab === "post") render();
+}
+function tpShowForm() { tpView = "form"; render(); }
+function tpShowBoard() { tpView = "board"; tpDismiss(true); boardData = null; render(); loadBoard(); }
+function timeAgo(ts) {
+  const m = Math.max(1, Math.floor((Date.now() / 1000 - ts) / 60));
+  if (m < 60) return m + "m ago";
+  const h = Math.floor(m / 60); if (h < 24) return h + "h ago";
+  const d = Math.floor(h / 24); return d + "d ago";
+}
+function renderBoard() {
+  const top = `<button type="button" class="big-btn" onclick="tpShowForm()">＋ Post a Trade</button>`;
+  let list;
+  if (boardLoading && !boardData) list = `<div class="loading">Loading trades…</div>`;
+  else if (boardError) list = `<div class="filter-empty">${esc(boardError)}<br><br><button type="button" class="mini-btn" onclick="loadBoard()">Try again</button></div>`;
+  else if (!boardData || !boardData.trades.length) list = `<div class="filter-empty">No open trades right now.<br>Be the first, tap <b>Post a Trade</b> above.</div>`;
+  else list = boardData.trades.map(t => `<div class="panel-box trade-card">
+      <div class="tc-head">${avatarImg(t.avatar_url, "lb-av")}<div class="lb-main"><div class="lb-name">${esc(t.name)}${t.is_mine ? " (you)" : ""}</div><div class="lb-sub">${timeAgo(t.created_at)}</div></div>
+        ${t.url ? `<a class="mini-btn gold" href="${esc(t.url)}" target="_blank" rel="noopener">${t.is_mine ? "View" : "💬 Make an Offer"}</a>` : ""}</div>
+      <div><div class="tl in">🔎 Looking for</div><div class="tp-text">${esc(t.looking_for)}</div></div>
+      <div><div class="tl out">🎁 Offering</div><div class="tp-text">${esc(t.offering)}</div></div>
+      ${t.notes ? `<div class="set-note">📝 ${esc(t.notes)}</div>` : ""}
+    </div>`).join("");
+  const head = boardData ? `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0 8px"><div class="set-note">Open trades · last 14 days</div><button type="button" class="mini-btn" onclick="loadBoard()">↻ Refresh</button></div>` : "";
+  return top + head + list + `<div class="set-note" style="text-align:center;margin-top:6px">Tap <b>Make an Offer</b> to open the post in Discord and press its Make an Offer button.</div>`;
+}
 function renderPostTrade() {
+  if (!loggedIn()) return relinkBox("Browse and post trades on the Discord Trade Board. Link your Discord account so people know who to message.");
+  if (tpView === "board") return renderBoard();
+  return `<button type="button" class="mini-btn" style="width:100%;margin-bottom:10px" onclick="tpShowBoard()">← Back to the Trade Board</button>` + renderPostTradeForm();
+}
+function renderPostTradeForm() {
   if (!loggedIn()) return relinkBox("Post your trade straight to the Discord Trade Board from here. Link your Discord account so people know who to message.");
   let status = "";
-  if (tpState.status === "posted") status = `<div class="panel-box tp-ok"><h3>✅ Your trade is live!</h3><p>It's on the Discord Trade Board now. People can tap <b>Make an Offer</b> and you'll get pinged in a thread.</p>
+  if (tpState.status === "posted") status = `<div class="panel-box tp-ok"><h3>✅ Your trade is live!</h3><p>It's on the Trade Board now (Discord and here). People can tap <b>Make an Offer</b> and you'll get pinged in a thread.</p>
       ${tpState.url ? `<a class="mini-btn gold" href="${esc(tpState.url)}" target="_blank" rel="noopener">View it in Discord</a>` : ""}
+      <button type="button" class="mini-btn" onclick="tpShowBoard()">See the Trade Board</button>
       <button type="button" class="mini-btn" onclick="tpDismiss()">Post another</button></div>`;
   else if (tpState.status === "failed") status = `<div class="panel-box"><h3>⚠️ Couldn't post it</h3><p>${esc(tpState.error)}</p><button type="button" class="mini-btn" onclick="tpDismiss()">Back to my trade</button></div>`;
   if (tpState.status === "posted") return status;
