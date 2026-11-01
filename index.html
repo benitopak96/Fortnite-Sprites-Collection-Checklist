@@ -2838,7 +2838,7 @@ if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
 
 // ================= BATCH 2: COMMUNITY (profiles, leaderboard, trade finder) =================
 let socialTab = "leaderboard";
-let lbSeason = "s4", lbData = null, lbLoading = false, lbError = "";
+let lbSeason = "s5", lbData = null, lbLoading = false, lbError = "";
 let tradeData = null, tradeLoading = false, tradeError = "";
 let meData = null, meLoading = false, meError = "", meSaving = false;
 let profileView = { id: null, data: null, loading: false, error: "" };
@@ -2915,6 +2915,7 @@ function lbRow(e) {
 }
 function renderLeaderboard() {
   const seg = `<div class="seg" style="margin-bottom:12px">
+    <button type="button" class="${lbSeason === "s5" ? "active" : ""}" onclick="setLbSeason('s5')">Season 5</button>
     <button type="button" class="${lbSeason === "s4" ? "active" : ""}" onclick="setLbSeason('s4')">Season 4</button>
     <button type="button" class="${lbSeason === "s3" ? "active" : ""}" onclick="setLbSeason('s3')">Season 3</button></div>`;
   let body;
@@ -2944,19 +2945,19 @@ function chipList(items, max) {
   return shown + (items.length > max ? `<span>+${items.length - max} more</span>` : "");
 }
 function renderTradesInner() {
-  if (!loggedIn()) return relinkBox("Trade Finder compares your Season 4 sprites with other players who opted in. Link your Discord account to use it.");
+  if (!loggedIn()) return relinkBox("Trade Finder compares your Season 5 sprites with other players who opted in. Link your Discord account to use it.");
   if (meLoading && !meData) return `<div class="loading">Loading…</div>`;
   if (!meData) return `<div class="filter-empty">${esc(meError || "Couldn't load your settings.")}<br><br><button type="button" class="mini-btn" onclick="loadMe(true)">Try again</button></div>`;
   if (!meData.settings.show_trades) {
     return `<div class="panel-box"><h3>🔁 Trade Finder</h3>
-      <p>See which players have Season 4 sprites you still need — and who needs sprites you've started. Turning it on also lets other opted-in players see your matches and message you on Discord.</p>
+      <p>See which players have Season 5 sprites you still need — and who needs sprites you've started. Turning it on also lets other opted-in players see your matches and message you on Discord.</p>
       <p>Matches use the same rules as the bot's <b>Find trades with…</b>: you need what you're at level 0 on and they've started; they need what they're at level 0 on and you've started.</p>
       <button type="button" class="big-btn" onclick="setPrivacy('show_trades', true, true)">Turn on Trade Finder</button></div>`;
   }
   if (tradeLoading) return `<div class="loading">Finding matches…</div>`;
   if (tradeError) return `<div class="filter-empty">${esc(tradeError)}<br><br><button type="button" class="mini-btn" onclick="loadTrades()">Try again</button></div>`;
   if (!tradeData || !tradeData.matches.length) return `<div class="filter-empty">No matches yet. ${tradeData ? tradeData.players : 0} other player(s) have Trade Finder on.<br>Check back as more people join.</div>`;
-  const head = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="set-note">Season 4 · your selected sheet</div><button type="button" class="mini-btn" onclick="loadTrades()">↻ Refresh</button></div>`;
+  const head = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="set-note">Season 5 · your selected sheet</div><button type="button" class="mini-btn" onclick="loadTrades()">↻ Refresh</button></div>`;
   return head + tradeData.matches.map(m => `<div class="panel-box trade-card">
       <div class="tc-head">${avatarImg(m.avatar_url, "lb-av")}<div class="lb-main"><div class="lb-name">${esc(m.username || m.epic_username || "Player")}</div><div class="lb-sub">${m.epic_username && m.username ? "Epic: " + esc(m.epic_username) : "&nbsp;"}</div></div>
         <a class="mini-btn gold" href="https://discord.com/users/${esc(m.user_id)}" target="_blank" rel="noopener">Message</a></div>
@@ -2969,14 +2970,14 @@ function renderTradesInner() {
 let tpForm = { wantSid: "", wantVar: "", offSid: "", offVar: "", want: [], off: [], notes: "" };
 let tpView = "board", boardData = null, boardLoading = false, boardError = "";
 let tpState = { posting: false, id: null, status: "", url: "", error: "" };
-// Sprite picker values look like "s4:sonic4" or "s3:water". Looking For = Season 4 only; Offering = any sprite from either season.
+// Sprite picker values look like "s4:sonic4" or "s3:water". Trading is Season 5 only.
 function tpParse(key) { const p = String(key || "").split(":"); return { season: p[0], id: p.slice(1).join(":") }; }
 function tpVariants(key) {
   const k = tpParse(key);
-  const sp = (k.season === "s3" ? SPRITES_FORTNITE : SEASON4_SPRITES_FORTNITE).find(x => x.id === k.id);
+  const sp = (k.season === "s3" ? SPRITES_FORTNITE : k.season === "s5" ? SEASON5_SPRITES : SEASON4_SPRITES_FORTNITE).find(x => x.id === k.id);
   return sp ? sp.variants : [];
 }
-function tpLabel(i) { return itemLabel(i[0], i[1]) + (i[2] === "s3" ? " (S3)" : ""); }
+function tpLabel(i) { return itemLabel(i[0], i[1]) + (i[2] === "s3" ? " (S3)" : i[2] === "s5" ? " (S5)" : ""); }
 function tpPick(side, field, val) {
   tpForm[side + (field === "sid" ? "Sid" : "Var")] = val;
   if (field === "sid") tpForm[side + "Var"] = "";
@@ -3020,10 +3021,10 @@ function tpSide(side, title, emoji) {
   const sid = tpForm[side + "Sid"], v = tpForm[side + "Var"];
   const list = tpForm[side === "want" ? "want" : "off"];
   const opt = (season, x) => { const val = season + ":" + x.id; return `<option value="${val}" ${val === sid ? "selected" : ""}>${esc(x.name)}</option>`; };
-  const s4Opts = SEASON4_SPRITES_FORTNITE.map(x => opt("s4", x)).join("");
+  const s5Opts = SEASON5_SPRITES.map(x => opt("s5", x)).join("");
   const spOpts = `<option value="">Sprite…</option>` + (side === "off"
-    ? `<optgroup label="Season 4">${s4Opts}</optgroup><optgroup label="Season 3">${SPRITES_FORTNITE.map(x => opt("s3", x)).join("")}</optgroup>`
-    : s4Opts);
+    ? s5Opts
+    : s5Opts);
   const vOpts = `<option value="">Style…</option>` + tpVariants(sid).map(x => `<option value="${x}" ${x === v ? "selected" : ""}>${esc(variantLabel(x))}</option>`).join("");
   const chips = list.map((i, idx) => `<span>${esc(tpLabel(i))}<button type="button" aria-label="Remove" onclick="tpRemove('${side}', ${idx})">✕</button></span>`).join("");
   return `<div class="set-label">${emoji} ${title}</div>
@@ -3088,7 +3089,7 @@ function renderPostTradeForm() {
   if (tpState.status === "posted") return status;
   if (tpState.status === "failed") return status;
   return `<div class="panel-box"><h3>📋 Post a Trade</h3>
-      <p>Pick what you want (Season 4) and what you're offering (any sprite, any season). It posts to the Trade Board in The Reboot Van Discord with a <b>Make an Offer</b> button.</p>
+      <p>Pick what you want and what you're offering (Season 5 sprites only). It posts to the Trade Board in The Reboot Van Discord with a <b>Make an Offer</b> button.</p>
       ${tpSide("want", "I'm looking for", "🔎")}
       ${tpSide("off", "I'm offering", "🎁")}
       <div class="set-label">📝 Note (optional)</div>
@@ -3151,7 +3152,7 @@ function renderPrivacy() {
       <p>Everything is <b>off</b> until you turn it on, and only you can change your checklist. Turn a switch off any time and it disappears right away.</p>
       <div class="opt-row"><div><div class="ot">Public profile</div><div class="od">Anyone with your link can see your Discord name, avatar, Epic username and sprite levels. Lobby codes stay private.</div></div>${sw("is_public")}</div>
       <div class="opt-row"><div><div class="ot">Leaderboard</div><div class="od">Shows your name, avatar and progress % in the rankings. Your name only links to a profile if the public profile is on.</div></div>${sw("show_leaderboard")}</div>
-      <div class="opt-row"><div><div class="ot">Trade Finder</div><div class="od">Lets other opted-in players see your Season 4 trade matches and message you on Discord.</div></div>${sw("show_trades")}</div>
+      <div class="opt-row"><div><div class="ot">Trade Finder</div><div class="od">Lets other opted-in players see your Season 5 trade matches and message you on Discord.</div></div>${sw("show_trades")}</div>
     </div>
     <div class="panel-box"><h3>📋 Which sheet?</h3>
       <p>If you keep more than one sheet, pick the one used for your profile, ranking and trades.</p>
@@ -3186,9 +3187,10 @@ function renderProfile() {
   const back = `<button type="button" class="mini-btn" style="margin-bottom:12px" onclick="leaveProfile()">← Back</button>`;
   if (profileView.loading || (!profileView.data && !profileView.error)) return back + `<div class="loading">Loading profile…</div>`;
   if (profileView.error) return back + `<div class="filter-empty">🔒 ${esc(profileView.error)}</div>`;
-  const p = profileView.data, s4 = p.stats.s4, s3 = p.stats.s3;
-  const inv = p.inventoryS4 || {};
-  const list = SEASON4_SPRITES_FORTNITE.filter(sp => inv[sp.id]);
+  const p = profileView.data, s3 = p.stats.s3;
+  const s4 = p.stats.s5 || { pct: 0, maxed: 0, styles: 0, sprites_done: 0, sprites: 0 };
+  const inv = p.inventoryS5 || {};
+  const list = SEASON5_SPRITES.filter(sp => inv[sp.id]);
   const cards = list.map(sp => {
     const isSingle = sp.variants.length === 1;
     const cells = sp.variants.map(v => {
@@ -3196,7 +3198,7 @@ function renderProfile() {
       let cls = "", label = isSingle ? "✕ NEED" : v;
       if (lvl > 0) { cls = "have " + v; label = isSingle ? "LVL " + lvl : v.toUpperCase() + " L" + lvl; }
       if (lvl === 5) { cls = "max-lvl " + v; label = isSingle ? "MAX" : v.toUpperCase() + " MAX"; }
-      const img = iconPath(sp.id, v, "s4");
+      const img = iconPath(sp.id, v, "s5");
       return `<div class="toggle ${cls}"><img class="variant-icon" src="${img}" onerror="this.style.opacity='0.15';" alt=""><div class="toggle-label">${esc(label)}</div></div>`;
     }).join("");
     const rarity = sp.rarity ? `<div class="sprite-rarity rarity-${sp.rarity.toLowerCase()}">${esc(sp.rarity)}</div>` : "";
@@ -3207,11 +3209,11 @@ function renderProfile() {
       <div class="prof-head">${avatarImg(p.avatar_url, "")}<div style="min-width:0"><div class="pn">${esc(p.username || p.epic_username || "Player")}</div>
         <div class="ps">${p.epic_username ? "Epic: " + esc(p.epic_username) : "Fortnite sprite collector"}</div></div><div class="pp">${Math.round(s4.pct)}%</div></div>
       ${bar(s4.pct)}
-      <div class="dash-grid">${box(s4.maxed + "/" + s4.styles, "Season 4 styles maxed")}${box(s4.sprites_done + "/" + s4.sprites, "Sprites complete")}${box(Math.round(s3.pct) + "%", "Season 3 progress")}${box(p.codes_claimed, "Lobby codes claimed")}</div>
+      <div class="dash-grid">${box(s4.maxed + "/" + s4.styles, "Season 5 styles maxed")}${box(s4.sprites_done + "/" + s4.sprites, "Sprites complete")}${box(Math.round(s3.pct) + "%", "Season 3 progress")}${box(p.codes_claimed, "Lobby codes claimed")}</div>
       <div class="link-row"><button type="button" class="mini-btn" style="flex:1" onclick="shareProfileLink()">🔗 Share this profile</button>${p.show_trades ? `<a class="mini-btn gold" style="flex:1" href="https://discord.com/users/${esc(p.user_id)}" target="_blank" rel="noopener">💬 Message on Discord</a>` : ""}</div>
     </div>
-    <div class="news-head">Season 4 collection</div>
-    <div class="sprites-grid ro">${cards || '<div class="filter-empty">No Season 4 data synced yet.</div>'}</div>
+    <div class="news-head">Season 5 collection</div>
+    <div class="sprites-grid ro">${cards || '<div class="filter-empty">No Season 5 data synced yet.</div>'}</div>
     <div class="set-note" style="text-align:center;margin:10px 0">Read-only · updates whenever this player syncs</div>`;
 }
 async function shareProfileLink() {
