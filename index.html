@@ -29,6 +29,7 @@
     --cheat: #39e678;
     --loot: #ff9f43;
     --bounty: #ff2f6e;
+    --fortune: #14b8a6;
     --have: #2ee6a6;
     --need: #ff5566;
     --ink: #eef0f6;
@@ -476,6 +477,8 @@
   .toggle.have.pollo { border-color: rgba(224,171,245,0.3); background: rgba(224,171,245,0.04); }
   .toggle.have.cheatmaster { border-color: rgba(57,230,120,0.3); background: rgba(57,230,120,0.04); }
   .toggle.have.loothacker { border-color: rgba(255,159,67,0.3); background: rgba(255,159,67,0.04); }
+  .toggle.have.fortune { border-color: rgba(20,184,166,0.3); background: rgba(20,184,166,0.04); }
+  .toggle.max-lvl.fortune { border-color: rgba(20,184,166,0.9); background: rgba(20,184,166,0.14); }
   .toggle.have.bountyhacker { border-color: rgba(255,47,110,0.3); background: rgba(255,47,110,0.04); }
   .toggle.have.bountyhunter { border-color: rgba(255,47,110,0.3); background: rgba(255,47,110,0.04); }
   .toggle.have.trickortreat { border-color: rgba(255,140,0,0.3); background: rgba(255,140,0,0.04); }
@@ -846,6 +849,22 @@ const SEASON4_SPRITES_FORTNITE = [
   { id: "onewishwillow4", name: "One Wish Willow", variants: ["normal","gold","cheatmaster","loothacker","bountyhunter","trickortreat"] }
 ];
 
+// ============ SEASON 5: TREASURE HUNTERS ============
+const SEASON5_SPRITES = [
+  { id: "halfpeeld5", name: "Halfpeel'd", variants: ["normal","fortune"] },
+  { id: "repete5", name: "Re-Pete", variants: ["normal","fortune"] },
+  { id: "barryofish5", name: "Barry O'Fish", variants: ["normal","fortune"] },
+  { id: "chester5", name: "Chester", variants: ["normal","fortune"] },
+  { id: "exmarks5", name: "Exmarks", variants: ["normal","fortune"] },
+  { id: "wayfinder5", name: "Wayfinder", variants: ["normal","fortune"] },
+  { id: "kelper5", name: "Kelper", variants: ["normal","fortune"] },
+  { id: "sweetdreams5", name: "Sweet Dreams", variants: ["normal"] },
+  { id: "lilsquibbly5", name: "Lil' Squibbly", variants: ["normal","fortune"] },
+  { id: "lilflacko5", name: "Lil' Flacko", variants: ["normal","fortune"] },
+  { id: "plundarrgh5", name: "Plundarrgh", variants: ["normal","fortune"] },
+  { id: "transpondersnail5", name: "Transponder Snail", variants: ["normal"] }
+];
+
 // ============ LOBBY HACK / ADMIN PANEL CODES (Season 4 only) ============
 const LOBBY_CODES = [
   { code: "8BITBLAST", category: "Sprites", reward: "Cheat Master 8-Bit Sprite" },
@@ -920,6 +939,7 @@ const DEFAULT_STATE = {
   showUnreleased: true,
   inventory: {},
   inventoryS4: {},
+  inventoryS5: {},
   codes: {}
 };
 
@@ -934,6 +954,11 @@ const ALL_VARIANTS_MAP = {};
 Object.keys(ALL_VARIANTS_MAP).forEach(id => {
   DEFAULT_STATE.inventory[id] = {};
   ALL_VARIANTS_MAP[id].forEach(v => { DEFAULT_STATE.inventory[id][v] = 0; });
+});
+
+SEASON5_SPRITES.forEach(s => {
+  DEFAULT_STATE.inventoryS5[s.id] = {};
+  s.variants.forEach(v => { DEFAULT_STATE.inventoryS5[s.id][v] = 0; });
 });
 
 SEASON4_SPRITES.forEach(s => {
@@ -964,6 +989,7 @@ function isUnreleased(spriteId, variant) {
 }
 
 function getActiveInventory() {
+  if (state.season === "s5") return state.inventoryS5;
   return state.season === "s4" ? state.inventoryS4 : state.inventory;
 }
 
@@ -1029,6 +1055,7 @@ function normalizeProfiles(app) {
     if (!prof.view) prof.view = "sprites";
     if (!prof.inventory) prof.inventory = {};
     if (!prof.inventoryS4) prof.inventoryS4 = {};
+    if (!prof.inventoryS5) prof.inventoryS5 = {};
     if (!prof.codes) prof.codes = {};
 
     // Archived: Punk's Gem was planned for Season 3 but never released. Your level is kept here
@@ -1055,6 +1082,11 @@ function normalizeProfiles(app) {
     SEASON4_SPRITES.forEach(s => {
       if (!prof.inventoryS4[s.id]) prof.inventoryS4[s.id] = {};
       s.variants.forEach(v => { if (prof.inventoryS4[s.id][v] === undefined) prof.inventoryS4[s.id][v] = 0; });
+    });
+
+    SEASON5_SPRITES.forEach(s => {
+      if (!prof.inventoryS5[s.id]) prof.inventoryS5[s.id] = {};
+      s.variants.forEach(v => { if (prof.inventoryS5[s.id][v] === undefined) prof.inventoryS5[s.id][v] = 0; });
     });
 
     LOBBY_CODES.forEach(c => { if (prof.codes[c.code] === undefined) prof.codes[c.code] = false; });
@@ -1384,7 +1416,7 @@ function switchSheet(id) {
 
 function switchSeason(val) {
   state.season = val;
-  if (val === "s3") state.view = "sprites";
+  if (val !== "s4") state.view = "sprites";
   saveState();
   render();
 }
@@ -1567,11 +1599,16 @@ function updateUsername(newName) {
 }
 
 function resetAll() {
-  const label = state.season === "s4" ? (state.view === "codes" ? "Lobby Hack Codes" : "Season 4 checklist") : "Season 3 checklist";
+  const label = state.season === "s5" ? "Season 5 checklist" : state.season === "s4" ? (state.view === "codes" ? "Lobby Hack Codes" : "Season 4 checklist") : "Season 3 checklist";
   if (!confirm(`Clear this ${label} and reset it?`)) return;
   pushUndo(`Reset ${label}`, true);
   if (state.season === "s4" && state.view === "codes") {
     LOBBY_CODES.forEach(c => { state.codes[c.code] = false; });
+  } else if (state.season === "s5") {
+    SEASON5_SPRITES.forEach(s => {
+      state.inventoryS5[s.id] = {};
+      s.variants.forEach(v => { state.inventoryS5[s.id][v] = 0; });
+    });
   } else if (state.season === "s4") {
     SEASON4_SPRITES.forEach(s => {
       state.inventoryS4[s.id] = {};
@@ -1598,7 +1635,7 @@ function exportAsImage() {
       useCORS: true, allowTaint: true, scale: 2, backgroundColor: "#0b0e14", width: 580, logging: false
     }).then(canvas => {
       const nameString = state.username ? state.username.replace(/\s+/g, '_') : 'My';
-      const seasonTag = state.season === "s4" ? "S4" : "S3";
+      const seasonTag = state.season === "s5" ? "S5" : state.season === "s4" ? "S4" : "S3";
       const fileName = `${nameString}_Fortnite_${seasonTag}_Checklist.png`;
       canvas.toBlob(blob => {
         const imageFile = new File([blob], fileName, { type: "image/png" });
@@ -1854,12 +1891,29 @@ const S4_IMAGE_MAP = {};
   });
 })();
 
+// Season 5 (Treasure Hunters) art lives in Images3/, assumed numbered sequentially
+// from S5_IMAGE_START in SEASON5_SPRITES order (normal, then fortune). 22 files.
+const S5_IMAGE_START = 2687;
+const S5_IMAGE_MAP = {};
+(function buildS5ImageMap() {
+  let n = S5_IMAGE_START;
+  SEASON5_SPRITES.forEach(sp => {
+    S5_IMAGE_MAP[sp.id] = {};
+    sp.variants.forEach(v => { S5_IMAGE_MAP[sp.id][v] = `Images3/IMG_${n}.webp`; n++; });
+  });
+})();
+function getImagePathS5(sId, v) {
+  return (S5_IMAGE_MAP[sId] && S5_IMAGE_MAP[sId][v]) || `Images3/IMG_${S5_IMAGE_START}.webp`;
+}
+
 function getImagePathS4(sId, v) {
   return (S4_IMAGE_MAP[sId] && S4_IMAGE_MAP[sId][v]) || `Images2/IMG_${S4_IMAGE_START}.webp`;
 }
 
 function renderChecklist() {
   const isS4 = state.season === "s4";
+  const isS5 = state.season === "s5";
+  const isNew = isS4 || isS5;
   const showCodes = isS4 && state.view === "codes";
 
   let cardsHtml = "";
@@ -1905,7 +1959,9 @@ function renderChecklist() {
       : "All Lobby Hack codes claimed! 🎉";
   } else {
     let rawList;
-    if (isS4) {
+    if (isS5) {
+      rawList = SEASON5_SPRITES;
+    } else if (isS4) {
       rawList = state.sortModeS4 === "organize" ? SEASON4_SPRITES : SEASON4_SPRITES_FORTNITE;
     } else {
       rawList = state.sortMode === "fortnite" ? SPRITES_FORTNITE : SPRITES_ORGANIZE;
@@ -1915,7 +1971,7 @@ function renderChecklist() {
     let activeList = [];
     rawList.forEach(s => {
       let filteredVariants = s.variants.filter(v => {
-        if (!isS4 && !state.showUnreleased && isUnreleased(s.id, v)) return false;
+        if (!isNew && !state.showUnreleased && isUnreleased(s.id, v)) return false;
         return true;
       });
       if (filteredVariants.length > 0) {
@@ -1951,21 +2007,21 @@ function renderChecklist() {
         if (lvl > 0) { btnClass = "have " + v; labelText = "LVL " + lvl; if (!isSingle) labelText = v.toUpperCase() + " L" + lvl; }
         if (lvl === 5) { btnClass = "max-lvl " + v; labelText = v.toUpperCase() + " MAX"; if (isSingle) labelText = "MAX"; }
 
-        let imagePath = isS4 ? getImagePathS4(s.id, v) : getImagePath(s.id, v);
+        let imagePath = isS5 ? getImagePathS5(s.id, v) : isS4 ? getImagePathS4(s.id, v) : getImagePath(s.id, v);
 
-        if (!isS4 && !imagePath) {
+        if (!isNew && !imagePath) {
           const currentImgNum = String(imageCounter).padStart(4, '0');
           imagePath = `Images/IMG_${currentImgNum}.webp`;
         }
 
-        if (!isS4 && v !== "gem" && v !== "holofoil" && v !== "cube" && v !== "quack"
+        if (!isNew && v !== "gem" && v !== "holofoil" && v !== "cube" && v !== "quack"
             && s.id !== "air" && s.id !== "seven" && s.id !== "batman"
             && s.id !== "pollo" && s.id !== "vinijr" && s.id !== "johnwick"
             && s.id !== "lootinllama" && s.id !== "peekypeely" && s.id !== "ironmouse") {
           imageCounter++;
         }
 
-        if (!isS4) s3ImgCache[s.id + "|" + v] = imagePath;
+        if (!isNew) s3ImgCache[s.id + "|" + v] = imagePath;
         return `<div class="toggle ${btnClass}" data-sprite="${s.id}" data-variant="${v}" data-lvl="${lvl}">
             <img class="variant-icon" src="${imagePath}" onerror="this.style.opacity='0.15';" alt="">
             <div class="toggle-label">${labelText}</div>
@@ -2001,6 +2057,7 @@ function renderChecklist() {
       <select class="season-selector" onchange="switchSeason(this.value)">
         <option value="s3" ${state.season === "s3" ? "selected" : ""}>🕹️ Chapter 7 · Season 3</option>
         <option value="s4" ${state.season === "s4" ? "selected" : ""}>⚡ Chapter 7 · Season 4: Override</option>
+        <option value="s5" ${state.season === "s5" ? "selected" : ""}>🏴‍☠️ Chapter 7 · Season 5: Treasure Hunters</option>
       </select>
     </div>`;
 
@@ -2034,7 +2091,7 @@ function renderChecklist() {
       </select>
     </div>`;
 
-  const eyebrowText = isS4 ? "Fortnite · Chapter 7 Season 4: Override" : "Fortnite · Chapter 7 Season 3";
+  const eyebrowText = isS5 ? "Fortnite · Chapter 7 Season 5: Treasure Hunters" : isS4 ? "Fortnite · Chapter 7 Season 4: Override" : "Fortnite · Chapter 7 Season 3";
   const hintText = showCodes ? 'Tap a code to mark it claimed.<br><span class="code-legend"><span class="cz">0</span> = zero (slashed) &nbsp;·&nbsp; O = letter O</span>' : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5! Mis-tap? Hit ↶ to undo. Use ▲ ▼ to jump between sprites.";
 
   return `
@@ -2050,7 +2107,7 @@ function renderChecklist() {
     ${isS4 ? s4Tabs : ''}
 
     ${renderDashboard()}
-    ${isS4 ? (showCodes ? '' : s4SortControl) : s3Controls}
+    ${isS5 ? '' : isS4 ? (showCodes ? '' : s4SortControl) : s3Controls}
     ${showCodes ? '' : renderFilterBar(filterVariantList)}
     <div class="hint">${hintText}</div>
 
@@ -2138,7 +2195,7 @@ function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ 
 const VARIANT_NAMES = { trickortreat: "Trick or Treat", bountyhunter: "Bounty Hunter", bountyhacker: "Bounty Hacker", loothacker: "Loot Hacker", cheatmaster: "Cheat Master", johnwick: "John Wick", vinijr: "Vini Jr", ironmouse: "Ironmouse" };
 function variantLabel(v) { return VARIANT_NAMES[v] || (v.charAt(0).toUpperCase() + v.slice(1)); }
 function spriteName(id) {
-  const all = SEASON4_SPRITES.concat(SPRITES_ORGANIZE);
+  const all = SEASON5_SPRITES.concat(SEASON4_SPRITES, SPRITES_ORGANIZE);
   const f = all.find(s => s.id === id);
   return f ? f.name : id;
 }
@@ -2146,15 +2203,16 @@ function spriteName(id) {
 // ---------- icon paths (S3 comes from the last render, S4 is direct) ----------
 let s3ImgCache = {};
 function iconPath(id, v, season) {
+  if ((season || state.season) === "s5") { try { return getImagePathS5(id, v); } catch (e) { return ""; } }
   if ((season || state.season) === "s4") { try { return getImagePathS4(id, v); } catch (e) { return ""; } }
   return s3ImgCache[id + "|" + v] || "";
 }
 
 // ---------- stats ----------
 function seasonStats(season) {
-  const isS4 = season === "s4";
-  const list = isS4 ? SEASON4_SPRITES : SPRITES_ORGANIZE;
-  const inv = (isS4 ? state.inventoryS4 : state.inventory) || {};
+  const isS4 = season === "s4" || season === "s5";
+  const list = season === "s5" ? SEASON5_SPRITES : isS4 ? SEASON4_SPRITES : SPRITES_ORGANIZE;
+  const inv = (season === "s5" ? state.inventoryS5 : isS4 ? state.inventoryS4 : state.inventory) || {};
   const out = { pts: 0, max: 0, maxedVariants: 0, totalVariants: 0, spritesDone: 0, totalSprites: 0, rows: [], byRarity: {} };
   list.forEach(s => {
     let sp = 0, sm = 0, sMaxed = 0, n = 0;
@@ -2182,7 +2240,7 @@ function bar(p) { return `<div class="bar"><i style="width:${Math.max(0, Math.mi
 let dashOpen = false;
 function renderDashboard() {
   const cur = seasonStats(state.season);
-  const s4 = seasonStats("s4"), s3 = seasonStats("s3");
+  const s5 = seasonStats("s5"), s4 = seasonStats("s4"), s3 = seasonStats("s3");
   const claimable = LOBBY_CODES.filter(c => !c.expired);
   const claimed = claimable.filter(c => state.codes && state.codes[c.code]).length;
   const closest = cur.rows.filter(r => r.left > 0).sort((a, b) => a.left - b.left || a.name.localeCompare(b.name)).slice(0, 5);
@@ -2206,6 +2264,7 @@ function renderDashboard() {
         <div class="stat-box"><div class="n">${claimed}/${claimable.length}</div><div class="l">Lobby codes</div></div>
       </div>
       <div><div class="dash-sec">Seasons</div>
+        <div class="bar-row"><div class="bl">Season 5</div>${bar(s5.pct)}<div class="bv">${s5.pct}%</div></div>
         <div class="bar-row"><div class="bl">Season 4</div>${bar(s4.pct)}<div class="bv">${s4.pct}%</div></div>
         <div class="bar-row"><div class="bl">Season 3</div>${bar(s3.pct)}<div class="bv">${s3.pct}%</div></div>
       </div>
@@ -2276,7 +2335,7 @@ function applyFilters() {
 // ---------- undo ----------
 let undoStack = [];
 let toastTimer = null;
-function snapshotInv() { return JSON.stringify({ a: state.inventory, b: state.inventoryS4, c: state.codes }); }
+function snapshotInv() { return JSON.stringify({ a: state.inventory, b: state.inventoryS4, c: state.codes, d: state.inventoryS5 }); }
 function pushUndo(label, showToast) {
   undoStack.push({ label, profId: appState.activeId, snap: snapshotInv() });
   if (undoStack.length > 30) undoStack.shift();
@@ -2288,7 +2347,7 @@ function undoLast() {
   if (!u) return;
   if (u.profId !== appState.activeId) { undoStack = []; updateUndoBtn(); return; }
   const s = JSON.parse(u.snap);
-  state.inventory = s.a; state.inventoryS4 = s.b; state.codes = s.c;
+  state.inventory = s.a; state.inventoryS4 = s.b; state.codes = s.c; if (s.d) state.inventoryS5 = s.d;
   saveState();
   hideToast();
   render();
@@ -2362,8 +2421,8 @@ function openSettings() {
 const SHARE_FMT = { story: { w: 1080, h: 1920 }, wide: { w: 1920, h: 1080 } };
 let shareState = { kind: "progress", fmt: "story", need: new Set(), offer: new Set(), mode: "zero", page: 0, cache: {}, url: null, seq: 0, season: null };
 function shareRows() {
-  const isS4 = state.season === "s4";
-  const list = isS4 ? (state.sortModeS4 === "organize" ? SEASON4_SPRITES : SEASON4_SPRITES_FORTNITE)
+  const isS4 = state.season === "s4" || state.season === "s5";
+  const list = state.season === "s5" ? SEASON5_SPRITES : isS4 ? (state.sortModeS4 === "organize" ? SEASON4_SPRITES : SEASON4_SPRITES_FORTNITE)
                     : (state.sortMode === "fortnite" ? SPRITES_FORTNITE : SPRITES_ORGANIZE);
   const inv = getActiveInventory();
   const rows = [];
@@ -2451,7 +2510,7 @@ function buildShareCard(kind, fmt, page) {
   const story = fmt === "story";
   const isS4 = state.season === "s4";
   const st = seasonStats(state.season);
-  const seasonLabel = isS4 ? "Chapter 7 · Season 4: Override" : "Chapter 7 · Season 3";
+  const seasonLabel = state.season === "s5" ? "Chapter 7 · Season 5: Treasure Hunters" : isS4 ? "Chapter 7 · Season 4: Override" : "Chapter 7 · Season 3";
   const titles = { progress: "SPRITE PROGRESS", maxed: "MAXED OUT", trade: "TRADE BOARD", missing: "STILL NEED" };
   const pad = story ? 72 : 56;
   const BEB = "font-family:'Bebas Neue',sans-serif;";
