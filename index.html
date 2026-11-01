@@ -1891,19 +1891,26 @@ const S4_IMAGE_MAP = {};
   });
 })();
 
-// Season 5 (Treasure Hunters) art lives in Images3/, assumed numbered sequentially
-// from S5_IMAGE_START in SEASON5_SPRITES order (normal, then fortune). 22 files.
-const S5_IMAGE_START = 2687;
-const S5_IMAGE_MAP = {};
-(function buildS5ImageMap() {
-  let n = S5_IMAGE_START;
-  SEASON5_SPRITES.forEach(sp => {
-    S5_IMAGE_MAP[sp.id] = {};
-    sp.variants.forEach(v => { S5_IMAGE_MAP[sp.id][v] = `Images3/IMG_${n}.webp`; n++; });
-  });
-})();
+// Season 5 (Treasure Hunters) art lives in Images3/ using Epic's own filenames:
+// T_Icon_BR_Creature_Sprite_<Name>_L.webp (normal) and ..._<Name>_Jeweled_L.webp (Fortune).
+const S5_FILE_NAMES = {
+  halfpeeld5: "PeelyBones",
+  repete5: "Parrot",
+  barryofish5: "BarrelOfFish",
+  chester5: "TreasureChest",
+  exmarks5: "TreasureMap",
+  wayfinder5: "Compass",
+  kelper5: "UnbotheredFish",
+  sweetdreams5: "StarLight",
+  lilsquibbly5: "SquibblySprite",
+  lilflacko5: "PlaymakerBrewery",
+  plundarrgh5: "CoinPile",
+  transpondersnail5: "FeedJet"
+};
 function getImagePathS5(sId, v) {
-  return (S5_IMAGE_MAP[sId] && S5_IMAGE_MAP[sId][v]) || `Images3/IMG_${S5_IMAGE_START}.webp`;
+  const f = S5_FILE_NAMES[sId];
+  if (!f) return "";
+  return `Images3/T_Icon_BR_Creature_Sprite_${f}${v === "fortune" ? "_Jeweled" : ""}_L.webp`;
 }
 
 function getImagePathS4(sId, v) {
