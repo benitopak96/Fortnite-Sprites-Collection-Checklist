@@ -854,7 +854,7 @@ const SEASON4_SPRITES_FORTNITE = [
 // ============ SEASON 5: TREASURE HUNTERS ============
 // Cursed styles are announced but not released yet. Flip this to true the day they drop and
 // every sprite listed in S5_CURSED_SPRITES gets a Cursed tile automatically.
-const S5_CURSED_RELEASED = false;
+const S5_CURSED_RELEASED = true;
 const S5_CURSED_SPRITES = new Set(["halfpeeld5","repete5","barryofish5","wayfinder5","chester5","kelper5","exmarks5","lilsquibbly5","lilflacko5","liluzivertjr5","plundarrgh5"]);
 function s5v(id, base) { return S5_CURSED_RELEASED && S5_CURSED_SPRITES.has(id) ? base.concat("cursed") : base; }
 
