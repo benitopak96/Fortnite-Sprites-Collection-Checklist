@@ -477,6 +477,8 @@
   .toggle.have.pollo { border-color: rgba(224,171,245,0.3); background: rgba(224,171,245,0.04); }
   .toggle.have.cheatmaster { border-color: rgba(57,230,120,0.3); background: rgba(57,230,120,0.04); }
   .toggle.have.loothacker { border-color: rgba(255,159,67,0.3); background: rgba(255,159,67,0.04); }
+  .toggle.have.cursed { border-color: rgba(168,85,247,0.3); background: rgba(168,85,247,0.04); }
+  .toggle.max-lvl.cursed { border-color: rgba(168,85,247,0.9); background: rgba(168,85,247,0.14); }
   .toggle.have.fortune { border-color: rgba(20,184,166,0.3); background: rgba(20,184,166,0.04); }
   .toggle.max-lvl.fortune { border-color: rgba(20,184,166,0.9); background: rgba(20,184,166,0.14); }
   .toggle.have.bountyhacker { border-color: rgba(255,47,110,0.3); background: rgba(255,47,110,0.04); }
@@ -850,20 +852,32 @@ const SEASON4_SPRITES_FORTNITE = [
 ];
 
 // ============ SEASON 5: TREASURE HUNTERS ============
+// Cursed styles are announced but not released yet. Flip this to true the day they drop and
+// every sprite listed in S5_CURSED_SPRITES gets a Cursed tile automatically.
+const S5_CURSED_RELEASED = false;
+const S5_CURSED_SPRITES = new Set(["halfpeeld5","repete5","barryofish5","wayfinder5","chester5","kelper5","exmarks5","lilsquibbly5","lilflacko5","liluzivertjr5","plundarrgh5"]);
+function s5v(id, base) { return S5_CURSED_RELEASED && S5_CURSED_SPRITES.has(id) ? base.concat("cursed") : base; }
+
+// "Organize Order" = the order the sheet was first built in.
 const SEASON5_SPRITES = [
-  { id: "halfpeeld5", name: "Halfpeel'd", variants: ["normal","fortune"] },
-  { id: "repete5", name: "Re-Pete", variants: ["normal","fortune"] },
-  { id: "barryofish5", name: "Barry O'Fish", variants: ["normal","fortune"] },
-  { id: "chester5", name: "Chester", variants: ["normal","fortune"] },
-  { id: "exmarks5", name: "Exmarks", variants: ["normal","fortune"] },
-  { id: "wayfinder5", name: "Wayfinder", variants: ["normal","fortune"] },
-  { id: "kelper5", name: "Kelper", variants: ["normal","fortune"] },
+  { id: "halfpeeld5", name: "Halfpeel'd", variants: s5v("halfpeeld5", ["normal","fortune"]) },
+  { id: "repete5", name: "Re-Pete", variants: s5v("repete5", ["normal","fortune"]) },
+  { id: "barryofish5", name: "Barry O'Fish", variants: s5v("barryofish5", ["normal","fortune"]) },
+  { id: "chester5", name: "Chester", variants: s5v("chester5", ["normal","fortune"]) },
+  { id: "exmarks5", name: "Exmarks", variants: s5v("exmarks5", ["normal","fortune"]) },
+  { id: "wayfinder5", name: "Wayfinder", variants: s5v("wayfinder5", ["normal","fortune"]) },
+  { id: "kelper5", name: "Kelper", variants: s5v("kelper5", ["normal","fortune"]) },
   { id: "sweetdreams5", name: "Sweet Dreams", variants: ["normal"] },
-  { id: "lilsquibbly5", name: "Lil' Squibbly", variants: ["normal","fortune"] },
-  { id: "lilflacko5", name: "Lil' Flacko", variants: ["normal","fortune"] },
-  { id: "plundarrgh5", name: "Plundarrgh", variants: ["normal","fortune"] },
+  { id: "lilsquibbly5", name: "Lil' Squibbly", variants: s5v("lilsquibbly5", ["normal","fortune"]) },
+  { id: "lilflacko5", name: "Lil' Flacko", variants: s5v("lilflacko5", ["normal","fortune"]) },
+  { id: "liluzivertjr5", name: "Lil' Uzi Vert Jr.", variants: s5v("liluzivertjr5", ["normal","fortune"]) },
+  { id: "plundarrgh5", name: "Plundarrgh", variants: s5v("plundarrgh5", ["normal","fortune"]) },
   { id: "transpondersnail5", name: "Transponder Snail", variants: ["normal"] }
 ];
+// In-game order (matches the Fortnite sprite menu: #1, #5, #9, #13 ...). Gaps in the numbers are
+// sprites that haven't been revealed yet. Sweet Dreams has no known in-game slot, so it sits last.
+const S5_FORTNITE_ORDER = ["halfpeeld5","repete5","barryofish5","wayfinder5","chester5","kelper5","exmarks5","lilsquibbly5","lilflacko5","liluzivertjr5","plundarrgh5","transpondersnail5","sweetdreams5"];
+const SEASON5_SPRITES_FORTNITE = S5_FORTNITE_ORDER.map(id => SEASON5_SPRITES.find(x => x.id === id));
 
 // ============ LOBBY HACK / ADMIN PANEL CODES (Season 4 only) ============
 const LOBBY_CODES = [
@@ -936,6 +950,7 @@ const DEFAULT_STATE = {
   view: "sprites",
   sortMode: "organize",
   sortModeS4: "fortnite",
+  sortModeS5: "fortnite",
   showUnreleased: true,
   inventory: {},
   inventoryS4: {},
@@ -1050,6 +1065,7 @@ function normalizeProfiles(app) {
     let prof = app.profiles[profId];
     if (!prof.sortMode) prof.sortMode = "organize";
     if (!prof.sortModeS4) prof.sortModeS4 = "fortnite";
+    if (!prof.sortModeS5) prof.sortModeS5 = "fortnite";
     if (prof.showUnreleased === undefined) prof.showUnreleased = true;
     if (!prof.season) prof.season = "s3";
     if (!prof.view) prof.view = "sprites";
@@ -1429,6 +1445,12 @@ function switchView(val) {
 
 function updateSortMode(mode) {
   state.sortMode = mode;
+  saveState();
+  render();
+}
+
+function updateSortModeS5(mode) {
+  state.sortModeS5 = mode;
   saveState();
   render();
 }
@@ -1905,12 +1927,13 @@ const S5_FILE_NAMES = {
   lilsquibbly5: "SquibblySprite",
   lilflacko5: "PlaymakerBrewery",
   plundarrgh5: "CoinPile",
-  transpondersnail5: "FeedJet"
+  transpondersnail5: "FeedJet",
+  liluzivertjr5: "RookGecko"
 };
 function getImagePathS5(sId, v) {
   const f = S5_FILE_NAMES[sId];
   if (!f) return "";
-  return `Images3/T_Icon_BR_Creature_Sprite_${f}${v === "fortune" ? "_Jeweled" : ""}_L.webp`;
+  return `Images3/T_Icon_BR_Creature_Sprite_${f}${v === "fortune" ? "_Jeweled" : v === "cursed" ? "_Cursed" : ""}_L.webp`;
 }
 
 function getImagePathS4(sId, v) {
@@ -1967,7 +1990,7 @@ function renderChecklist() {
   } else {
     let rawList;
     if (isS5) {
-      rawList = SEASON5_SPRITES;
+      rawList = state.sortModeS5 === "organize" ? SEASON5_SPRITES : SEASON5_SPRITES_FORTNITE;
     } else if (isS4) {
       rawList = state.sortModeS4 === "organize" ? SEASON4_SPRITES : SEASON4_SPRITES_FORTNITE;
     } else {
@@ -2062,7 +2085,7 @@ function renderChecklist() {
 
   const seasonRow = `<div class="sheet-manager">
       <select class="season-selector" onchange="switchSeason(this.value)">
-        <option value="s3" ${state.season === "s3" ? "selected" : ""}>🕹️ Chapter 7 · Season 3</option>
+        <option value="s3" ${state.season === "s3" ? "selected" : ""}>🕹️ Chapter 7 · Season 3: Runners</option>
         <option value="s4" ${state.season === "s4" ? "selected" : ""}>⚡ Chapter 7 · Season 4: Override</option>
         <option value="s5" ${state.season === "s5" ? "selected" : ""}>🏴‍☠️ Chapter 7 · Season 5: Treasure Hunters</option>
       </select>
@@ -2098,7 +2121,15 @@ function renderChecklist() {
       </select>
     </div>`;
 
-  const eyebrowText = isS5 ? "Fortnite · Chapter 7 Season 5: Treasure Hunters" : isS4 ? "Fortnite · Chapter 7 Season 4: Override" : "Fortnite · Chapter 7 Season 3";
+  const s5SortControl = `<div class="order-box">
+      ${orderLabel}
+      <select class="sort-selector" onchange="updateSortModeS5(this.value)">
+        <option value="fortnite" ${state.sortModeS5 === 'fortnite' ? 'selected' : ''}>🎮 Fortnite's Order (Default)</option>
+        <option value="organize" ${state.sortModeS5 === 'organize' ? 'selected' : ''}>📂 Organize Order</option>
+      </select>
+    </div>`;
+
+  const eyebrowText = isS5 ? "Fortnite · Chapter 7 Season 5: Treasure Hunters" : isS4 ? "Fortnite · Chapter 7 Season 4: Override" : "Fortnite · Chapter 7 Season 3: Runners";
   const hintText = showCodes ? 'Tap a code to mark it claimed.<br><span class="code-legend"><span class="cz">0</span> = zero (slashed) &nbsp;·&nbsp; O = letter O</span>' : "Tap tiles to cycle level. Hold down a tile or tap \"MAX ROW\" to instantly hit Level 5! Mis-tap? Hit ↶ to undo. Use ▲ ▼ to jump between sprites.";
 
   return `
@@ -2114,7 +2145,7 @@ function renderChecklist() {
     ${isS4 ? s4Tabs : ''}
 
     ${renderDashboard()}
-    ${isS5 ? '' : isS4 ? (showCodes ? '' : s4SortControl) : s3Controls}
+    ${isS5 ? s5SortControl : isS4 ? (showCodes ? '' : s4SortControl) : s3Controls}
     ${showCodes ? '' : renderFilterBar(filterVariantList)}
     <div class="hint">${hintText}</div>
 
@@ -2308,30 +2339,34 @@ function applyFilters() {
   const cards = Array.from(document.querySelectorAll("#app .sprite-card[data-name]"));
   const q = filters.q.trim().toLowerCase();
   const qv = q.replace(/\s+/g, "");
-  const sig = [state.season, appState.activeId, state.sortMode, state.sortModeS4, filters.q, filters.status, filters.variant].join("|");
-  // Taps re-render the page; keep the same cards visible so rows never jump under your finger.
+  const sig = [state.season, appState.activeId, state.sortMode, state.sortModeS4, state.sortModeS5, filters.q, filters.status, filters.variant].join("|");
+  // Taps re-render the page; keep the same tiles visible so rows never jump under your finger.
   const reuse = filterSnap.ids && filterSnap.sig === sig;
-  const ids = new Set();
+  const keys = new Set();
   let shown = 0;
   cards.forEach(card => {
-    const tiles = Array.from(card.querySelectorAll(".toggle"));
-    tiles.forEach(t => { t.hidden = !!filters.variant && t.dataset.variant !== filters.variant; });
-    let ok;
-    if (reuse) {
-      ok = filterSnap.ids.has(card.dataset.id);
-    } else {
-      const tl = tiles.filter(t => !t.hidden);
-      const lv = tl.map(t => +t.dataset.lvl);
-      ok = tl.length > 0;
-      if (ok && q) ok = card.dataset.name.includes(q) || tl.some(t => t.dataset.variant.includes(qv) || variantLabel(t.dataset.variant).toLowerCase().includes(q));
-      if (ok && filters.status === "need") ok = lv.some(l => l === 0);
-      if (ok && filters.status === "progress") ok = lv.some(l => l > 0 && l < 5);
-      if (ok && filters.status === "maxed") ok = lv.every(l => l === 5);
-    }
-    card.hidden = !ok;
-    if (ok) { ids.add(card.dataset.id); shown++; }
+    const nameHit = !q || card.dataset.name.includes(q);
+    let any = false;
+    card.querySelectorAll(".toggle").forEach(t => {
+      const key = card.dataset.id + "|" + t.dataset.variant;
+      let ok;
+      if (reuse) {
+        ok = filterSnap.ids.has(key);
+      } else {
+        const lvl = +t.dataset.lvl;
+        ok = !filters.variant || t.dataset.variant === filters.variant;
+        if (ok && q) ok = nameHit || t.dataset.variant.includes(qv) || variantLabel(t.dataset.variant).toLowerCase().includes(q);
+        if (ok && filters.status === "need") ok = lvl === 0;
+        if (ok && filters.status === "progress") ok = lvl > 0 && lvl < 5;
+        if (ok && filters.status === "maxed") ok = lvl === 5;
+      }
+      t.hidden = !ok;
+      if (ok) { keys.add(key); any = true; }
+    });
+    card.hidden = !any;
+    if (any) shown++;
   });
-  filterSnap = { sig, ids: reuse ? filterSnap.ids : ids };
+  filterSnap = { sig, ids: reuse ? filterSnap.ids : keys };
   const cnt = document.getElementById("filterCount");
   if (cnt) cnt.textContent = `${shown} of ${cards.length}`;
   const empty = document.getElementById("filterEmpty");
@@ -2429,7 +2464,7 @@ const SHARE_FMT = { story: { w: 1080, h: 1920 }, wide: { w: 1920, h: 1080 } };
 let shareState = { kind: "progress", fmt: "story", need: new Set(), offer: new Set(), mode: "zero", page: 0, cache: {}, url: null, seq: 0, season: null };
 function shareRows() {
   const isS4 = state.season === "s4" || state.season === "s5";
-  const list = state.season === "s5" ? SEASON5_SPRITES : isS4 ? (state.sortModeS4 === "organize" ? SEASON4_SPRITES : SEASON4_SPRITES_FORTNITE)
+  const list = state.season === "s5" ? (state.sortModeS5 === "organize" ? SEASON5_SPRITES : SEASON5_SPRITES_FORTNITE) : isS4 ? (state.sortModeS4 === "organize" ? SEASON4_SPRITES : SEASON4_SPRITES_FORTNITE)
                     : (state.sortMode === "fortnite" ? SPRITES_FORTNITE : SPRITES_ORGANIZE);
   const inv = getActiveInventory();
   const rows = [];
@@ -2517,7 +2552,7 @@ function buildShareCard(kind, fmt, page) {
   const story = fmt === "story";
   const isS4 = state.season === "s4";
   const st = seasonStats(state.season);
-  const seasonLabel = state.season === "s5" ? "Chapter 7 · Season 5: Treasure Hunters" : isS4 ? "Chapter 7 · Season 4: Override" : "Chapter 7 · Season 3";
+  const seasonLabel = state.season === "s5" ? "Chapter 7 · Season 5: Treasure Hunters" : isS4 ? "Chapter 7 · Season 4: Override" : "Chapter 7 · Season 3: Runners";
   const titles = { progress: "SPRITE PROGRESS", maxed: "MAXED OUT", trade: "TRADE BOARD", missing: "STILL NEED" };
   const pad = story ? 72 : 56;
   const BEB = "font-family:'Bebas Neue',sans-serif;";
