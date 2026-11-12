@@ -855,8 +855,18 @@ const SEASON4_SPRITES_FORTNITE = [
 // Cursed styles are announced but not released yet. Flip this to true the day they drop and
 // every sprite listed in S5_CURSED_SPRITES gets a Cursed tile automatically.
 const S5_CURSED_RELEASED = true;
-const S5_CURSED_SPRITES = new Set(["halfpeeld5","repete5","barryofish5","wayfinder5","chester5","kelper5","exmarks5","lilsquibbly5","lilflacko5","liluzivertjr5","plundarrgh5"]);
-function s5v(id, base) { return S5_CURSED_RELEASED && S5_CURSED_SPRITES.has(id) ? base.concat("cursed") : base; }
+const S5_CURSED_SPRITES = new Set(["halfpeeld5","repete5","barryofish5","wayfinder5","chester5","kelper5","exmarks5","lilsquibbly5","lilflacko5","liluzivertjr5","plundarrgh5","squiplash5","siroscar5","minimiku5"]);
+// Gold styles are scheduled for Nov 22 2026 (4:00 AM ET). They unlock on their own at that moment.
+// To force them off (delayed) set S5_GOLD_RELEASED = false; to force them on set it to true.
+const S5_GOLD_RELEASE_AT = Date.UTC(2026, 10, 22, 9, 0, 0);
+const S5_GOLD_RELEASED = Date.now() >= S5_GOLD_RELEASE_AT;
+const S5_GOLD_SPRITES = S5_CURSED_SPRITES;
+function s5v(id, base) {
+  const v = base.slice();
+  if (S5_CURSED_RELEASED && S5_CURSED_SPRITES.has(id)) v.push("cursed");
+  if (S5_GOLD_RELEASED && S5_GOLD_SPRITES.has(id)) v.push("gold");
+  return v;
+}
 
 // "Organize Order" = the order the sheet was first built in.
 const SEASON5_SPRITES = [
@@ -872,11 +882,15 @@ const SEASON5_SPRITES = [
   { id: "lilflacko5", name: "Lil' Flacko", variants: s5v("lilflacko5", ["normal","fortune"]) },
   { id: "liluzivertjr5", name: "Lil' Uzi Vert Jr.", variants: s5v("liluzivertjr5", ["normal","fortune"]) },
   { id: "plundarrgh5", name: "Plundarrgh", variants: s5v("plundarrgh5", ["normal","fortune"]) },
-  { id: "transpondersnail5", name: "Transponder Snail", variants: ["normal"] }
+  { id: "transpondersnail5", name: "Transponder Snail", variants: ["normal"] },
+  { id: "squiplash5", name: "Squiplash", variants: s5v("squiplash5", ["normal","fortune"]) },
+  { id: "siroscar5", name: "Sir Oscar The Second", variants: s5v("siroscar5", ["normal","fortune"]) },
+  { id: "minimiku5", name: "Mini Miku", variants: s5v("minimiku5", ["normal","fortune"]) },
+  { id: "zee5", name: "Zee Sprite", variants: ["normal"] }
 ];
 // In-game order (matches the Fortnite sprite menu: #1, #5, #9, #13 ...). Gaps in the numbers are
-// sprites that haven't been revealed yet. Sweet Dreams has no known in-game slot, so it sits last.
-const S5_FORTNITE_ORDER = ["halfpeeld5","repete5","barryofish5","wayfinder5","chester5","kelper5","exmarks5","lilsquibbly5","lilflacko5","liluzivertjr5","plundarrgh5","transpondersnail5","sweetdreams5"];
+// sprites that haven't been revealed yet. Sweet Dreams and Zee Sprite have no known in-game slot, so they sit last. Slots: Squiplash #33, Sir Oscar #45, Mini Miku #53.
+const S5_FORTNITE_ORDER = ["halfpeeld5","repete5","barryofish5","wayfinder5","chester5","kelper5","exmarks5","lilsquibbly5","squiplash5","lilflacko5","liluzivertjr5","siroscar5","plundarrgh5","minimiku5","transpondersnail5","sweetdreams5","zee5"];
 const SEASON5_SPRITES_FORTNITE = S5_FORTNITE_ORDER.map(id => SEASON5_SPRITES.find(x => x.id === id));
 
 // ============ LOBBY HACK / ADMIN PANEL CODES (Season 4 only) ============
@@ -1930,10 +1944,29 @@ const S5_FILE_NAMES = {
   transpondersnail5: "FeedJet",
   liluzivertjr5: "RookGecko"
 };
+// The November update files carry extra "ui_vX_Alpha" tags, so they are listed one by one.
+const S5_IMAGE_OVERRIDES = {
+  "minimiku5|normal": "LushlyZest_ui_v2_1_Alpha_L",
+  "minimiku5|fortune": "LushlyZest_Jeweled_ui_v1_1_Alpha_L",
+  "minimiku5|cursed": "LushlyZest_Cursed_ui_v1_1_Alpha_L",
+  "minimiku5|gold": "LushlyZest_LiquidGold_ui_v1_1_Alpha_L",
+  "siroscar5|normal": "WhiteTiger_L",
+  "siroscar5|fortune": "WhiteTiger_Jeweled_L",
+  "siroscar5|cursed": "WhiteTiger_Cursed_L",
+  "siroscar5|gold": "WhiteTiger_LiquidGold_L",
+  "squiplash5|normal": "PirateCalamari_L",
+  "squiplash5|fortune": "PirateCalamari_Jeweled_L",
+  "squiplash5|cursed": "PirateCalamari_Cursed_L",
+  "squiplash5|gold": "PirateCalamari_LiquidGold_L",
+  "lilsquibbly5|gold": "Squibbly_LiquidGold_ui_v1_1_Alpha_L",
+  "zee5|normal": "ZeroPointPiece_ui_v3_1_Alpha_L"
+};
 function getImagePathS5(sId, v) {
+  const o = S5_IMAGE_OVERRIDES[sId + "|" + v];
+  if (o) return `Images3/T_Icon_BR_Creature_Sprite_${o}.webp`;
   const f = S5_FILE_NAMES[sId];
   if (!f) return "";
-  return `Images3/T_Icon_BR_Creature_Sprite_${f}${v === "fortune" ? "_Jeweled" : v === "cursed" ? "_Cursed" : ""}_L.webp`;
+  return `Images3/T_Icon_BR_Creature_Sprite_${f}${v === "fortune" ? "_Jeweled" : v === "cursed" ? "_Cursed" : v === "gold" ? "_LiquidGold" : ""}_L.webp`;
 }
 
 function getImagePathS4(sId, v) {
